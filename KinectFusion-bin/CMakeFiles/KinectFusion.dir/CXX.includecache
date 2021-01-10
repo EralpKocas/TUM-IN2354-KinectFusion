@@ -1,0 +1,34 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/Term Project/KinectFusion/FreeImageHelper.cpp
+FreeImageHelper.h
+/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/Term Project/KinectFusion/FreeImageHelper.h
+iostream
+-
+cstring
+-
+
+/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/Term Project/KinectFusion/FreeImageHelper.h
+string
+-
+algorithm
+-
+FreeImage.h
+-
+
+/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/Term Project/KinectFusion/main.cpp
+iostream
+-
+
+/usr/local/include/FreeImage.h
+wchar.h
+-
+inttypes.h
+-
+

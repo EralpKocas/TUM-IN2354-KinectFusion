@@ -1,0 +1,22 @@
+"/Users/eralpkocas/Library/Application Support/JetBrains/Toolbox/apps/CLion/ch-0/201.7846.88/CLion.app/Contents/bin/cmake/mac/bin/cmake" -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/Term Project/KinectFusion"
+CMake Warning (dev) at CMakeLists.txt:3 (set):
+  implicitly converting 'TYPE' to 'STRING' type.
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+-- Looking for pthread.h
+-- Looking for pthread.h - found
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE  
+-- Found required Ceres dependency: Eigen version 3.3.9 in /usr/local/include/eigen3
+-- Found required Ceres dependency: glog
+-- Found required Ceres dependency: gflags
+-- Found Ceres version: 2.0.0 installed in: /usr/local with components: [EigenSparse, SparseLinearAlgebraLibrary, LAPACK, SuiteSparse, CXSparse, AccelerateSparse, SchurSpecializations, Multithreading]
+-- ceres library name: 
+-- path to ceres cmake information: /usr/local/lib/cmake/Ceres
+-- path to ceres include directory: /Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/Term Project/KinectFusion/../libs/Ceres/CMake/../include
+-- glog library name: 
+-- path to glog include directory = /Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/Term Project/KinectFusion/../libs/glog-lib/include
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/Term Project/KinectFusion/cmake-build-debug
