@@ -7,6 +7,7 @@ CMakeFiles/KinectFusion.dir/FreeImageHelper.cpp.o: /usr/local/include/FreeImage.
 
 CMakeFiles/KinectFusion.dir/main.cpp.o: /Users/eralpkocas/Documents/TUM/3D\ Scanning\ &\ Motion\ Planning/TUM-IN2354-KinectFusion/KinectFusion/Eigen.h
 CMakeFiles/KinectFusion.dir/main.cpp.o: /Users/eralpkocas/Documents/TUM/3D\ Scanning\ &\ Motion\ Planning/TUM-IN2354-KinectFusion/KinectFusion/FreeImageHelper.h
+CMakeFiles/KinectFusion.dir/main.cpp.o: /Users/eralpkocas/Documents/TUM/3D\ Scanning\ &\ Motion\ Planning/TUM-IN2354-KinectFusion/KinectFusion/SurfaceMeasurement.h
 CMakeFiles/KinectFusion.dir/main.cpp.o: /Users/eralpkocas/Documents/TUM/3D\ Scanning\ &\ Motion\ Planning/TUM-IN2354-KinectFusion/KinectFusion/VirtualSensor_freiburg.h
 CMakeFiles/KinectFusion.dir/main.cpp.o: /Users/eralpkocas/Documents/TUM/3D\ Scanning\ &\ Motion\ Planning/TUM-IN2354-KinectFusion/KinectFusion/VirtualSensor_office.h
 CMakeFiles/KinectFusion.dir/main.cpp.o: /Users/eralpkocas/Documents/TUM/3D\ Scanning\ &\ Motion\ Planning/TUM-IN2354-KinectFusion/KinectFusion/main.cpp

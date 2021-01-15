@@ -6,10 +6,9 @@
 
 #include "VirtualSensor_freiburg.h"
 #include "VirtualSensor_office.h"
+#include "SurfaceMeasurement.h"
 
 int main() {
-    std::cout << "Hello, World!" << std::endl;
-
     // Make sure this path points to the data folder
     std::string filenameIn = "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/data/rgbd_dataset_freiburg1_xyz/";
 
@@ -46,8 +45,13 @@ int main() {
         Matrix4f trajectory = sensor.getTrajectory();
         Matrix4f trajectoryInv = sensor.getTrajectory().inverse();
 
-        std::cout << "trajectory: \n" << trajectory << std::endl;
-        std::cout << "trajectoryInv: \n" << trajectoryInv << std::endl;
+        SurfaceMeasurement surface_measurement;
+        if(!surface_measurement.init(depthMap, colorMap, trajectory, trajectoryInv, depthIntrinsics))
+        {
+            std::cout << "Failed to read and assign data!" << std::endl;
+            return -1;
+        }
+
     }
 
         return 0;

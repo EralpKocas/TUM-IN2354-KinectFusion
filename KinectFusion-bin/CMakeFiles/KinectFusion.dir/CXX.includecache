@@ -28,6 +28,10 @@ algorithm
 FreeImage.h
 -
 
+/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/SurfaceMeasurement.h
+Eigen.h
+/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/Eigen.h
+
 /Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/VirtualSensor_freiburg.h
 vector
 -
@@ -69,6 +73,8 @@ VirtualSensor_freiburg.h
 /Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/VirtualSensor_freiburg.h
 VirtualSensor_office.h
 /Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/VirtualSensor_office.h
+SurfaceMeasurement.h
+/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/SurfaceMeasurement.h
 
 /usr/local/include/Eigen/Cholesky
 Core

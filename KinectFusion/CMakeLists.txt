@@ -36,6 +36,7 @@ set(HEADER_FILES
         VirtualSensor_office.h
         NearestNeighbor.h
         FreeImageHelper.h
+        SurfaceMeasurement.h
         )
 set(SOURCE_FILES
         FreeImageHelper.cpp
