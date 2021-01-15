@@ -32,7 +32,8 @@ message(STATUS "path to glog include directory = ${glog_INCLUDE_DIR}")
 
 set(HEADER_FILES
         Eigen.h
-        VirtualSensor.h
+        VirtualSensor_freiburg.h
+        VirtualSensor_office.h
         NearestNeighbor.h
         FreeImageHelper.h
         )

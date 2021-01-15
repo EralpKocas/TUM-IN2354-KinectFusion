@@ -4,8 +4,8 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/Term Project/KinectFusion/FreeImageHelper.cpp" "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/Term Project/KinectFusion-bin/CMakeFiles/KinectFusion.dir/FreeImageHelper.cpp.o"
-  "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/Term Project/KinectFusion/main.cpp" "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/Term Project/KinectFusion-bin/CMakeFiles/KinectFusion.dir/main.cpp.o"
+  "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/FreeImageHelper.cpp" "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion-bin/CMakeFiles/KinectFusion.dir/FreeImageHelper.cpp.o"
+  "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/main.cpp" "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion-bin/CMakeFiles/KinectFusion.dir/main.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "AppleClang")
 
@@ -20,11 +20,11 @@ set(CMAKE_TARGET_DEFINITIONS_CXX
 # The include file search paths:
 set(CMAKE_CXX_TARGET_INCLUDE_PATH
   "/usr/local/Cellar"
-  "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/Term Project/KinectFusion/../libs/Eigen"
-  "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/Term Project/KinectFusion"
-  "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/Term Project/KinectFusion/../libs/Ceres/CMake/../include"
-  "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/Term Project/KinectFusion/../libs/glog-lib/include"
-  "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/Term Project/KinectFusion/../libs/Flann"
+  "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/../libs/Eigen"
+  "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion"
+  "/usr/local/lib/cmake/Ceres/../include"
+  "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/../libs/glog-lib/include"
+  "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/../libs/Flann"
   "/usr/local/include"
   "/usr/local/include/eigen3"
   )

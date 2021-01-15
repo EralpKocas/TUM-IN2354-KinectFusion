@@ -11,12 +11,12 @@
 typedef unsigned char BYTE;
 
 // reads sensor files according to https://vision.in.tum.de/data/datasets/rgbd-dataset/file_formats
-class VirtualSensor {
+class VirtualSensor_freiburg {
 public:
 
-	VirtualSensor() : m_currentIdx(-1), m_increment(1) { }
+	VirtualSensor_freiburg() : m_currentIdx(-1), m_increment(1) { }
 
-	~VirtualSensor() {
+	~VirtualSensor_freiburg() {
 		SAFE_DELETE_ARRAY(m_depthFrame);
 		SAFE_DELETE_ARRAY(m_colorFrame);
 	}
@@ -39,7 +39,7 @@ public:
 		m_depthImageWidth = 640;
 		m_depthImageHeight = 480;
 
-		// Intrinsics
+		// Intrinsics if freiburg
 		m_colorIntrinsics << 525.0f, 0.0f, 319.5f,
 			0.0f, 525.0f, 239.5f,
 			0.0f, 0.0f, 1.0f;

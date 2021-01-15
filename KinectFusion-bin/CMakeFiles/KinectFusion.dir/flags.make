@@ -4,7 +4,7 @@
 # compile CXX with /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++
 CXX_DEFINES = -DCERES_EXPORT_INTERNAL_SYMBOLS -DGFLAGS_IS_A_DLL=0 -DGOOGLE_GLOG_DLL_DECL="" -DGOOGLE_GLOG_DLL_DECL_FOR_UNITTESTS=""
 
-CXX_INCLUDES = -I/usr/local/Cellar -I"/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/Term Project/KinectFusion/../libs/Eigen" -I"/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/Term Project/KinectFusion" -I"/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/Term Project/KinectFusion/../libs/Ceres/CMake/../include" -I"/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/Term Project/KinectFusion/../libs/glog-lib/include" -I"/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/Term Project/KinectFusion/../libs/Flann" -isystem /usr/local/include -isystem /usr/local/include/eigen3
+CXX_INCLUDES = -I/usr/local/Cellar -I"/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/../libs/Eigen" -I"/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion" -I/usr/local/lib/cmake/Ceres/../include -I"/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/../libs/glog-lib/include" -I"/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/../libs/Flann" -isystem /usr/local/include -isystem /usr/local/include/eigen3
 
 CXX_FLAGS =  -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk -std=gnu++14
 
