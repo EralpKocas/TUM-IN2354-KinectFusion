@@ -51,6 +51,8 @@ int main() {
             std::cout << "Failed to read and assign data!" << std::endl;
             return -1;
         }
+        surface_measurement.compute_camera_ref_points();
+        surface_measurement.compute_global_points();
 
     }
 
