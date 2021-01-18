@@ -8,38 +8,38 @@
 		<Option virtualFolders="CMake Files\;CMake Files\..\;CMake Files\..\..\;CMake Files\..\..\..\;CMake Files\..\..\..\..\;CMake Files\..\..\..\..\..\;CMake Files\..\..\..\..\..\..\;CMake Files\..\..\..\..\..\..\..\;CMake Files\..\..\..\..\..\..\..\usr\;CMake Files\..\..\..\..\..\..\..\usr\local\;CMake Files\..\..\..\..\..\..\..\usr\local\lib\;CMake Files\..\..\..\..\..\..\..\usr\local\lib\cmake\;CMake Files\..\..\..\..\..\..\..\usr\local\lib\cmake\Ceres\;CMake Files\..\..\..\..\..\..\..\usr\local\lib\cmake\glog\;CMake Files\..\..\..\..\..\..\..\usr\local\lib\cmake\gflags\;CMake Files\..\..\..\..\..\..\..\usr\local\share\;CMake Files\..\..\..\..\..\..\..\usr\local\share\eigen3\;CMake Files\..\..\..\..\..\..\..\usr\local\share\eigen3\cmake\;"/>
 		<Build>
 			<Target title="all">
-				<Option working_dir="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/Term Project/KinectFusion/cmake-build-debug"/>
+				<Option working_dir="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j16 -f &quot;/Users/eralpkocas/Documents/TUM/3D\ Scanning\ &amp;\ Motion\ Planning/Term\ Project/KinectFusion/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
-					<CompileFile command="/usr/bin/make -j16 -f &quot;/Users/eralpkocas/Documents/TUM/3D\ Scanning\ &amp;\ Motion\ Planning/Term\ Project/KinectFusion/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j16 -f &quot;/Users/eralpkocas/Documents/TUM/3D\ Scanning\ &amp;\ Motion\ Planning/Term\ Project/KinectFusion/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j16 -f &quot;/Users/eralpkocas/Documents/TUM/3D\ Scanning\ &amp;\ Motion\ Planning/Term\ Project/KinectFusion/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j16 -f &quot;/Users/eralpkocas/Documents/TUM/3D\ Scanning\ &amp;\ Motion\ Planning/TUM-IN2354-KinectFusion/KinectFusion/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j16 -f &quot;/Users/eralpkocas/Documents/TUM/3D\ Scanning\ &amp;\ Motion\ Planning/TUM-IN2354-KinectFusion/KinectFusion/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j16 -f &quot;/Users/eralpkocas/Documents/TUM/3D\ Scanning\ &amp;\ Motion\ Planning/TUM-IN2354-KinectFusion/KinectFusion/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j16 -f &quot;/Users/eralpkocas/Documents/TUM/3D\ Scanning\ &amp;\ Motion\ Planning/TUM-IN2354-KinectFusion/KinectFusion/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="rebuild_cache">
-				<Option working_dir="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/Term Project/KinectFusion/cmake-build-debug"/>
+				<Option working_dir="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j16 -f &quot;/Users/eralpkocas/Documents/TUM/3D\ Scanning\ &amp;\ Motion\ Planning/Term\ Project/KinectFusion/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
-					<CompileFile command="/usr/bin/make -j16 -f &quot;/Users/eralpkocas/Documents/TUM/3D\ Scanning\ &amp;\ Motion\ Planning/Term\ Project/KinectFusion/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j16 -f &quot;/Users/eralpkocas/Documents/TUM/3D\ Scanning\ &amp;\ Motion\ Planning/Term\ Project/KinectFusion/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j16 -f &quot;/Users/eralpkocas/Documents/TUM/3D\ Scanning\ &amp;\ Motion\ Planning/Term\ Project/KinectFusion/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j16 -f &quot;/Users/eralpkocas/Documents/TUM/3D\ Scanning\ &amp;\ Motion\ Planning/TUM-IN2354-KinectFusion/KinectFusion/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -j16 -f &quot;/Users/eralpkocas/Documents/TUM/3D\ Scanning\ &amp;\ Motion\ Planning/TUM-IN2354-KinectFusion/KinectFusion/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j16 -f &quot;/Users/eralpkocas/Documents/TUM/3D\ Scanning\ &amp;\ Motion\ Planning/TUM-IN2354-KinectFusion/KinectFusion/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j16 -f &quot;/Users/eralpkocas/Documents/TUM/3D\ Scanning\ &amp;\ Motion\ Planning/TUM-IN2354-KinectFusion/KinectFusion/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="edit_cache">
-				<Option working_dir="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/Term Project/KinectFusion/cmake-build-debug"/>
+				<Option working_dir="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j16 -f &quot;/Users/eralpkocas/Documents/TUM/3D\ Scanning\ &amp;\ Motion\ Planning/Term\ Project/KinectFusion/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
-					<CompileFile command="/usr/bin/make -j16 -f &quot;/Users/eralpkocas/Documents/TUM/3D\ Scanning\ &amp;\ Motion\ Planning/Term\ Project/KinectFusion/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j16 -f &quot;/Users/eralpkocas/Documents/TUM/3D\ Scanning\ &amp;\ Motion\ Planning/Term\ Project/KinectFusion/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j16 -f &quot;/Users/eralpkocas/Documents/TUM/3D\ Scanning\ &amp;\ Motion\ Planning/Term\ Project/KinectFusion/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j16 -f &quot;/Users/eralpkocas/Documents/TUM/3D\ Scanning\ &amp;\ Motion\ Planning/TUM-IN2354-KinectFusion/KinectFusion/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -j16 -f &quot;/Users/eralpkocas/Documents/TUM/3D\ Scanning\ &amp;\ Motion\ Planning/TUM-IN2354-KinectFusion/KinectFusion/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j16 -f &quot;/Users/eralpkocas/Documents/TUM/3D\ Scanning\ &amp;\ Motion\ Planning/TUM-IN2354-KinectFusion/KinectFusion/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j16 -f &quot;/Users/eralpkocas/Documents/TUM/3D\ Scanning\ &amp;\ Motion\ Planning/TUM-IN2354-KinectFusion/KinectFusion/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="KinectFusion">
-				<Option output="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/Term Project/KinectFusion/cmake-build-debug/KinectFusion" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/Term Project/KinectFusion/cmake-build-debug"/>
+				<Option output="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/cmake-build-debug/KinectFusion" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/cmake-build-debug"/>
 				<Option object_output="./"/>
 				<Option type="1"/>
 				<Option compiler="gcc"/>
@@ -49,11 +49,13 @@
 					<Add option="-DGOOGLE_GLOG_DLL_DECL_FOR_UNITTESTS="/>
 					<Add option="-DGFLAGS_IS_A_DLL=0"/>
 					<Add directory="/usr/local/Cellar"/>
-					<Add directory="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/Term Project/KinectFusion/../libs/Eigen"/>
-					<Add directory="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/Term Project/KinectFusion"/>
-					<Add directory="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/Term Project/KinectFusion/../libs/Ceres/CMake/../include"/>
-					<Add directory="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/Term Project/KinectFusion/../libs/glog-lib/include"/>
-					<Add directory="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/Term Project/KinectFusion/../libs/Flann"/>
+					<Add directory="/usr/local/lib"/>
+					<Add directory="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/../libs/Eigen"/>
+					<Add directory="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/TUM-IN2354-KinectFusion/KinectFusion"/>
+					<Add directory="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/../libs/Ceres/CMake/../include"/>
+					<Add directory="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/../libs/glog-lib/include"/>
+					<Add directory="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/../libs/Flann"/>
+					<Add directory="/usr/local/Cellar/opencv/4.5.1_2/include"/>
 					<Add directory="/usr/local/include"/>
 					<Add directory="/usr/local/include/eigen3"/>
 					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../include/c++/v1"/>
@@ -63,15 +65,15 @@
 					<Add directory="/Library/Frameworks"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j16 -f &quot;/Users/eralpkocas/Documents/TUM/3D\ Scanning\ &amp;\ Motion\ Planning/Term\ Project/KinectFusion/cmake-build-debug/Makefile&quot;  VERBOSE=1 KinectFusion"/>
-					<CompileFile command="/usr/bin/make -j16 -f &quot;/Users/eralpkocas/Documents/TUM/3D\ Scanning\ &amp;\ Motion\ Planning/Term\ Project/KinectFusion/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j16 -f &quot;/Users/eralpkocas/Documents/TUM/3D\ Scanning\ &amp;\ Motion\ Planning/Term\ Project/KinectFusion/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j16 -f &quot;/Users/eralpkocas/Documents/TUM/3D\ Scanning\ &amp;\ Motion\ Planning/Term\ Project/KinectFusion/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j16 -f &quot;/Users/eralpkocas/Documents/TUM/3D\ Scanning\ &amp;\ Motion\ Planning/TUM-IN2354-KinectFusion/KinectFusion/cmake-build-debug/Makefile&quot;  VERBOSE=1 KinectFusion"/>
+					<CompileFile command="/usr/bin/make -j16 -f &quot;/Users/eralpkocas/Documents/TUM/3D\ Scanning\ &amp;\ Motion\ Planning/TUM-IN2354-KinectFusion/KinectFusion/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j16 -f &quot;/Users/eralpkocas/Documents/TUM/3D\ Scanning\ &amp;\ Motion\ Planning/TUM-IN2354-KinectFusion/KinectFusion/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j16 -f &quot;/Users/eralpkocas/Documents/TUM/3D\ Scanning\ &amp;\ Motion\ Planning/TUM-IN2354-KinectFusion/KinectFusion/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="KinectFusion/fast">
-				<Option output="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/Term Project/KinectFusion/cmake-build-debug/KinectFusion" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/Term Project/KinectFusion/cmake-build-debug"/>
+				<Option output="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/cmake-build-debug/KinectFusion" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/cmake-build-debug"/>
 				<Option object_output="./"/>
 				<Option type="1"/>
 				<Option compiler="gcc"/>
@@ -81,11 +83,13 @@
 					<Add option="-DGOOGLE_GLOG_DLL_DECL_FOR_UNITTESTS="/>
 					<Add option="-DGFLAGS_IS_A_DLL=0"/>
 					<Add directory="/usr/local/Cellar"/>
-					<Add directory="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/Term Project/KinectFusion/../libs/Eigen"/>
-					<Add directory="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/Term Project/KinectFusion"/>
-					<Add directory="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/Term Project/KinectFusion/../libs/Ceres/CMake/../include"/>
-					<Add directory="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/Term Project/KinectFusion/../libs/glog-lib/include"/>
-					<Add directory="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/Term Project/KinectFusion/../libs/Flann"/>
+					<Add directory="/usr/local/lib"/>
+					<Add directory="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/../libs/Eigen"/>
+					<Add directory="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/TUM-IN2354-KinectFusion/KinectFusion"/>
+					<Add directory="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/../libs/Ceres/CMake/../include"/>
+					<Add directory="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/../libs/glog-lib/include"/>
+					<Add directory="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/../libs/Flann"/>
+					<Add directory="/usr/local/Cellar/opencv/4.5.1_2/include"/>
 					<Add directory="/usr/local/include"/>
 					<Add directory="/usr/local/include/eigen3"/>
 					<Add directory="/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../include/c++/v1"/>
@@ -95,77 +99,83 @@
 					<Add directory="/Library/Frameworks"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j16 -f &quot;/Users/eralpkocas/Documents/TUM/3D\ Scanning\ &amp;\ Motion\ Planning/Term\ Project/KinectFusion/cmake-build-debug/Makefile&quot;  VERBOSE=1 KinectFusion/fast"/>
-					<CompileFile command="/usr/bin/make -j16 -f &quot;/Users/eralpkocas/Documents/TUM/3D\ Scanning\ &amp;\ Motion\ Planning/Term\ Project/KinectFusion/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j16 -f &quot;/Users/eralpkocas/Documents/TUM/3D\ Scanning\ &amp;\ Motion\ Planning/Term\ Project/KinectFusion/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j16 -f &quot;/Users/eralpkocas/Documents/TUM/3D\ Scanning\ &amp;\ Motion\ Planning/Term\ Project/KinectFusion/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j16 -f &quot;/Users/eralpkocas/Documents/TUM/3D\ Scanning\ &amp;\ Motion\ Planning/TUM-IN2354-KinectFusion/KinectFusion/cmake-build-debug/Makefile&quot;  VERBOSE=1 KinectFusion/fast"/>
+					<CompileFile command="/usr/bin/make -j16 -f &quot;/Users/eralpkocas/Documents/TUM/3D\ Scanning\ &amp;\ Motion\ Planning/TUM-IN2354-KinectFusion/KinectFusion/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j16 -f &quot;/Users/eralpkocas/Documents/TUM/3D\ Scanning\ &amp;\ Motion\ Planning/TUM-IN2354-KinectFusion/KinectFusion/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j16 -f &quot;/Users/eralpkocas/Documents/TUM/3D\ Scanning\ &amp;\ Motion\ Planning/TUM-IN2354-KinectFusion/KinectFusion/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/Term Project/KinectFusion/Eigen.h">
+		<Unit filename="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/Eigen.h">
 			<Option target="KinectFusion"/>
 		</Unit>
-		<Unit filename="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/Term Project/KinectFusion/FreeImageHelper.cpp">
+		<Unit filename="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/FreeImageHelper.cpp">
 			<Option target="KinectFusion"/>
 		</Unit>
-		<Unit filename="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/Term Project/KinectFusion/FreeImageHelper.h">
+		<Unit filename="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/FreeImageHelper.h">
 			<Option target="KinectFusion"/>
 		</Unit>
-		<Unit filename="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/Term Project/KinectFusion/NearestNeighbor.h">
+		<Unit filename="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/NearestNeighbor.h">
 			<Option target="KinectFusion"/>
 		</Unit>
-		<Unit filename="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/Term Project/KinectFusion/VirtualSensor.h">
+		<Unit filename="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/SurfaceMeasurement.h">
 			<Option target="KinectFusion"/>
 		</Unit>
-		<Unit filename="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/Term Project/KinectFusion/main.cpp">
+		<Unit filename="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/VirtualSensor_freiburg.h">
 			<Option target="KinectFusion"/>
 		</Unit>
-		<Unit filename="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/Term Project/KinectFusion/CMakeLists.txt">
+		<Unit filename="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/VirtualSensor_office.h">
+			<Option target="KinectFusion"/>
+		</Unit>
+		<Unit filename="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/main.cpp">
+			<Option target="KinectFusion"/>
+		</Unit>
+		<Unit filename="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>
 		</Unit>
-		<Unit filename="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/Term Project/KinectFusion/../../../../../../../usr/local/lib/cmake/Ceres/CeresConfig.cmake">
+		<Unit filename="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/../../../../../../../usr/local/lib/cmake/Ceres/CeresConfig.cmake">
 			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\usr\local\lib\cmake\Ceres\"/>
 		</Unit>
-		<Unit filename="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/Term Project/KinectFusion/../../../../../../../usr/local/lib/cmake/Ceres/CeresConfigVersion.cmake">
+		<Unit filename="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/../../../../../../../usr/local/lib/cmake/Ceres/CeresConfigVersion.cmake">
 			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\usr\local\lib\cmake\Ceres\"/>
 		</Unit>
-		<Unit filename="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/Term Project/KinectFusion/../../../../../../../usr/local/lib/cmake/Ceres/CeresTargets-release.cmake">
+		<Unit filename="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/../../../../../../../usr/local/lib/cmake/Ceres/CeresTargets-release.cmake">
 			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\usr\local\lib\cmake\Ceres\"/>
 		</Unit>
-		<Unit filename="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/Term Project/KinectFusion/../../../../../../../usr/local/lib/cmake/Ceres/CeresTargets.cmake">
+		<Unit filename="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/../../../../../../../usr/local/lib/cmake/Ceres/CeresTargets.cmake">
 			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\usr\local\lib\cmake\Ceres\"/>
 		</Unit>
-		<Unit filename="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/Term Project/KinectFusion/../../../../../../../usr/local/lib/cmake/glog/glog-config-version.cmake">
+		<Unit filename="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/../../../../../../../usr/local/lib/cmake/glog/glog-config-version.cmake">
 			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\usr\local\lib\cmake\glog\"/>
 		</Unit>
-		<Unit filename="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/Term Project/KinectFusion/../../../../../../../usr/local/lib/cmake/glog/glog-config.cmake">
+		<Unit filename="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/../../../../../../../usr/local/lib/cmake/glog/glog-config.cmake">
 			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\usr\local\lib\cmake\glog\"/>
 		</Unit>
-		<Unit filename="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/Term Project/KinectFusion/../../../../../../../usr/local/lib/cmake/glog/glog-targets-release.cmake">
+		<Unit filename="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/../../../../../../../usr/local/lib/cmake/glog/glog-targets-release.cmake">
 			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\usr\local\lib\cmake\glog\"/>
 		</Unit>
-		<Unit filename="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/Term Project/KinectFusion/../../../../../../../usr/local/lib/cmake/glog/glog-targets.cmake">
+		<Unit filename="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/../../../../../../../usr/local/lib/cmake/glog/glog-targets.cmake">
 			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\usr\local\lib\cmake\glog\"/>
 		</Unit>
-		<Unit filename="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/Term Project/KinectFusion/../../../../../../../usr/local/lib/cmake/gflags/gflags-config-version.cmake">
+		<Unit filename="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/../../../../../../../usr/local/lib/cmake/gflags/gflags-config-version.cmake">
 			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\usr\local\lib\cmake\gflags\"/>
 		</Unit>
-		<Unit filename="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/Term Project/KinectFusion/../../../../../../../usr/local/lib/cmake/gflags/gflags-config.cmake">
+		<Unit filename="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/../../../../../../../usr/local/lib/cmake/gflags/gflags-config.cmake">
 			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\usr\local\lib\cmake\gflags\"/>
 		</Unit>
-		<Unit filename="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/Term Project/KinectFusion/../../../../../../../usr/local/lib/cmake/gflags/gflags-nonamespace-targets-release.cmake">
+		<Unit filename="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/../../../../../../../usr/local/lib/cmake/gflags/gflags-nonamespace-targets-release.cmake">
 			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\usr\local\lib\cmake\gflags\"/>
 		</Unit>
-		<Unit filename="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/Term Project/KinectFusion/../../../../../../../usr/local/lib/cmake/gflags/gflags-nonamespace-targets.cmake">
+		<Unit filename="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/../../../../../../../usr/local/lib/cmake/gflags/gflags-nonamespace-targets.cmake">
 			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\usr\local\lib\cmake\gflags\"/>
 		</Unit>
-		<Unit filename="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/Term Project/KinectFusion/../../../../../../../usr/local/share/eigen3/cmake/Eigen3Config.cmake">
+		<Unit filename="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/../../../../../../../usr/local/share/eigen3/cmake/Eigen3Config.cmake">
 			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\usr\local\share\eigen3\cmake\"/>
 		</Unit>
-		<Unit filename="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/Term Project/KinectFusion/../../../../../../../usr/local/share/eigen3/cmake/Eigen3ConfigVersion.cmake">
+		<Unit filename="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/../../../../../../../usr/local/share/eigen3/cmake/Eigen3ConfigVersion.cmake">
 			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\usr\local\share\eigen3\cmake\"/>
 		</Unit>
-		<Unit filename="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/Term Project/KinectFusion/../../../../../../../usr/local/share/eigen3/cmake/Eigen3Targets.cmake">
+		<Unit filename="/Users/eralpkocas/Documents/TUM/3D Scanning &amp; Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/../../../../../../../usr/local/share/eigen3/cmake/Eigen3Targets.cmake">
 			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\usr\local\share\eigen3\cmake\"/>
 		</Unit>
 	</Project>

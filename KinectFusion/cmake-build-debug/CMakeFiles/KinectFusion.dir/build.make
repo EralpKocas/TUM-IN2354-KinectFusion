@@ -43,10 +43,10 @@ RM = "/Users/eralpkocas/Library/Application Support/JetBrains/Toolbox/apps/CLion
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/Term Project/KinectFusion"
+CMAKE_SOURCE_DIR = "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion"
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/Term Project/KinectFusion/cmake-build-debug"
+CMAKE_BINARY_DIR = "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/cmake-build-debug"
 
 # Include any dependencies generated for this target.
 include CMakeFiles/KinectFusion.dir/depend.make
@@ -59,29 +59,29 @@ include CMakeFiles/KinectFusion.dir/flags.make
 
 CMakeFiles/KinectFusion.dir/main.cpp.o: CMakeFiles/KinectFusion.dir/flags.make
 CMakeFiles/KinectFusion.dir/main.cpp.o: ../main.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/Term Project/KinectFusion/cmake-build-debug/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/KinectFusion.dir/main.cpp.o"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/KinectFusion.dir/main.cpp.o -c "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/Term Project/KinectFusion/main.cpp"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/cmake-build-debug/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/KinectFusion.dir/main.cpp.o"
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/KinectFusion.dir/main.cpp.o -c "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/main.cpp"
 
 CMakeFiles/KinectFusion.dir/main.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/KinectFusion.dir/main.cpp.i"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/Term Project/KinectFusion/main.cpp" > CMakeFiles/KinectFusion.dir/main.cpp.i
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/main.cpp" > CMakeFiles/KinectFusion.dir/main.cpp.i
 
 CMakeFiles/KinectFusion.dir/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/KinectFusion.dir/main.cpp.s"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/Term Project/KinectFusion/main.cpp" -o CMakeFiles/KinectFusion.dir/main.cpp.s
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/main.cpp" -o CMakeFiles/KinectFusion.dir/main.cpp.s
 
 CMakeFiles/KinectFusion.dir/FreeImageHelper.cpp.o: CMakeFiles/KinectFusion.dir/flags.make
 CMakeFiles/KinectFusion.dir/FreeImageHelper.cpp.o: ../FreeImageHelper.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/Term Project/KinectFusion/cmake-build-debug/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/KinectFusion.dir/FreeImageHelper.cpp.o"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/KinectFusion.dir/FreeImageHelper.cpp.o -c "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/Term Project/KinectFusion/FreeImageHelper.cpp"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/cmake-build-debug/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/KinectFusion.dir/FreeImageHelper.cpp.o"
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/KinectFusion.dir/FreeImageHelper.cpp.o -c "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/FreeImageHelper.cpp"
 
 CMakeFiles/KinectFusion.dir/FreeImageHelper.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/KinectFusion.dir/FreeImageHelper.cpp.i"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/Term Project/KinectFusion/FreeImageHelper.cpp" > CMakeFiles/KinectFusion.dir/FreeImageHelper.cpp.i
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/FreeImageHelper.cpp" > CMakeFiles/KinectFusion.dir/FreeImageHelper.cpp.i
 
 CMakeFiles/KinectFusion.dir/FreeImageHelper.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/KinectFusion.dir/FreeImageHelper.cpp.s"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/Term Project/KinectFusion/FreeImageHelper.cpp" -o CMakeFiles/KinectFusion.dir/FreeImageHelper.cpp.s
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/FreeImageHelper.cpp" -o CMakeFiles/KinectFusion.dir/FreeImageHelper.cpp.s
 
 # Object files for target KinectFusion
 KinectFusion_OBJECTS = \
@@ -98,7 +98,7 @@ KinectFusion: /usr/local/lib/libceres.2.0.0.dylib
 KinectFusion: /usr/local/lib/libglog.0.4.0.dylib
 KinectFusion: /usr/local/lib/libgflags.2.2.2.dylib
 KinectFusion: CMakeFiles/KinectFusion.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir="/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/Term Project/KinectFusion/cmake-build-debug/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_3) "Linking CXX executable KinectFusion"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir="/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/cmake-build-debug/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_3) "Linking CXX executable KinectFusion"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/KinectFusion.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -111,6 +111,6 @@ CMakeFiles/KinectFusion.dir/clean:
 .PHONY : CMakeFiles/KinectFusion.dir/clean
 
 CMakeFiles/KinectFusion.dir/depend:
-	cd "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/Term Project/KinectFusion/cmake-build-debug" && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/Term Project/KinectFusion" "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/Term Project/KinectFusion" "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/Term Project/KinectFusion/cmake-build-debug" "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/Term Project/KinectFusion/cmake-build-debug" "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/Term Project/KinectFusion/cmake-build-debug/CMakeFiles/KinectFusion.dir/DependInfo.cmake" --color=$(COLOR)
+	cd "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/cmake-build-debug" && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion" "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion" "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/cmake-build-debug" "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/cmake-build-debug" "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/cmake-build-debug/CMakeFiles/KinectFusion.dir/DependInfo.cmake" --color=$(COLOR)
 .PHONY : CMakeFiles/KinectFusion.dir/depend
 

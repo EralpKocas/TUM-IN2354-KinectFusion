@@ -4,8 +4,8 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/Term Project/KinectFusion/FreeImageHelper.cpp" "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/Term Project/KinectFusion/cmake-build-debug/CMakeFiles/KinectFusion.dir/FreeImageHelper.cpp.o"
-  "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/Term Project/KinectFusion/main.cpp" "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/Term Project/KinectFusion/cmake-build-debug/CMakeFiles/KinectFusion.dir/main.cpp.o"
+  "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/FreeImageHelper.cpp" "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/cmake-build-debug/CMakeFiles/KinectFusion.dir/FreeImageHelper.cpp.o"
+  "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/main.cpp" "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/cmake-build-debug/CMakeFiles/KinectFusion.dir/main.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "AppleClang")
 
@@ -20,11 +20,13 @@ set(CMAKE_TARGET_DEFINITIONS_CXX
 # The include file search paths:
 set(CMAKE_CXX_TARGET_INCLUDE_PATH
   "/usr/local/Cellar"
+  "/usr/local/lib"
   "../../libs/Eigen"
   "../"
   "../../libs/Ceres/CMake/../include"
   "../../libs/glog-lib/include"
   "../../libs/Flann"
+  "/usr/local/Cellar/opencv/4.5.1_2/include"
   "/usr/local/include"
   "/usr/local/include/eigen3"
   )

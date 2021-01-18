@@ -20,14 +20,6 @@ Eigen/Sparse
 Eigen/SparseCholesky
 -
 
-/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/FreeImageHelper.cpp
-FreeImageHelper.h
-/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/FreeImageHelper.h
-iostream
--
-cstring
--
-
 /Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/FreeImageHelper.h
 string
 -

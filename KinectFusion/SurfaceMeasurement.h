@@ -11,15 +11,6 @@ public:
 
     // initialize
     //SurfaceMeasurement() : { }
-    struct SurfaceLevelsData
-    {
-        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-
-        // will create a data structure for holding all data for all levels!
-        /*vector<> position;
-
-        Vector4uc color;*/
-    };
 
     struct CameraRefPoints
     {
@@ -69,9 +60,35 @@ public:
         return true;
     }
 
-    bool init_pyramid(int num_levels)
+    struct SurfaceLevelData
+    {
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
+        // will create a data structure for holding all data for all levels!
+        float* curr_level_data;
+        float* curr_smoothed_data;
+        BYTE* curr_level_color;
+        float curr_fX;
+        float curr_fY;
+        float curr_cX;
+        float curr_cY;
+
+    };
+
+    bool init_pyramid()
     {
         // TODO: will initialize pyramid for given number of layers
+        // TODO: need to change camera parameters with scaling level and need to add cv::pyrDown() so that values are resized accordingly.
+        all_data = new SurfaceLevelData[num_levels];
+        for(int i=0; i < num_levels; i++)
+        {
+            all_data[i].curr_level_data = m_depthMap;
+            all_data[i].curr_level_color = m_colorMap;
+            all_data[i].curr_fX = fX;
+            all_data[i].curr_fY = fY;
+            all_data[i].curr_cX = cX;
+            all_data[i].curr_cY = cY;
+        }
         return true;
     }
 
@@ -142,24 +159,21 @@ public:
         }
     }
 
+    // I am not sure whether we'll need this for this step.
     Vector2f perspective_projection(Vector3f p)
     {
         return Vector2f(p.x() / p.z(), p.y() / p.z());
     }
 
-    // find the name of this operation, gaussian distribution?
-    // TODO:opencv has function to compute, so no need probably
-    /*float temp_naming(float input, float constant)
-    {
-        return ceres::exp(-1 * ceres::pow(input, 2) * ceres::pow(constant, -2));
-    }*/
 
     // compute bilateral filter
-
+    // TODO: does not work unless we change all_data.curr_level_data to a proper array.
     void compute_bilateral_filter()
     {
-        std::cout << "To fill the function! Temporary" << std::endl;
-        //TODO: cv::bilateralFilter(src, dst, 6, 1000, 1000, cv.BORDER_DEFAULT); with image pyramid
+        for(int i=0; i<num_levels;i++){
+            cv::bilateralFilter(all_data[i].curr_level_data, all_data[i].curr_smoothed_data,
+                    depth_diameter, bilateral_color_sigma, bilateral_spatial_sigma, cv::BORDER_DEFAULT);
+        }
     }
     // TODO: back-project filtered depth values to obtain vertex map
 
@@ -172,9 +186,8 @@ public:
     // TODO: compute all multiscale
 
 private:
-    SurfaceLevelsData data;
     int num_levels;
-    float bilateral_depth_sigma;
+    float bilateral_color_sigma;
     float bilateral_spatial_sigma;
     int depth_diameter;
 
@@ -194,4 +207,5 @@ private:
     unsigned int m_depthImageHeight;
     CameraRefPoints *camera_reference_points;
     GlobalPoints *global_points;
+    SurfaceLevelData *all_data;
 };
