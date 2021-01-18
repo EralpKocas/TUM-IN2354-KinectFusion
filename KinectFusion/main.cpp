@@ -2,6 +2,7 @@
 #include <fstream>
 #include <array>
 
+#include <opencv2/opencv.hpp>
 #include "Eigen.h"
 
 #include "VirtualSensor_freiburg.h"
@@ -51,8 +52,6 @@ int main() {
             std::cout << "Failed to read and assign data!" << std::endl;
             return -1;
         }
-        surface_measurement.compute_camera_ref_points();
-        surface_measurement.compute_global_points();
 
     }
 

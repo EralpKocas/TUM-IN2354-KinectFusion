@@ -1,6 +1,8 @@
 #include <array>
 
+#include <opencv2/opencv.hpp>
 #include "Eigen.h"
+#include "ceres/ceres.h"
 
 
 class SurfaceMeasurement {
@@ -9,6 +11,16 @@ public:
 
     // initialize
     //SurfaceMeasurement() : { }
+    struct SurfaceLevelsData
+    {
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
+        // will create a data structure for holding all data for all levels!
+        /*vector<> position;
+
+        Vector4uc color;*/
+    };
+
     struct CameraRefPoints
     {
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -36,6 +48,16 @@ public:
         m_trajectoryInv = trajectoryInv;
         m_depthIntrinsics = depthIntrinsics;
 
+        fX = m_depthIntrinsics(0, 0);
+        fY = m_depthIntrinsics(1, 1);
+        cX = m_depthIntrinsics(0, 2);
+        cY = m_depthIntrinsics(1, 2);
+
+        num_levels = 3;
+        bilateral_color_sigma = 1.0f;
+        bilateral_spatial_sigma = 1.0f;
+        depth_diameter = 3 * (int) bilateral_spatial_sigma;
+
         m_colorImageWidth = 640;
         m_colorImageHeight = 480;
         m_depthImageWidth = 640;
@@ -43,17 +65,25 @@ public:
 
         camera_reference_points = new CameraRefPoints[m_depthImageWidth * m_depthImageHeight];
         global_points = new GlobalPoints[m_depthImageWidth * m_depthImageHeight];
+
         return true;
     }
+
+    bool init_pyramid(int num_levels)
+    {
+        // TODO: will initialize pyramid for given number of layers
+        return true;
+    }
+
+    Vector4f convert_homogeneous_vector(Vector3f vector_3d)
+    {
+        return Vector4f(vector_3d.x(), vector_3d.y(), vector_3d.z(), (float) 1.0);
+    }
+
     // compute 3d camera reference points
     void compute_camera_ref_points()
     {
         int numWH = m_depthImageWidth * m_depthImageHeight;
-
-        float fX = m_depthIntrinsics(0, 0);
-        float fY = m_depthIntrinsics(1, 1);
-        float cX = m_depthIntrinsics(0, 2);
-        float cY = m_depthIntrinsics(1, 2);
 
         for(int i=0; i < numWH; i++){
             if(m_depthMap[i] == MINF){
@@ -112,19 +142,47 @@ public:
         }
     }
 
+    Vector2f perspective_projection(Vector3f p)
+    {
+        return Vector2f(p.x() / p.z(), p.y() / p.z());
+    }
+
+    // find the name of this operation, gaussian distribution?
+    // TODO:opencv has function to compute, so no need probably
+    /*float temp_naming(float input, float constant)
+    {
+        return ceres::exp(-1 * ceres::pow(input, 2) * ceres::pow(constant, -2));
+    }*/
+
     // compute bilateral filter
 
-    // back-project filtered depth values to obtain vertex map
+    void compute_bilateral_filter()
+    {
+        std::cout << "To fill the function! Temporary" << std::endl;
+        //TODO: cv::bilateralFilter(src, dst, 6, 1000, 1000, cv.BORDER_DEFAULT); with image pyramid
+    }
+    // TODO: back-project filtered depth values to obtain vertex map
 
-    // compute normal vectors
+    // TODO: compute normal vectors
 
-    // apply vertex validity mask
+    // TODO: apply vertex validity mask
 
-    // compute all multiscale
+    // TODO: transorm all to global
 
-    // transorm all to global
+    // TODO: compute all multiscale
 
 private:
+    SurfaceLevelsData data;
+    int num_levels;
+    float bilateral_depth_sigma;
+    float bilateral_spatial_sigma;
+    int depth_diameter;
+
+    float fX;
+    float fY;
+    float cX;
+    float cY;
+
     float *m_depthMap;
     BYTE *m_colorMap;
     Matrix4f m_trajectory;

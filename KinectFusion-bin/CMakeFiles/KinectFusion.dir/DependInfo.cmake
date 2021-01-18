@@ -20,11 +20,13 @@ set(CMAKE_TARGET_DEFINITIONS_CXX
 # The include file search paths:
 set(CMAKE_CXX_TARGET_INCLUDE_PATH
   "/usr/local/Cellar"
+  "/usr/local/lib"
   "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/../libs/Eigen"
   "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion"
-  "/usr/local/lib/cmake/Ceres/../include"
+  "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/../libs/Ceres/CMake/../include"
   "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/../libs/glog-lib/include"
   "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/../libs/Flann"
+  "/usr/local/Cellar/opencv/4.5.1_2/include"
   "/usr/local/include"
   "/usr/local/include/eigen3"
   )
