@@ -89,6 +89,8 @@ public:
             all_data[i].curr_cX = cX;
             all_data[i].curr_cY = cY;
         }
+
+        //cv::pyrDown(all_data*, , , cv::BORDER_DEFAULT);
         return true;
     }
 
@@ -176,6 +178,12 @@ public:
         }
     }
     // TODO: back-project filtered depth values to obtain vertex map
+    void back_projection(){
+        //can change the type just early ideas
+        Vector4f vertex_map;
+
+        
+    }
 
     // TODO: compute normal vectors
 
