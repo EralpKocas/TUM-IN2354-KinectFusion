@@ -230,6 +230,9 @@ Ceres_DIR:PATH=/usr/local/lib/cmake/Ceres
 //Eigen include directory
 EIGEN_INCLUDE_DIR:STRING=/usr/local/include/eigen3
 
+//The directory containing a CMake configuration file for Eigen3.
+Eigen3_DIR:PATH=/usr/local/share/eigen3/cmake
+
 //Path to Eigen source folder
 Eigen3_INCLUDE_DIR:PATH=/Users/beyzatugcebilgic/Desktop/3d scanning/TUM-IN2354-KinectFusion/KinectFusion/../libs/Eigen
 
@@ -253,6 +256,9 @@ LIBRARY_DIR:PATH=/Users/beyzatugcebilgic/Desktop/3d scanning/TUM-IN2354-KinectFu
 
 //Path to a program.
 ProcessorCount_cmd_sysctl:FILEPATH=/usr/sbin/sysctl
+
+//The directory containing a CMake configuration file for gflags.
+gflags_DIR:PATH=/usr/local/lib/cmake/gflags
 
 //The directory containing a CMake configuration file for glog.
 glog_DIR:PATH=/usr/local/lib/cmake/glog
@@ -341,6 +347,10 @@ CMAKE_GENERATOR_INSTANCE:INTERNAL=
 CMAKE_GENERATOR_PLATFORM:INTERNAL=
 //Name of generator toolset.
 CMAKE_GENERATOR_TOOLSET:INTERNAL=
+//Test CMAKE_HAVE_LIBC_PTHREAD
+CMAKE_HAVE_LIBC_PTHREAD:INTERNAL=1
+//Have include pthread.h
+CMAKE_HAVE_PTHREAD_H:INTERNAL=1
 //Source directory with the top level CMakeLists.txt file for this
 // project
 CMAKE_HOME_DIRECTORY:INTERNAL=/Users/beyzatugcebilgic/Desktop/3d scanning/TUM-IN2354-KinectFusion/KinectFusion
@@ -408,6 +418,8 @@ CMAKE_UNAME:INTERNAL=/usr/bin/uname
 CMAKE_VERBOSE_MAKEFILE-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: EIGEN_INCLUDE_DIR
 EIGEN_INCLUDE_DIR-ADVANCED:INTERNAL=1
+//Details about finding Threads
+FIND_PACKAGE_MESSAGE_DETAILS_Threads:INTERNAL=[TRUE][v()]
 //ADVANCED property for variable: GLOG_INCLUDE_DIR
 GLOG_INCLUDE_DIR-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: GLOG_LIBRARY

@@ -2,7 +2,7 @@
 #include <fstream>
 #include <array>
 
-#include <opencv2/opencv.hpp>
+//#include <opencv2/opencv.hpp>
 #include "Eigen.h"
 
 #include "VirtualSensor_freiburg.h"
@@ -10,9 +10,9 @@
 #include "SurfaceMeasurement.h"
 #include "common.h"
 
-ImageProperties* init(VirtualSensor_freiburg sensor)
+ImageProperties* init(VirtualSensor_freiburg &sensor)
 {
-    ImageProperties* imageProperties;
+    ImageProperties* imageProperties = new ImageProperties();
 
     imageProperties->m_depthMap = sensor.getDepth();
     imageProperties->m_colorMap = sensor.getColorRGBX();
@@ -65,16 +65,12 @@ int main() {
 
         // get depth intrinsics
         Matrix3f depthIntrinsics = imageProperties->m_depthIntrinsics;
-        float fX = depthIntrinsics(0, 0);
-        float fY = depthIntrinsics(1, 1);
-        float cX = depthIntrinsics(0, 2);
-        float cY = depthIntrinsics(1, 2);
 
         // compute inverse depth extrinsics
-        Matrix4f depthExtrinsicsInv = sensor.getDepthExtrinsics().inverse();
+        Matrix4f depthExtrinsicsInv = (imageProperties->m_depthExtrinsics).inverse();
 
-        Matrix4f trajectory = sensor.getTrajectory();
-        Matrix4f trajectoryInv = sensor.getTrajectory().inverse();
+        Matrix4f trajectory = imageProperties->m_trajectory;
+        Matrix4f trajectoryInv = imageProperties->m_trajectoryInv;
 
         /*SurfaceMeasurement surface_measurement;
         if(!surface_measurement.init(depthMap, colorMap, trajectory, trajectoryInv, depthIntrinsics))

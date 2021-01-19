@@ -1,7 +1,7 @@
 #include <array>
 #include <algorithm>
 
-#include <opencv2/opencv.hpp>
+//#include <opencv2/opencv.hpp>
 #include "ceres/ceres.h"
 #include "common.h"
 
@@ -20,17 +20,18 @@ public:
 
 
     // TODO: calculate truncation function
-    float* calculateSDF_truncation(float truncation_distance, float sdf){
+    float calculateSDF_truncation(float truncation_distance, float sdf){
         if (sdf >= -truncation_distance) {
             float new_tsdf = fmin(1.f, sdf / truncation_distance);
+            return new_tsdf;
         }
-
+        return 0;
     }
 
     // TODO: calculate current TSDF (FRk←calculatecurrenttsdf(Ψ,Rk,K,tg,k,p))
     //λ = ||K^-1*x||2
 
-    float* calculateCurrentTSDF( float* depthMap, Matrix3f intrinsics, Vector3f camera_ref, int k, Vector3f p){
+    float calculateCurrentTSDF( float* depthMap, Matrix3f intrinsics, Vector3f camera_ref, int k, Vector3f p){
         Vector3f camera_pos = camera_ref - p;
         float current_tsdf = (1.f / calculateLambda(intrinsics, p)) * camera_pos.norm() - depthMap[k];
         return calculateSDF_truncation(truncation_distance, current_tsdf);
@@ -51,6 +52,10 @@ public:
     // TODO: truncate updated weight
     int calculateTruncatedWeight(int current_weight, int new_weight, int some_value){
         return std::min(current_weight + new_weight, some_value);
+    }
+
+    void updateSurfaceReconstruction(){
+
     }
 
 

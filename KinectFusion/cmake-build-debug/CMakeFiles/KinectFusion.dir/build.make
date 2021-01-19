@@ -114,8 +114,8 @@ KinectFusion_EXTERNAL_OBJECTS =
 KinectFusion: CMakeFiles/KinectFusion.dir/main.cpp.o
 KinectFusion: CMakeFiles/KinectFusion.dir/FreeImageHelper.cpp.o
 KinectFusion: CMakeFiles/KinectFusion.dir/build.make
-KinectFusion: /usr/local/lib/libceres.1.14.0.dylib
-KinectFusion: /usr/local/lib/libglog.dylib
+KinectFusion: /usr/local/lib/libceres.2.0.0.dylib
+KinectFusion: /usr/local/lib/libglog.0.4.0.dylib
 KinectFusion: /usr/local/lib/libgflags.2.2.2.dylib
 KinectFusion: CMakeFiles/KinectFusion.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir="/Users/beyzatugcebilgic/Desktop/3d scanning/TUM-IN2354-KinectFusion/KinectFusion/cmake-build-debug/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_3) "Linking CXX executable KinectFusion"

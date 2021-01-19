@@ -20,8 +20,8 @@ set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${Ceres_DIR})
 set(FreeImage_INCLUDE_DIR /usr/local/include/)
 set(FreeImage_LIBRARY_DIR /usr/local/Cellar/freeimage/3.18.0/lib/)
 
-set(OpenCV_INCLUDE_DIR /usr/local/Cellar/opencv/4.5.0_4/include/)
-set(OpenCV_LIBRARY_DIR /usr/local/Cellar/opencv/4.5.0_4/lib/)
+set(OpenCVINCLUDE_DIR /usr/local/Cellar/opencv/4.5.1_2/include/)
+set(OpenCV_LIBRARY_DIR /usr/local/Cellar/opencv/4.5.1_2/lib/)
 
 set(CMAKE_CXX_STANDARD 14)
 

@@ -5,7 +5,7 @@
 		<Option title="KinectFusion"/>
 		<Option makefile_is_custom="1"/>
 		<Option compiler="gcc"/>
-		<Option virtualFolders="CMake Files\;CMake Files\..\;CMake Files\..\..\;CMake Files\..\..\..\;CMake Files\..\..\..\..\;CMake Files\..\..\..\..\..\;CMake Files\..\..\..\..\..\..\;CMake Files\..\..\..\..\..\..\usr\;CMake Files\..\..\..\..\..\..\usr\local\;CMake Files\..\..\..\..\..\..\usr\local\lib\;CMake Files\..\..\..\..\..\..\usr\local\lib\cmake\;CMake Files\..\..\..\..\..\..\usr\local\lib\cmake\Ceres\;CMake Files\..\..\..\..\..\..\usr\local\lib\cmake\gflags\;CMake Files\..\..\..\..\..\..\usr\local\lib\cmake\glog\;CMake Files\..\..\..\..\..\..\usr\local\share\;CMake Files\..\..\..\..\..\..\usr\local\share\eigen3\;CMake Files\..\..\..\..\..\..\usr\local\share\eigen3\cmake\;"/>
+		<Option virtualFolders="CMake Files\;CMake Files\..\;CMake Files\..\..\;CMake Files\..\..\..\;CMake Files\..\..\..\..\;CMake Files\..\..\..\..\..\;CMake Files\..\..\..\..\..\..\;CMake Files\..\..\..\..\..\..\usr\;CMake Files\..\..\..\..\..\..\usr\local\;CMake Files\..\..\..\..\..\..\usr\local\lib\;CMake Files\..\..\..\..\..\..\usr\local\lib\cmake\;CMake Files\..\..\..\..\..\..\usr\local\lib\cmake\Ceres\;CMake Files\..\..\..\..\..\..\usr\local\lib\cmake\glog\;CMake Files\..\..\..\..\..\..\usr\local\lib\cmake\gflags\;CMake Files\..\..\..\..\..\..\usr\local\share\;CMake Files\..\..\..\..\..\..\usr\local\share\eigen3\;CMake Files\..\..\..\..\..\..\usr\local\share\eigen3\cmake\;"/>
 		<Build>
 			<Target title="all">
 				<Option working_dir="/Users/beyzatugcebilgic/Desktop/3d scanning/TUM-IN2354-KinectFusion/KinectFusion/cmake-build-debug"/>
@@ -44,6 +44,9 @@
 				<Option type="1"/>
 				<Option compiler="gcc"/>
 				<Compiler>
+					<Add option="-DCERES_EXPORT_INTERNAL_SYMBOLS"/>
+					<Add option="-DGOOGLE_GLOG_DLL_DECL="/>
+					<Add option="-DGOOGLE_GLOG_DLL_DECL_FOR_UNITTESTS="/>
 					<Add option="-DGFLAGS_IS_A_DLL=0"/>
 					<Add directory="/usr/local/Cellar"/>
 					<Add directory="/usr/local/lib"/>
@@ -52,8 +55,8 @@
 					<Add directory="/usr/local/lib/cmake/Ceres/../include"/>
 					<Add directory="/Users/beyzatugcebilgic/Desktop/3d scanning/TUM-IN2354-KinectFusion/KinectFusion/../libs/glog-lib/include"/>
 					<Add directory="/Users/beyzatugcebilgic/Desktop/3d scanning/TUM-IN2354-KinectFusion/KinectFusion/../libs/Flann"/>
-					<Add directory="/usr/local/Cellar/opencv/4.5.0_4/include"/>
 					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/local/include/eigen3"/>
 					<Add directory="/Library/Developer/CommandLineTools/usr/bin/../include/c++/v1"/>
 					<Add directory="/Library/Developer/CommandLineTools/usr/lib/clang/12.0.0/include"/>
 					<Add directory="/Library/Developer/CommandLineTools/usr/include"/>
@@ -74,6 +77,9 @@
 				<Option type="1"/>
 				<Option compiler="gcc"/>
 				<Compiler>
+					<Add option="-DCERES_EXPORT_INTERNAL_SYMBOLS"/>
+					<Add option="-DGOOGLE_GLOG_DLL_DECL="/>
+					<Add option="-DGOOGLE_GLOG_DLL_DECL_FOR_UNITTESTS="/>
 					<Add option="-DGFLAGS_IS_A_DLL=0"/>
 					<Add directory="/usr/local/Cellar"/>
 					<Add directory="/usr/local/lib"/>
@@ -82,8 +88,8 @@
 					<Add directory="/usr/local/lib/cmake/Ceres/../include"/>
 					<Add directory="/Users/beyzatugcebilgic/Desktop/3d scanning/TUM-IN2354-KinectFusion/KinectFusion/../libs/glog-lib/include"/>
 					<Add directory="/Users/beyzatugcebilgic/Desktop/3d scanning/TUM-IN2354-KinectFusion/KinectFusion/../libs/Flann"/>
-					<Add directory="/usr/local/Cellar/opencv/4.5.0_4/include"/>
 					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/local/include/eigen3"/>
 					<Add directory="/Library/Developer/CommandLineTools/usr/bin/../include/c++/v1"/>
 					<Add directory="/Library/Developer/CommandLineTools/usr/lib/clang/12.0.0/include"/>
 					<Add directory="/Library/Developer/CommandLineTools/usr/include"/>
@@ -143,14 +149,17 @@
 		<Unit filename="/Users/beyzatugcebilgic/Desktop/3d scanning/TUM-IN2354-KinectFusion/KinectFusion/../../../../../../usr/local/lib/cmake/Ceres/CeresTargets.cmake">
 			<Option virtualFolder="CMake Files\..\..\..\..\..\..\usr\local\lib\cmake\Ceres\"/>
 		</Unit>
-		<Unit filename="/Users/beyzatugcebilgic/Desktop/3d scanning/TUM-IN2354-KinectFusion/KinectFusion/../../../../../../usr/local/lib/cmake/Ceres/FindEigen.cmake">
-			<Option virtualFolder="CMake Files\..\..\..\..\..\..\usr\local\lib\cmake\Ceres\"/>
+		<Unit filename="/Users/beyzatugcebilgic/Desktop/3d scanning/TUM-IN2354-KinectFusion/KinectFusion/../../../../../../usr/local/lib/cmake/glog/glog-config-version.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\usr\local\lib\cmake\glog\"/>
 		</Unit>
-		<Unit filename="/Users/beyzatugcebilgic/Desktop/3d scanning/TUM-IN2354-KinectFusion/KinectFusion/../../../../../../usr/local/lib/cmake/Ceres/FindGflags.cmake">
-			<Option virtualFolder="CMake Files\..\..\..\..\..\..\usr\local\lib\cmake\Ceres\"/>
+		<Unit filename="/Users/beyzatugcebilgic/Desktop/3d scanning/TUM-IN2354-KinectFusion/KinectFusion/../../../../../../usr/local/lib/cmake/glog/glog-config.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\usr\local\lib\cmake\glog\"/>
 		</Unit>
-		<Unit filename="/Users/beyzatugcebilgic/Desktop/3d scanning/TUM-IN2354-KinectFusion/KinectFusion/../../../../../../usr/local/lib/cmake/Ceres/FindGlog.cmake">
-			<Option virtualFolder="CMake Files\..\..\..\..\..\..\usr\local\lib\cmake\Ceres\"/>
+		<Unit filename="/Users/beyzatugcebilgic/Desktop/3d scanning/TUM-IN2354-KinectFusion/KinectFusion/../../../../../../usr/local/lib/cmake/glog/glog-targets-release.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\usr\local\lib\cmake\glog\"/>
+		</Unit>
+		<Unit filename="/Users/beyzatugcebilgic/Desktop/3d scanning/TUM-IN2354-KinectFusion/KinectFusion/../../../../../../usr/local/lib/cmake/glog/glog-targets.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\usr\local\lib\cmake\glog\"/>
 		</Unit>
 		<Unit filename="/Users/beyzatugcebilgic/Desktop/3d scanning/TUM-IN2354-KinectFusion/KinectFusion/../../../../../../usr/local/lib/cmake/gflags/gflags-config-version.cmake">
 			<Option virtualFolder="CMake Files\..\..\..\..\..\..\usr\local\lib\cmake\gflags\"/>
@@ -163,18 +172,6 @@
 		</Unit>
 		<Unit filename="/Users/beyzatugcebilgic/Desktop/3d scanning/TUM-IN2354-KinectFusion/KinectFusion/../../../../../../usr/local/lib/cmake/gflags/gflags-nonamespace-targets.cmake">
 			<Option virtualFolder="CMake Files\..\..\..\..\..\..\usr\local\lib\cmake\gflags\"/>
-		</Unit>
-		<Unit filename="/Users/beyzatugcebilgic/Desktop/3d scanning/TUM-IN2354-KinectFusion/KinectFusion/../../../../../../usr/local/lib/cmake/glog/glog-config-version.cmake">
-			<Option virtualFolder="CMake Files\..\..\..\..\..\..\usr\local\lib\cmake\glog\"/>
-		</Unit>
-		<Unit filename="/Users/beyzatugcebilgic/Desktop/3d scanning/TUM-IN2354-KinectFusion/KinectFusion/../../../../../../usr/local/lib/cmake/glog/glog-config.cmake">
-			<Option virtualFolder="CMake Files\..\..\..\..\..\..\usr\local\lib\cmake\glog\"/>
-		</Unit>
-		<Unit filename="/Users/beyzatugcebilgic/Desktop/3d scanning/TUM-IN2354-KinectFusion/KinectFusion/../../../../../../usr/local/lib/cmake/glog/glog-targets-release.cmake">
-			<Option virtualFolder="CMake Files\..\..\..\..\..\..\usr\local\lib\cmake\glog\"/>
-		</Unit>
-		<Unit filename="/Users/beyzatugcebilgic/Desktop/3d scanning/TUM-IN2354-KinectFusion/KinectFusion/../../../../../../usr/local/lib/cmake/glog/glog-targets.cmake">
-			<Option virtualFolder="CMake Files\..\..\..\..\..\..\usr\local\lib\cmake\glog\"/>
 		</Unit>
 		<Unit filename="/Users/beyzatugcebilgic/Desktop/3d scanning/TUM-IN2354-KinectFusion/KinectFusion/../../../../../../usr/local/share/eigen3/cmake/Eigen3Config.cmake">
 			<Option virtualFolder="CMake Files\..\..\..\..\..\..\usr\local\share\eigen3\cmake\"/>

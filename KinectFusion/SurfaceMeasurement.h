@@ -1,6 +1,6 @@
 #include <array>
 
-#include <opencv2/opencv.hpp>
+//#include <opencv2/opencv.hpp>
 #include "Eigen.h"
 #include "ceres/ceres.h"
 #include "common.h"
