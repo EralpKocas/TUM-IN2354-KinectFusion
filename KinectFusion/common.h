@@ -1,3 +1,6 @@
+#include <array>
+#include "Eigen.h"
+#include "ceres/ceres.h"
 
 #include "VirtualSensor_freiburg.h"
 
@@ -28,13 +31,19 @@ struct SurfaceLevelData
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
     // will create a data structure for holding all data for all levels!
-    float* curr_level_data;
-    float* curr_smoothed_data;
+    std::vector<float> curr_level_data;
+    std::vector<float> curr_smoothed_data;
+    float img_width;
+    float img_height;
+    // TODO: figure out color!
     BYTE* curr_level_color;
+    //std::vector<BYTE> curr_level_color;
     float curr_fX;
     float curr_fY;
     float curr_cX;
     float curr_cY;
+    std::vector<Vector3f> vertex_map;
+    std::vector<Vector3f> normal_map;
 
 };
 
@@ -82,14 +91,6 @@ struct ImageProperties{
                 imageProperties->camera_reference_points[i].color = Vector4uc(imageProperties->m_colorMap[4*i], imageProperties->m_colorMap[4*i+1], imageProperties->m_colorMap[4*i+2], imageProperties->m_colorMap[4*i+3]);
             }
         }
-        for(int i=0; i < numWH; i++) {
-            if (imageProperties->m_depthMap[i] != MINF) {
-                std::cout << "first camera ref point at i: \n" << i << std::endl;
-                std::cout << "curr depth: \n" << imageProperties->m_depthMap[i] << std::endl;
-                std::cout << "camera_reference_points: \n" << imageProperties->camera_reference_points[i].position << std::endl;
-                break;
-            }
-        }
     }
 
     // compute global 3D points
@@ -111,14 +112,6 @@ struct ImageProperties{
 
                 imageProperties->global_points[i].position = global_point;
                 imageProperties->global_points[i].color = imageProperties->camera_reference_points[i].color;
-            }
-        }
-        for(int i=0; i < numWH; i++) {
-            if (imageProperties->m_depthMap[i] != MINF) {
-                std::cout << "first global point at i: \n" << i << std::endl;
-                std::cout << "m_trajectory: \n" << imageProperties->m_trajectory << std::endl;
-                std::cout << "global: \n" << imageProperties->global_points[i].position << std::endl;
-                break;
             }
         }
     }

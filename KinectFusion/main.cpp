@@ -2,7 +2,7 @@
 #include <fstream>
 #include <array>
 
-//#include <opencv2/opencv.hpp>
+#include <opencv2/opencv.hpp>
 #include "Eigen.h"
 
 #include "VirtualSensor_freiburg.h"
@@ -33,7 +33,6 @@ ImageProperties* init(VirtualSensor_freiburg &sensor)
 
     imageProperties->camera_reference_points = new CameraRefPoints[imageProperties->m_depthImageWidth * imageProperties->m_depthImageHeight];
     imageProperties->global_points = new GlobalPoints[imageProperties->m_depthImageWidth * imageProperties->m_depthImageHeight];
-
     return imageProperties;
 }
 
@@ -72,8 +71,9 @@ int main() {
         Matrix4f trajectory = imageProperties->m_trajectory;
         Matrix4f trajectoryInv = imageProperties->m_trajectoryInv;
 
-        /*SurfaceMeasurement surface_measurement;
-        if(!surface_measurement.init(depthMap, colorMap, trajectory, trajectoryInv, depthIntrinsics))
+        SurfaceMeasurement surface_measurement;
+        surface_measurement.surface_measurement_pipeline(imageProperties);
+        /*if(!surface_measurement.init(depthMap, colorMap, trajectory, trajectoryInv, depthIntrinsics))
         {
             std::cout << "Failed to read and assign data!" << std::endl;
             return -1;

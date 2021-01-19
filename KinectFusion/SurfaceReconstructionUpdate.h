@@ -1,7 +1,7 @@
 #include <array>
 #include <algorithm>
 
-//#include <opencv2/opencv.hpp>
+#include <opencv2/opencv.hpp>
 #include "ceres/ceres.h"
 #include "common.h"
 
