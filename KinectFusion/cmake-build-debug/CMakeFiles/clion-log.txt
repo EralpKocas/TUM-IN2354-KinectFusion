@@ -1,37 +1,21 @@
-"/Users/eralpkocas/Library/Application Support/JetBrains/Toolbox/apps/CLion/ch-0/201.7846.88/CLion.app/Contents/bin/cmake/mac/bin/cmake" -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion"
+/Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" "/Users/beyzatugcebilgic/Desktop/3d scanning/TUM-IN2354-KinectFusion/KinectFusion"
 CMake Warning (dev) at CMakeLists.txt:3 (set):
   implicitly converting 'TYPE' to 'STRING' type.
 This warning is for project developers.  Use -Wno-dev to suppress it.
 
--- The C compiler identification is AppleClang 11.0.3.11030032
--- The CXX compiler identification is AppleClang 11.0.3.11030032
--- Check for working C compiler: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc
--- Check for working C compiler: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc -- works
--- Detecting C compiler ABI info
--- Detecting C compiler ABI info - done
--- Detecting C compile features
--- Detecting C compile features - done
--- Check for working CXX compiler: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++
--- Check for working CXX compiler: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ -- works
--- Detecting CXX compiler ABI info
--- Detecting CXX compiler ABI info - done
--- Detecting CXX compile features
--- Detecting CXX compile features - done
--- Looking for pthread.h
--- Looking for pthread.h - found
--- Performing Test CMAKE_HAVE_LIBC_PTHREAD
--- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
--- Found Threads: TRUE  
--- Found required Ceres dependency: Eigen version 3.3.9 in /usr/local/include/eigen3
+-- Found installed version of Eigen: /usr/local/share/eigen3/cmake
+-- Found required Ceres dependency: Eigen version 3.3.8 in /usr/local/include/eigen3
 -- Found required Ceres dependency: glog
+-- Found installed version of gflags: /usr/local/lib/cmake/gflags
+-- Detected gflags version: 2.2.2
 -- Found required Ceres dependency: gflags
--- Found Ceres version: 2.0.0 installed in: /usr/local with components: [EigenSparse, SparseLinearAlgebraLibrary, LAPACK, SuiteSparse, CXSparse, AccelerateSparse, SchurSpecializations, Multithreading]
+-- Found Ceres version: 1.14.0 installed in: /usr/local with components: [EigenSparse, SparseLinearAlgebraLibrary, LAPACK, SuiteSparse, CXSparse, SchurSpecializations]
 -- ceres library name: 
 -- path to ceres cmake information: /usr/local/lib/cmake/Ceres
--- path to ceres include directory: /Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/../libs/Ceres/CMake/../include
+-- path to ceres include directory: /usr/local/lib/cmake/Ceres/../include
 -- glog library name: 
--- path to glog include directory = /Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/../libs/glog-lib/include
+-- path to glog include directory = /Users/beyzatugcebilgic/Desktop/3d scanning/TUM-IN2354-KinectFusion/KinectFusion/../libs/glog-lib/include
 -- Configuring done
-WARNING: Target "KinectFusion" requests linking to directory "/usr/local/Cellar/opencv/4.5.1_2/lib/".  Targets may link only to libraries.  CMake is dropping the item.
+WARNING: Target "KinectFusion" requests linking to directory "/usr/local/Cellar/opencv/4.5.0_4/lib/".  Targets may link only to libraries.  CMake is dropping the item.
 -- Generating done
--- Build files have been written to: /Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/cmake-build-debug
+-- Build files have been written to: /Users/beyzatugcebilgic/Desktop/3d scanning/TUM-IN2354-KinectFusion/KinectFusion/cmake-build-debug
