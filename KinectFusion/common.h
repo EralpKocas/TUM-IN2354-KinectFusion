@@ -50,6 +50,7 @@ struct ImageProperties{
     Matrix4f m_trajectory;
     Matrix4f m_trajectoryInv;
     Matrix3f m_depthIntrinsics;
+    Matrix4f m_depthExtrinsics;
     unsigned int m_colorImageWidth;
     unsigned int m_colorImageHeight;
     unsigned int m_depthImageWidth;

@@ -19,6 +19,7 @@ ImageProperties* init(VirtualSensor_freiburg sensor)
     imageProperties->m_trajectory = sensor.getTrajectory();
     imageProperties->m_trajectoryInv = sensor.getTrajectory().inverse();
     imageProperties->m_depthIntrinsics = sensor.getDepthIntrinsics();
+    imageProperties->m_depthExtrinsics = sensor.getDepthExtrinsics();
 
     imageProperties->fX = sensor.getDepthIntrinsics().coeffRef(0,0);
     imageProperties->fY = sensor.getDepthIntrinsics().coeffRef(1,1);
