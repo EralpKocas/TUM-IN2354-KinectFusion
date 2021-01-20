@@ -1,6 +1,7 @@
 #include <array>
 
 #include <opencv2/opencv.hpp>
+#include "opencv2/imgproc/imgproc.hpp"
 #include "Eigen.h"
 #include "ceres/ceres.h"
 #include "common.h"
@@ -13,15 +14,16 @@ public:
     // initialize
     //SurfaceMeasurement() : { }
 
-    const bool init_pyramid(ImageProperties* image_properties)
+    bool init_pyramid(ImageProperties* image_properties)
     {
         // TODO: will initialize pyramid for given number of layers
         // TODO: need to change camera parameters with scaling level and need to add cv::pyrDown() so that values are resized accordingly.
 
         for(int i=0; i < num_levels; i++)
         {
-            if(i==0) image_properties->all_data[i].curr_level_data = (std::vector<float>) reinterpret_cast<unsigned long>(image_properties->m_depthMap);
-            else cv::pyrDown(image_properties->all_data[i-1].curr_level_data, image_properties->all_data[i].curr_level_data);
+            if(i==0) image_properties->all_data[i].curr_level_data = image_properties->m_depthMap;
+            else cv::pyrDown(image_properties->all_data[i-1].curr_level_data,
+                            image_properties->all_data[i].curr_level_data);
 
             auto scale = (float) ceres::pow(2, i);
 
@@ -51,7 +53,7 @@ public:
     }
 
     // compute bilateral filter
-    const void compute_bilateral_filter(ImageProperties* image_properties)
+    void compute_bilateral_filter(ImageProperties* image_properties)
     {
         for(int i=0; i < num_levels; i++){
             cv::bilateralFilter(image_properties->all_data[i].curr_level_data, image_properties->all_data[i].curr_smoothed_data,
@@ -66,7 +68,7 @@ public:
         int numWH = curr_width * curr_height;
 
         for(int i=0; i < numWH; i++){
-            float currDepthValue = image_properties->all_data[level].curr_smoothed_data[i];
+            float currDepthValue =  image_properties->all_data[level].curr_smoothed_data.at<float>(i);
             if(currDepthValue == MINF){
                 image_properties->all_data[level].vertex_map[i] = Vector3f(MINF, MINF, MINF);
                 // TODO: figure out color!
@@ -96,7 +98,7 @@ public:
     }
 
     // TODO: compute normal vectors
-    void helper_compute_normal_map(ImageProperties* image_properties, int level, float fX, float fY, float cX, float cY)
+    void helper_compute_normal_map(ImageProperties* image_properties, int level)
     {
         int curr_width = (int) image_properties->all_data[level].img_width;
         int curr_height = (int) image_properties->all_data[level].img_height;
@@ -145,9 +147,7 @@ public:
 
     void compute_normal_map(ImageProperties* image_properties){
         for(int i=0; i < num_levels; i++){
-            helper_compute_normal_map(image_properties, i, image_properties->all_data[i].curr_fX,
-                                      image_properties->all_data[i].curr_fY, image_properties->all_data[i].curr_cX,
-                                      image_properties->all_data[i].curr_cY);
+            helper_compute_normal_map(image_properties, i);
         }
     }
 
@@ -174,7 +174,7 @@ private:
     float bilateral_spatial_sigma;
     int depth_diameter;
 
-    float fX;
+    /*float fX;
     float fY;
     float cX;
     float cY;
@@ -190,5 +190,5 @@ private:
     unsigned int m_depthImageHeight;
     CameraRefPoints *camera_reference_points;
     GlobalPoints *global_points;
-    SurfaceLevelData *all_data;
+    SurfaceLevelData *all_data;*/
 };

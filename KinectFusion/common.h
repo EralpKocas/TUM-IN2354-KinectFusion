@@ -3,7 +3,8 @@
 #include "ceres/ceres.h"
 
 #include "VirtualSensor_freiburg.h"
-
+#include <opencv2/opencv.hpp>
+#include "opencv2/imgproc/imgproc.hpp"
 
 #ifndef KINECTFUSION_COMMON_H
 #define KINECTFUSION_COMMON_H
@@ -31,8 +32,10 @@ struct SurfaceLevelData
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
     // will create a data structure for holding all data for all levels!
-    std::vector<float> curr_level_data;
-    std::vector<float> curr_smoothed_data;
+    //std::vector<float> curr_level_data;
+    cv::Mat curr_level_data;
+    //std::vector<float> curr_smoothed_data;
+    cv::Mat curr_smoothed_data;
     float img_width;
     float img_height;
     // TODO: figure out color!
@@ -54,7 +57,7 @@ struct ImageProperties{
     float cX;
     float cY;
 
-    float *m_depthMap;
+    cv::Mat m_depthMap;
     BYTE *m_colorMap;
     Matrix4f m_trajectory;
     Matrix4f m_trajectoryInv;
@@ -76,14 +79,14 @@ struct ImageProperties{
         int numWH = imageProperties->m_depthImageWidth * imageProperties->m_depthImageHeight;
 
         for(int i=0; i < numWH; i++){
-            if(imageProperties->m_depthMap[i] == MINF){
+            if(imageProperties->m_depthMap.at<float>(i) == MINF){
                 imageProperties->camera_reference_points[i].position = Vector3f(MINF, MINF, MINF);
                 imageProperties->global_points[i].color = Vector4uc(0,0,0,0);
             }
             else{
                 int pixel_y = i / imageProperties->m_depthImageWidth;
                 int pixel_x = i - pixel_y * imageProperties->m_depthImageWidth;
-                float currDepthValue = imageProperties->m_depthMap[i];
+                float currDepthValue = imageProperties->m_depthMap.at<float>(i);
                 float camera_x = currDepthValue * ((float) pixel_x - imageProperties->cX) / imageProperties->fX;
                 float camera_y = currDepthValue * ((float) pixel_y - imageProperties->cY) / imageProperties->fY;
 
@@ -99,7 +102,7 @@ struct ImageProperties{
         int numWH = imageProperties->m_depthImageWidth * imageProperties->m_depthImageHeight;
 
         for(int i=0; i < numWH; i++) {
-            if (imageProperties->m_depthMap[i] == MINF) {
+            if (imageProperties->m_depthMap.at<float>(i) == MINF) {
                 imageProperties->global_points[i].position = Vector4f(MINF, MINF, MINF, MINF);
                 imageProperties->global_points[i].color = Vector4uc(0, 0, 0, 0);
             } else {

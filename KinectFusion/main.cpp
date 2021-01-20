@@ -2,19 +2,23 @@
 #include <fstream>
 #include <array>
 
+#include "common.h"
 #include <opencv2/opencv.hpp>
+#include "opencv2/imgproc/imgproc.hpp"
+
 #include "Eigen.h"
 
 #include "VirtualSensor_freiburg.h"
 #include "VirtualSensor_office.h"
 #include "SurfaceMeasurement.h"
-#include "common.h"
 
 ImageProperties* init(VirtualSensor_freiburg &sensor)
 {
     ImageProperties* imageProperties = new ImageProperties();
+    float* sensor_depth_map = sensor.getDepth();
+    cv::Mat cv_depth_map = cv::Mat(480*640, 1, CV_32F, sensor_depth_map);
 
-    imageProperties->m_depthMap = sensor.getDepth();
+    imageProperties->m_depthMap = cv_depth_map;
     imageProperties->m_colorMap = sensor.getColorRGBX();
     imageProperties->m_trajectory = sensor.getTrajectory();
     imageProperties->m_trajectoryInv = sensor.getTrajectory().inverse();
@@ -40,7 +44,7 @@ ImageProperties* init(VirtualSensor_freiburg &sensor)
 int main() {
 
     // Make sure this path points to the data folder
-    std::string filenameIn = "/Users/beyzatugcebilgic/Desktop/3d scanning/TUM-IN2354-KinectFusion/KinectFusion/data/rgbd_dataset_freiburg1_xyz/";
+    std::string filenameIn = "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/data/rgbd_dataset_freiburg1_xyz/";
 
     // load video
     std::cout << "Initialize virtual sensor..." << std::endl;
@@ -56,7 +60,8 @@ int main() {
         ImageProperties* imageProperties = init(sensor);
         // get ptr to the current depth frame
         // depth is stored in row major (get dimensions via sensor.GetDepthImageWidth() / GetDepthImageHeight())
-        float *depthMap = imageProperties->m_depthMap;
+
+        //float *depthMap = imageProperties->m_depthMap;
 
         // get ptr to the current color frame
         // color is stored as RGBX in row major (4 byte values per pixel, get dimensions via sensor.GetColorImageWidth() / GetColorImageHeight())
