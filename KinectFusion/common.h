@@ -72,7 +72,6 @@ struct ImageProperties{
     SurfaceLevelData *all_data;
 };
 
-
     // compute 3d camera reference points
     void compute_camera_ref_points(ImageProperties* imageProperties)
     {

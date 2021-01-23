@@ -12,7 +12,7 @@ class SurfaceMeasurement {
 public:
 
     // initialize
-    //SurfaceMeasurement() : { }
+    SurfaceMeasurement() { }
 
     bool init_pyramid(ImageProperties* image_properties)
     {

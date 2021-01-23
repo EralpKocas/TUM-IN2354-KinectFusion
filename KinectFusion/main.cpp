@@ -11,6 +11,8 @@
 #include "VirtualSensor_freiburg.h"
 #include "VirtualSensor_office.h"
 #include "SurfaceMeasurement.h"
+//#include "SurfaceReconstructionUpdate.h"
+#include "SurfacePrediction.h"
 
 ImageProperties* init(VirtualSensor_freiburg &sensor)
 {
