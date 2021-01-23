@@ -1,3 +1,0 @@
-/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion-bin/CMakeFiles/rebuild_cache.dir
-/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion-bin/CMakeFiles/edit_cache.dir
-/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion-bin/CMakeFiles/KinectFusion.dir
