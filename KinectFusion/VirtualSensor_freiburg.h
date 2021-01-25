@@ -23,16 +23,12 @@ public:
 
 	bool init(const std::string& datasetDir) {
 		m_baseDir = datasetDir;
-
 		// Read filename lists
 		if (!readFileList(datasetDir + "depth.txt", m_filenameDepthImages, m_depthImagesTimeStamps)) return false;
-		if (!readFileList(datasetDir + "rgb.txt", m_filenameColorImages, m_colorImagesTimeStamps)) return false;
-
+        if (!readFileList(datasetDir + "rgb.txt", m_filenameColorImages, m_colorImagesTimeStamps)) return false;
 		// Read tracking
 		if (!readTrajectoryFile(datasetDir + "groundtruth.txt", m_trajectory, m_trajectoryTimeStamps)) return false;
-
 		if (m_filenameDepthImages.size() != m_filenameColorImages.size()) return false;
-
 		// Image resolutions
 		m_colorImageWidth = 640;
 		m_colorImageHeight = 480;

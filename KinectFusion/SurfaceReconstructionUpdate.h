@@ -1,9 +1,15 @@
-#include <array>
+#pragma once
+
+#ifndef KINECTFUSION_SURFACE_RECONSTRUCTION_H
+#define KINECTFUSION_SURFACE_RECONSTRUCTION_H
+
+/*#include <array>
 #include <algorithm>
 
-#include <opencv2/opencv.hpp>
-#include "ceres/ceres.h"
-#include "common.h"
+#include <opencv4/opencv2/opencv.hpp>
+//#include <opencv2/opencv.hpp>
+#include "ceres/ceres.h"*/
+#include <common.h>
 
 
 
@@ -82,10 +88,4 @@ private:
 
 };
 
-
-
-
-
-
-
-
+#endif

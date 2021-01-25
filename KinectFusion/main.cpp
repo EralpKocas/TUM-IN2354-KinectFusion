@@ -1,26 +1,19 @@
 #include <iostream>
-#include <fstream>
+//#include <fstream>
 #include <array>
 
-#include "common.h"
-#include <opencv2/opencv.hpp>
-#include "opencv2/imgproc/imgproc.hpp"
-
-#include "Eigen.h"
-
+#include <common.h>
 #include "VirtualSensor_freiburg.h"
-#include "VirtualSensor_office.h"
+
 #include "SurfaceMeasurement.h"
-//#include "SurfaceReconstructionUpdate.h"
-#include "SurfacePrediction.h"
+#include "SurfaceReconstructionUpdate.h"
+//#include "SurfacePrediction.h"
 
 ImageProperties* init(VirtualSensor_freiburg &sensor)
 {
     ImageProperties* imageProperties = new ImageProperties();
-    float* sensor_depth_map = sensor.getDepth();
-    cv::Mat cv_depth_map = cv::Mat(480*640, 1, CV_32F, sensor_depth_map);
 
-    imageProperties->m_depthMap = cv_depth_map;
+    imageProperties->m_depthMap = cv::Mat(640*480, 1, CV_32F, sensor.getDepth());
     imageProperties->m_colorMap = sensor.getColorRGBX();
     imageProperties->m_trajectory = sensor.getTrajectory();
     imageProperties->m_trajectoryInv = sensor.getTrajectory().inverse();
@@ -46,8 +39,7 @@ ImageProperties* init(VirtualSensor_freiburg &sensor)
 int main() {
 
     // Make sure this path points to the data folder
-    std::string filenameIn = "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/data/rgbd_dataset_freiburg1_xyz/";
-
+    std::string filenameIn = "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/data/rgbd_dataset_freiburg1_xyz/";
     // load video
     std::cout << "Initialize virtual sensor..." << std::endl;
     VirtualSensor_freiburg sensor;

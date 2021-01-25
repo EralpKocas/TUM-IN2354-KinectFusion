@@ -1,11 +1,34 @@
+#pragma once
 
+#ifndef KINECTFUSION_SURFACE_PREDICTION_H
+#define KINECTFUSION_SURFACE_PREDICTION_H
+
+#include <array>
+
+//#include <opencv4/opencv2/opencv.hpp>
+//#include <opencv2/opencv.hpp>
+/*#include <opencv2/core/mat.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include "Eigen.h"
+#include "ceres/ceres.h"*/
+#include <common.h>
 
 
 class SurfacePrediction {
 
+public:
     SurfacePrediction() {}
 
+    void init()
+    {
+
+    }
+
     // TODO: define a function to calculate raycast of a pixel
+    void calculate_pixel_raycast(Vector2f pixel, ImageProperties image_properties, float fX, float fY, float cX, float cY)
+    {
+        // return or set to smth global pose * K^(-1) * u^.
+    }
 
     // TODO: apply marching steps for per pixel u from minimum depth until finding a surface
         // stop conditions:
@@ -26,4 +49,8 @@ class SurfacePrediction {
 
         // TODO: obtain higher quality intersections around the found intersections of SDF.
         // TODO: predicted vertex and normal maps are computed at interpolated location in the global frame.
+private:
+
 };
+
+#endif

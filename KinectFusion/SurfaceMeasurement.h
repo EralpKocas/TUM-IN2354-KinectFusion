@@ -1,10 +1,17 @@
+#pragma once
+
+#ifndef KINECTFUSION_SURFACE_MEASUREMENT_H
+#define KINECTFUSION_SURFACE_MEASUREMENT_H
+
 #include <array>
 
-#include <opencv2/opencv.hpp>
-#include "opencv2/imgproc/imgproc.hpp"
+//#include <opencv4/opencv2/opencv.hpp>
+//#include <opencv2/opencv.hpp>
+/*#include <opencv2/core/mat.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 #include "Eigen.h"
-#include "ceres/ceres.h"
-#include "common.h"
+#include "ceres/ceres.h"*/
+#include <common.h>
 
 
 class SurfaceMeasurement {
@@ -21,9 +28,6 @@ public:
 
         for(int i=0; i < num_levels; i++)
         {
-            if(i==0) image_properties->all_data[i].curr_level_data = image_properties->m_depthMap;
-            else cv::pyrDown(image_properties->all_data[i-1].curr_level_data,
-                            image_properties->all_data[i].curr_level_data);
 
             auto scale = (float) ceres::pow(2, i);
 
@@ -33,6 +37,22 @@ public:
             image_properties->all_data[i].curr_fY = image_properties->fY / scale;
             image_properties->all_data[i].curr_cX = image_properties->cX / scale;
             image_properties->all_data[i].curr_cY = image_properties->cY / scale;
+
+            /*image_properties->all_data[i].curr_level_data = cv::Mat::zeros(
+                    cv::Size(image_properties->all_data[i].img_width,
+                             image_properties->all_data[i].img_height), CV_64FC1);*/
+
+            if(i==0){
+                image_properties->all_data[i].curr_level_data = image_properties->m_depthMap;
+            }
+            else{
+                cv::pyrDown(image_properties->all_data[i-1].curr_level_data,
+                            image_properties->all_data[i].curr_level_data);
+            }
+            image_properties->all_data[i].vertex_map = std::vector<Vector3f>(image_properties->all_data[i].img_width *
+                                                                                    image_properties->all_data[i].img_height);
+            image_properties->all_data[i].normal_map = std::vector<Vector3f>(image_properties->all_data[i].img_width *
+                                                                             image_properties->all_data[i].img_height);
         }
         return true;
     }
@@ -44,11 +64,11 @@ public:
 
     bool init(ImageProperties* image_properties)
     {
-        image_properties->all_data = new SurfaceLevelData[num_levels];
         num_levels = 3;
         bilateral_color_sigma = 1.;
         bilateral_spatial_sigma = 1.;
         depth_diameter = 3 * (int) bilateral_color_sigma;
+        image_properties->all_data = new SurfaceLevelData[num_levels];
         return init_pyramid(image_properties);
     }
 
@@ -192,3 +212,5 @@ private:
     GlobalPoints *global_points;
     SurfaceLevelData *all_data;*/
 };
+
+#endif
