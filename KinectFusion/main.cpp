@@ -72,6 +72,9 @@ int main() {
 
         SurfaceMeasurement surface_measurement;
         surface_measurement.surface_measurement_pipeline(imageProperties);
+
+        SurfaceReconstructionUpdate reconstruction_update;
+        reconstruction_update.updateSurfaceReconstruction(imageProperties);
         /*if(!surface_measurement.init(depthMap, colorMap, trajectory, trajectoryInv, depthIntrinsics))
         {
             std::cout << "Failed to read and assign data!" << std::endl;

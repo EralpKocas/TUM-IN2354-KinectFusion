@@ -30,6 +30,15 @@ struct GlobalPoints
     Vector4uc color;
 };
 
+struct TSDFValue
+{
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    // position stored as 4 floats (4th component is supposed to be 1.0)
+    float tsdf_distance_value;
+    // color stored as 4 unsigned char
+    int tsdf_weight;
+};
+
 struct SurfaceLevelData
 {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -48,6 +57,7 @@ struct SurfaceLevelData
     float curr_fY;
     float curr_cX;
     float curr_cY;
+    TSDFValue* tsdf_value;
     std::vector<Vector3f> vertex_map;
     std::vector<Vector3f> normal_map;
 
@@ -76,10 +86,10 @@ struct ImageProperties{
 };
 
 // compute 3d camera reference points
-void compute_camera_ref_points(ImageProperties* imageProperties)
+void compute_camera_ref_points(ImageProperties* imageProperties, int level)
 {
-    int numWH = imageProperties->m_depthImageWidth * imageProperties->m_depthImageHeight;
-
+    int numWH = imageProperties->all_data[level].img_width * imageProperties->all_data[level].img_height;
+    imageProperties->camera_reference_points = new CameraRefPoints[numWH];
     for(int i=0; i < numWH; i++){
         if(imageProperties->m_depthMap.at<float>(i) == MINF){
             imageProperties->camera_reference_points[i].position = Vector3f(MINF, MINF, MINF);
@@ -99,9 +109,10 @@ void compute_camera_ref_points(ImageProperties* imageProperties)
 }
 
 // compute global 3D points
-void compute_global_points(ImageProperties* imageProperties)
+void compute_global_points(ImageProperties* imageProperties, int level)
 {
-    int numWH = imageProperties->m_depthImageWidth * imageProperties->m_depthImageHeight;
+    int numWH = imageProperties->all_data[level].img_width * imageProperties->all_data[level].img_height;
+    imageProperties->global_points = new GlobalPoints[numWH];
 
     for(int i=0; i < numWH; i++) {
         if (imageProperties->m_depthMap.at<float>(i) == MINF) {
