@@ -99,6 +99,23 @@ public:
                 this->imageProperties->all_data[i].tsdf_value[j].tsdf_weight = truncWeight;
             }
         }
+
+        int non_zero = 0;
+        std::cout << "Outputs of Second Step : Surface Reconstruction Update\n" << std::endl;
+        for(int k=0; k < image_properties->all_data[0].img_width * image_properties->all_data[0].img_height; k++){
+            if(!isnan(image_properties->all_data[0].vertex_map[k].x())){
+                non_zero = k;
+                break;
+            }
+        }
+        std::cout << "For the first not nan vertex & normal values at pixel " << non_zero << "\n" << std::endl;
+        std::cout << "Calculated TSDF value " << this->imageProperties->all_data[0].tsdf_value[non_zero].tsdf_distance_value << "\n" << std::endl;
+        std::cout << "Calculated TSDF weight " << this->imageProperties->all_data[0].tsdf_value[non_zero].tsdf_weight << "\n" << std::endl;
+
+        std::cout << "Second operation to check averaging of TSDF values at pixel " << non_zero + 1 << std::endl;
+        std::cout << "Calculated TSDF value for next pixel " << this->imageProperties->all_data[0].tsdf_value[non_zero+1].tsdf_distance_value << "\n" << std::endl;
+        std::cout << "Calculated TSDF weight for next pixel " << this->imageProperties->all_data[0].tsdf_value[non_zero+1].tsdf_weight << "\n" << std::endl;
+        exit(0);
         image_properties = this->imageProperties;
     }
 

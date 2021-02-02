@@ -186,6 +186,27 @@ public:
         compute_bilateral_filter(image_properties);
         compute_vertex_map(image_properties);
         compute_normal_map(image_properties);
+
+        /*int non_zero = 0;
+        std::cout << "Outputs of First Step : Surface Measurement\n" << std::endl;
+        for(int i=0; i < image_properties->all_data[0].img_width * image_properties->all_data[0].img_height; i++){
+            //if(!isnan(image_properties->all_data[0].curr_smoothed_data.at<float>(i, 1))){
+            //if(image_properties->all_data[0].curr_level_data.at<float>(i, 1) != MINF){
+            if(!isnan(image_properties->all_data[0].vertex_map[i].x())){
+                non_zero = i;
+                break;
+            }
+        }
+        std::cout << "For the first not nan vertex & normal values at pixel " << non_zero << "\n" << std::endl;
+        std::cout << "current depth data: " << image_properties->all_data[0].curr_level_data.at<float>(non_zero, 1) << std::endl;
+        std::cout << "current smoothed data: " << image_properties->all_data[0].curr_smoothed_data.at<float>(non_zero, 1) << std::endl;
+        std::cout << "current fX: " << image_properties->all_data[0].curr_fX << std::endl;
+        std::cout << "current fY: " << image_properties->all_data[0].curr_fY << std::endl;
+        std::cout << "current cX: " << image_properties->all_data[0].curr_cX << std::endl;
+        std::cout << "current cY: " << image_properties->all_data[0].curr_cY << std::endl;
+        std::cout << "vertex map: \n" << image_properties->all_data[0].vertex_map[non_zero] << std::endl;
+        std::cout << "normal map: \n" << image_properties->all_data[0].normal_map[non_zero] << std::endl;
+        exit(0);*/
     }
 
 private:

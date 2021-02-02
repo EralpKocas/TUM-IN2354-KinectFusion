@@ -44,6 +44,8 @@ set(HEADER_FILES
         Eigen.h
         VirtualSensor_freiburg.h
         VirtualSensor_office.h
+        MarchingCubes.h
+        Volume.h
         NearestNeighbor.h
         FreeImageHelper.h
         common.h
@@ -52,7 +54,9 @@ set(HEADER_FILES
         SurfacePrediction.h
         )
 set(SOURCE_FILES
+        main.cpp
         FreeImageHelper.cpp
+        Volume.cpp
         )
 
 link_directories(${FreeImage_LIBRARY_DIR} ${OpenCV_IMGPROC_LIBRARY_DIR} ${OpenCV_CORE_LIBRARY_DIR})
