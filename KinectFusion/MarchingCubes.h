@@ -441,14 +441,14 @@ bool ProcessVolumeCell(Volume* vol, int x, int y, int z, double iso, SimpleMesh*
 	cell.p[7] = Vector3d(tmp[0], tmp[1], tmp[2]);
 
 	// cell corner values
-	cell.val[0] = (double)vol->get(x + 1, y, z);
-	cell.val[1] = (double)vol->get(x, y, z);
-	cell.val[2] = (double)vol->get(x, y + 1, z);
-	cell.val[3] = (double)vol->get(x + 1, y + 1, z);
-	cell.val[4] = (double)vol->get(x + 1, y, z + 1);
-	cell.val[5] = (double)vol->get(x, y, z + 1);
-	cell.val[6] = (double)vol->get(x, y + 1, z + 1);
-	cell.val[7] = (double)vol->get(x + 1, y + 1, z + 1);
+	cell.val[0] = (double)vol->get(x + 1, y, z).tsdf_distance_value;
+	cell.val[1] = (double)vol->get(x, y, z).tsdf_distance_value;
+	cell.val[2] = (double)vol->get(x, y + 1, z).tsdf_distance_value;
+	cell.val[3] = (double)vol->get(x + 1, y + 1, z).tsdf_distance_value;
+	cell.val[4] = (double)vol->get(x + 1, y, z + 1).tsdf_distance_value;
+	cell.val[5] = (double)vol->get(x, y, z + 1).tsdf_distance_value;
+	cell.val[6] = (double)vol->get(x, y + 1, z + 1).tsdf_distance_value;
+	cell.val[7] = (double)vol->get(x + 1, y + 1, z + 1).tsdf_distance_value;
 
 	MC_Triangle tris[6];
 	int numTris = Polygonise(cell, iso, tris);

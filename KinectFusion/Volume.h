@@ -5,6 +5,7 @@
 
 #include <limits>
 #include "Eigen.h"
+#include "common.h"
 typedef unsigned int uint;
 
 //! A regular volume dataset
@@ -13,7 +14,7 @@ class Volume
 public:
 
 	//! Initializes an empty volume dataset.
-	Volume(Vector3d min_, Vector3d max_, uint dx_ = 10, uint dy_ = 10, uint dz_ = 10, uint dim = 1);
+	Volume(Vector3f min_, Vector3f max_, uint dx_ = 10, uint dy_ = 10, uint dz_ = 10, uint dim = 1);
 
 	~Volume();
 
@@ -23,8 +24,8 @@ public:
 		maxVal = -minVal;
 		for (uint i1 = 0; i1 < dx*dy*dz; i1++)
 		{
-			if (minVal > vol[i1]) minVal = vol[i1];
-			if (maxVal < vol[i1]) maxVal = vol[i1];
+			if (minVal > vol[i1].tsdf_distance_value) minVal = vol[i1].tsdf_distance_value;
+			if (maxVal < vol[i1].tsdf_distance_value) maxVal = vol[i1].tsdf_distance_value;
 		}
 	}
 
@@ -43,29 +44,29 @@ public:
 		if (val < minValue)
 			minValue = val;
 
-		vol[i] = val;
+		vol[i].tsdf_distance_value = (float) val;
 	}
 
 	//! Set the value at (x_, y_, z_).
-	inline void set(uint x_, uint y_, uint z_, double val)
+	inline void set(uint x_, uint y_, uint z_, Voxel val)
 	{
 		vol[getPosFromTuple(x_, y_, z_)] = val;
 	};
 
 	//! Get the value at (x_, y_, z_).
-	inline double get(uint i) const
+	inline Voxel get(uint i) const
 	{
 		return vol[i];
 	};
 
 	//! Get the value at (x_, y_, z_).
-	inline double get(uint x_, uint y_, uint z_) const
+	inline Voxel get(uint x_, uint y_, uint z_) const
 	{
 		return vol[getPosFromTuple(x_, y_, z_)];
 	};
 
 	//! Get the value at (pos.x, pos.y, pos.z).
-	inline double get(const Vector3i& pos_) const
+	inline Voxel get(const Vector3i& pos_) const
 	{
 		return(get(pos_[0], pos_[1], pos_[2]));
 	}
@@ -101,7 +102,7 @@ public:
 	}
 
 	//! Returns the Data.
-	double* getData();
+	Voxel* getData();
 
 	//! Sets all entries in the volume to '0'
 	void clean();
@@ -142,7 +143,7 @@ public:
 	//! Number of cells in x, y and z-direction.
 	uint dx, dy, dz;
 
-	double* vol;
+	Voxel* vol;
 
 	double maxValue, minValue;
 
@@ -150,8 +151,10 @@ public:
 
 private:
 
+
+
 	//! x,y,z access to vol*
-	inline double vol_access(int x, int y, int z) const
+	inline Voxel vol_access(int x, int y, int z) const
 	{
 		return vol[getPosFromTuple(x, y, z)];
 	}

@@ -9,6 +9,10 @@
 #include "SurfaceReconstructionUpdate.h"
 //#include "SurfacePrediction.h"
 
+#define MIN_POINT -1.5f, -1.0f, -0.1f
+#define MAX_POINT 1.5f, 1.0f, 3.5f
+#define RESOLUTION 512, 512, 512
+
 ImageProperties* init(VirtualSensor_freiburg &sensor)
 {
     ImageProperties* imageProperties = new ImageProperties();
@@ -32,6 +36,7 @@ ImageProperties* init(VirtualSensor_freiburg &sensor)
 
     imageProperties->camera_reference_points = new CameraRefPoints[imageProperties->m_depthImageWidth * imageProperties->m_depthImageHeight];
     imageProperties->global_points = new GlobalPoints[imageProperties->m_depthImageWidth * imageProperties->m_depthImageHeight];
+    imageProperties->global_tsdf = new Volume(Vector3f(MIN_POINT), Vector3f(MAX_POINT), RESOLUTION, 3);
     return imageProperties;
 }
 

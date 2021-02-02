@@ -45,6 +45,7 @@ set(HEADER_FILES
         VirtualSensor_freiburg.h
         VirtualSensor_office.h
         MarchingCubes.h
+        SimpleMesh.h
         Volume.h
         NearestNeighbor.h
         FreeImageHelper.h

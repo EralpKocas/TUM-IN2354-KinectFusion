@@ -1,7 +1,7 @@
 #include "Volume.h"
 
 //! Initializes an empty volume dataset.
-Volume::Volume(Vector3d min_, Vector3d max_, uint dx_, uint dy_, uint dz_, uint dim)
+Volume::Volume(Vector3f min_, Vector3f max_, uint dx_, uint dy_, uint dz_, uint dim)
 {
 	min = min_;
 	max = max_;
@@ -12,7 +12,7 @@ Volume::Volume(Vector3d min_, Vector3d max_, uint dx_, uint dy_, uint dz_, uint 
 	m_dim = dim;
 	vol = NULL;
 
-	vol = new double[dx*dy*dz];
+	vol = new Voxel[dx*dy*dz];
 
 	compute_ddx_dddx();
 }
@@ -46,21 +46,19 @@ void Volume::compute_ddx_dddx()
 //! Zeros out the memory
 void Volume::zeroOutMemory()
 {
-	for (uint i1 = 0; i1 < dx*dy*dz; i1++)
-		vol[i1] = double(0);
+	for (uint i1 = 0; i1 < dx*dy*dz; i1++){
+		vol[i1].tsdf_distance_value = float(0);
+		vol[i1].tsdf_weight = float(0);
+		vol[i1].color = Vector4uc{0, 0, 0, 0};
+    }
 }
 
 //! Returns the Data.
-double* Volume::getData()
+Voxel* Volume::getData()
 {
 	return vol;
 };
 
-//! Sets all entries in the volume to '0'
-void Volume::clean()
-{
-	for (uint i1 = 0; i1 < dx*dy*dz; i1++) vol[i1] = double(0.0);
-}
 
 //! Sets minimum extension
 void Volume::SetMin(Vector3d min_)

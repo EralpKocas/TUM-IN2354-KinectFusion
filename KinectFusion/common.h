@@ -6,7 +6,7 @@
 #include <array>
 #include "Eigen.h"
 #include "ceres/ceres.h"
-
+#include "Volume.h"
 #include "VirtualSensor_freiburg.h"
 //#include "opencv2/opencv.hpp"
 #include <opencv2/core/mat.hpp>
@@ -30,34 +30,29 @@ struct GlobalPoints
     Vector4uc color;
 };
 
-struct TSDFValue
+struct Voxel
 {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     // position stored as 4 floats (4th component is supposed to be 1.0)
     float tsdf_distance_value;
     // color stored as 4 unsigned char
     int tsdf_weight;
+    Vector4uc color;
 };
 
 struct SurfaceLevelData
 {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-    // will create a data structure for holding all data for all levels!
-    //std::vector<float> curr_level_data;
     cv::Mat curr_level_data;
-    //std::vector<float> curr_smoothed_data;
     cv::Mat curr_smoothed_data;
     float img_width;
     float img_height;
-    // TODO: figure out color!
-    BYTE* curr_level_color;
-    //std::vector<BYTE> curr_level_color;
     float curr_fX;
     float curr_fY;
     float curr_cX;
     float curr_cY;
-    TSDFValue* tsdf_value;
+    Voxel* tsdf_value;
     std::vector<Vector3f> vertex_map;
     std::vector<Vector3f> normal_map;
 
@@ -83,6 +78,7 @@ struct ImageProperties{
     CameraRefPoints *camera_reference_points;
     GlobalPoints *global_points;
     SurfaceLevelData *all_data;
+    Volume* global_tsdf;
 };
 
 // compute 3d camera reference points

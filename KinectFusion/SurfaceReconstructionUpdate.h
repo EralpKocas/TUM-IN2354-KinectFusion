@@ -70,7 +70,7 @@ public:
             compute_global_points(this->imageProperties, i);
             int num_pixels = (int) this->imageProperties->all_data[i].img_width
                     * (int) this->imageProperties->all_data[i].img_height;
-            this->imageProperties->all_data[i].tsdf_value = new TSDFValue[num_pixels];
+            this->imageProperties->all_data[i].tsdf_value = new Voxel[num_pixels];
             Vector3f global_coord = Vector3f(this->imageProperties->global_points[0].position.x(),
                                              this->imageProperties->global_points[0].position.y(),
                                              this->imageProperties->global_points[0].position.z());
@@ -101,21 +101,12 @@ public:
         }
 
         int non_zero = 0;
-        std::cout << "Outputs of Second Step : Surface Reconstruction Update\n" << std::endl;
         for(int k=0; k < image_properties->all_data[0].img_width * image_properties->all_data[0].img_height; k++){
             if(!isnan(image_properties->all_data[0].vertex_map[k].x())){
                 non_zero = k;
                 break;
             }
         }
-        std::cout << "For the first not nan vertex & normal values at pixel " << non_zero << "\n" << std::endl;
-        std::cout << "Calculated TSDF value " << this->imageProperties->all_data[0].tsdf_value[non_zero].tsdf_distance_value << "\n" << std::endl;
-        std::cout << "Calculated TSDF weight " << this->imageProperties->all_data[0].tsdf_value[non_zero].tsdf_weight << "\n" << std::endl;
-
-        std::cout << "Second operation to check averaging of TSDF values at pixel " << non_zero + 1 << std::endl;
-        std::cout << "Calculated TSDF value for next pixel " << this->imageProperties->all_data[0].tsdf_value[non_zero+1].tsdf_distance_value << "\n" << std::endl;
-        std::cout << "Calculated TSDF weight for next pixel " << this->imageProperties->all_data[0].tsdf_value[non_zero+1].tsdf_weight << "\n" << std::endl;
-        exit(0);
         image_properties = this->imageProperties;
     }
 
