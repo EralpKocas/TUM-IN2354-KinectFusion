@@ -1,5 +1,5 @@
 #include "Volume.h"
-#include "common.h"
+//#include "common.h"
 
 //! Initializes an empty volume dataset.
 Volume::Volume(Vector3f min_, Vector3f max_, uint dx_, uint dy_, uint dz_, uint dim)
@@ -62,14 +62,14 @@ Voxel* Volume::getData()
 
 
 //! Sets minimum extension
-void Volume::SetMin(Vector3d min_)
+void Volume::SetMin(Vector3f min_)
 {
 	min = min_;
 	diag = max - min;
 }
 
 //! Sets maximum extension
-void Volume::SetMax(Vector3d max_)
+void Volume::SetMax(Vector3f max_)
 {
 	max = max_;
 	diag = max - min;

@@ -79,6 +79,8 @@ public:
         truncate_updated_weight = 128; // check the intuition!
         this->imageProperties = image_properties;
 
+
+
         for(int i=0; i < image_properties->global_tsdf->getDimX(); i++){
             for(int j=0; j < image_properties->global_tsdf->getDimY(); j++){
                 for(int k=0; k < image_properties->global_tsdf->getDimZ(); k++){
@@ -109,23 +111,34 @@ public:
 
                     int W_k = 1;
 
-                    float prev_F_rk = image_properties->global_tsdf->get(i, j, k)->tsdf_distance_value;
-                    float prev_W_k = image_properties->global_tsdf->get(i, j, k)->tsdf_weight;
+                    //float prev_F_rk = image_properties->global_tsdf->get(i, j, k).tsdf_distance_value;
+                    Voxel prev_voxel = image_properties->global_tsdf->get(i, j, k);
+                    //float prev_W_k = image_properties->global_tsdf->get(i, j, k).tsdf_weight;
 
-                    float updated_tsdf = calculateWeightedTSDF(prev_W_k, prev_F_rk, W_k, F_rk);
+
+                    float updated_tsdf = calculateWeightedTSDF(prev_voxel.tsdf_weight, prev_voxel.tsdf_distance_value, W_k, F_rk);
                     int truncated_weight = calculateTruncatedWeight(calculateWeightedAvgWeight
-                            (prev_W_k, W_k), truncate_updated_weight);
+                            (prev_voxel.tsdf_weight, W_k), truncate_updated_weight);
 
-                    image_properties->global_tsdf->get(i, j, k)->tsdf_distance_value = updated_tsdf;
-                    image_properties->global_tsdf->get(i, j, k)->tsdf_weight = truncated_weight;
+                    //image_properties->global_tsdf->get(i, j, k).tsdf_distance_value = updated_tsdf;
+                    image_properties->global_tsdf->set(i, j, k, prev_voxel);
+                    //image_properties->global_tsdf->get(i, j, k).tsdf_weight = truncated_weight;
+                    //image_properties->global_tsdf->set(i, j, k, prev_voxel);
 
+                    Vector4uc curr_color;
                     if(F_rk <= truncation_distance / 2 && F_rk >= -truncation_distance / 2)
                     {
-                        Vector4uc prev_color = image_properties->global_tsdf->get(i, j ,k)->color;
-                        Vector4uc curr_color = (Vector4uc) image_properties->m_colorMap;
-                        image_properties->global_tsdf->get(i, j, k)->color =
-                                calculateWeightedColorUpdate(prev_W_k, prev_color, W_k, curr_color);
+                        Vector4uc prev_color = image_properties->global_tsdf->get(i, j ,k).color;
+                        curr_color = (Vector4uc) image_properties->m_colorMap;
+                        curr_color = calculateWeightedColorUpdate(truncated_weight, prev_color, prev_voxel.tsdf_weight, curr_color);
                     }
+
+                    Voxel* curr_voxel = new Voxel();
+                    curr_voxel->tsdf_distance_value = updated_tsdf;
+                    curr_voxel->tsdf_weight = truncated_weight;
+                    curr_voxel->color = curr_color;
+                    image_properties->global_tsdf->set(i, j, k, *curr_voxel);
+
                 }
             }
         }

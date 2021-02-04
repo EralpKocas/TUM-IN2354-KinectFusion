@@ -5,8 +5,18 @@
 
 #include <limits>
 #include "Eigen.h"
-#include "common.h"
+//#include "common.h"
 typedef unsigned int uint;
+
+struct Voxel
+{
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    // position stored as 4 floats (4th component is supposed to be 1.0)
+    float tsdf_distance_value;
+    // color stored as 4 unsigned char
+    int tsdf_weight;
+    Vector4uc color;
+};
 
 //! A regular volume dataset
 class Volume
@@ -116,14 +126,14 @@ public:
 	//! Returns number of cells in z-dir.
 	inline uint getDimZ() const { return dz; }
 
-	inline Vector3d getMin() { return min; }
-	inline Vector3d getMax() { return max; }
+	inline Vector3f getMin() { return min; }
+	inline Vector3f getMax() { return max; }
 
 	//! Sets minimum extension
-	void SetMin(Vector3d min_);
+	void SetMin(Vector3f min_);
 
 	//! Sets maximum extension
-	void SetMax(Vector3d max_);
+	void SetMax(Vector3f max_);
 
 	inline uint getPosFromTuple(int x, int y, int z) const
 	{
@@ -132,10 +142,10 @@ public:
 
 
 	//! Lower left and Upper right corner.
-	Vector3d min, max;
+	Vector3f min, max;
 
 	//! max-min
-	Vector3d diag;
+	Vector3f diag;
 
 	double ddx, ddy, ddz;
 	double dddx, dddy, dddz;

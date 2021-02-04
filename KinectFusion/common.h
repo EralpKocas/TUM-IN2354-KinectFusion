@@ -30,15 +30,6 @@ struct GlobalPoints
     Vector4uc color;
 };
 
-struct Voxel
-{
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-    // position stored as 4 floats (4th component is supposed to be 1.0)
-    float tsdf_distance_value;
-    // color stored as 4 unsigned char
-    int tsdf_weight;
-    Vector4uc color;
-};
 
 struct SurfaceLevelData
 {
@@ -54,6 +45,8 @@ struct SurfaceLevelData
     float curr_cY;
     std::vector<Vector3f> vertex_map;
     std::vector<Vector3f> normal_map;
+    std::vector<Vector3f> vertex_map_predicted;
+    std::vector<Vector3f> normal_map_predicted;
 
 };
 
