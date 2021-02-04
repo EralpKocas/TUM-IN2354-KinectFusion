@@ -151,8 +151,6 @@ public:
 
 private:
 
-
-
 	//! x,y,z access to vol*
 	inline Voxel vol_access(int x, int y, int z) const
 	{

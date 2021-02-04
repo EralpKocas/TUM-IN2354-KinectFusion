@@ -52,12 +52,10 @@ struct SurfaceLevelData
     float curr_fY;
     float curr_cX;
     float curr_cY;
-    Voxel* tsdf_value;
     std::vector<Vector3f> vertex_map;
     std::vector<Vector3f> normal_map;
 
 };
-
 
 struct ImageProperties{
     float fX;

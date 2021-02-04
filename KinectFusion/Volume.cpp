@@ -1,4 +1,5 @@
 #include "Volume.h"
+#include "common.h"
 
 //! Initializes an empty volume dataset.
 Volume::Volume(Vector3f min_, Vector3f max_, uint dx_, uint dy_, uint dz_, uint dim)
