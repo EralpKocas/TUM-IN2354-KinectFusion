@@ -25,9 +25,13 @@ public:
     }
 
     // TODO: define a function to calculate raycast of a pixel
-    void calculate_pixel_raycast(Vector2f pixel, ImageProperties image_properties, float fX, float fY, float cX, float cY)
+    Vector3f calculate_pixel_raycast(Vector3f pixel, Matrix3f rotation, Vector3f translation,
+            float fX, float fY, float cX, float cY)
     {
+        float camera_x = ((float) pixel.x() - cX) / fX;
+        float camera_y = ((float) pixel.y() - cY) / fY;
         // return or set to smth global pose * K^(-1) * u^.
+        return rotation * Vector3f(camera_x, camera_y, 1.f) + translation;
     }
 
     // TODO: apply marching steps for per pixel u from minimum depth until finding a surface
@@ -49,6 +53,27 @@ public:
 
         // TODO: obtain higher quality intersections around the found intersections of SDF.
         // TODO: predicted vertex and normal maps are computed at interpolated location in the global frame.
+
+        void predict_surface(ImageProperties*& image_properties)
+        {
+            for(int level=0; level < image_properties->num_levels; level++)
+            {
+                Vector3f translation = image_properties->m_depthExtrinsics.block(0, 3, 3, 1);
+                Matrix3f rotation = image_properties->m_depthExtrinsics.block(0, 0, 3, 3);
+                int width = image_properties->all_data[level].img_width;
+                int height = image_properties->all_data[level].img_height;
+                for(int i=0; i < width; i++)
+                {
+                    for(int j=0; j < height; j++)
+                    {
+                        Vector3f ray = calculate_pixel_raycast(Vector3f(float(i), float(j), 1.f), rotation, translation,
+                                image_properties->all_data[level].curr_fX, image_properties->all_data[level].curr_fY,
+                                image_properties->all_data[level].curr_cX, image_properties->all_data[level].curr_cY);
+
+                    }
+                }
+            }
+        }
 private:
 
 };

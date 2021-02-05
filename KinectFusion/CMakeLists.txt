@@ -53,6 +53,7 @@ set(HEADER_FILES
         SurfaceMeasurement.h
         SurfaceReconstructionUpdate.h
         SurfacePrediction.h
+        PoseEstimation.h
         )
 set(SOURCE_FILES
         main.cpp

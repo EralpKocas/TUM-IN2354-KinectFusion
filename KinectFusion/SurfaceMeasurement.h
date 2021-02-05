@@ -26,7 +26,7 @@ public:
         // TODO: will initialize pyramid for given number of layers
         // TODO: need to change camera parameters with scaling level and need to add cv::pyrDown() so that values are resized accordingly.
 
-        for(int i=0; i < num_levels; i++)
+        for(int i=0; i < image_properties->num_levels; i++)
         {
 
             auto scale = (float) ceres::pow(2, i);
@@ -38,9 +38,6 @@ public:
             image_properties->all_data[i].curr_cX = image_properties->cX / scale;
             image_properties->all_data[i].curr_cY = image_properties->cY / scale;
 
-            /*image_properties->all_data[i].curr_level_data = cv::Mat::zeros(
-                    cv::Size(image_properties->all_data[i].img_width,
-                             image_properties->all_data[i].img_height), CV_64FC1);*/
 
             if(i==0){
                 image_properties->all_data[i].curr_level_data = image_properties->m_depthMap;
@@ -64,18 +61,17 @@ public:
 
     bool init(ImageProperties* image_properties)
     {
-        num_levels = 3;
         bilateral_color_sigma = 1.;
         bilateral_spatial_sigma = 1.;
         depth_diameter = 3 * (int) bilateral_color_sigma;
-        image_properties->all_data = new SurfaceLevelData[num_levels];
+        image_properties->all_data = new SurfaceLevelData[image_properties->num_levels];
         return init_pyramid(image_properties);
     }
 
     // compute bilateral filter
     void compute_bilateral_filter(ImageProperties* image_properties)
     {
-        for(int i=0; i < num_levels; i++){
+        for(int i=0; i < image_properties->num_levels; i++){
             cv::bilateralFilter(image_properties->all_data[i].curr_level_data, image_properties->all_data[i].curr_smoothed_data,
                     depth_diameter, bilateral_color_sigma, bilateral_spatial_sigma, cv::BORDER_DEFAULT);
         }
@@ -110,7 +106,7 @@ public:
 
     // TODO: back-project filtered depth values to obtain vertex map
     void compute_vertex_map(ImageProperties* image_properties){
-        for(int i=0; i < num_levels; i++){
+        for(int i=0; i < image_properties->num_levels; i++){
             helper_compute_vertex_map(image_properties, i, image_properties->all_data[i].curr_fX,
                     image_properties->all_data[i].curr_fY, image_properties->all_data[i].curr_cX,
                     image_properties->all_data[i].curr_cY);
@@ -166,7 +162,7 @@ public:
     }
 
     void compute_normal_map(ImageProperties* image_properties){
-        for(int i=0; i < num_levels; i++){
+        for(int i=0; i < image_properties->num_levels; i++){
             helper_compute_normal_map(image_properties, i);
         }
     }
@@ -187,51 +183,14 @@ public:
         compute_vertex_map(image_properties);
         compute_normal_map(image_properties);
 
-        /*int non_zero = 0;
-        std::cout << "Outputs of First Step : Surface Measurement\n" << std::endl;
-        for(int i=0; i < image_properties->all_data[0].img_width * image_properties->all_data[0].img_height; i++){
-            //if(!isnan(image_properties->all_data[0].curr_smoothed_data.at<float>(i, 1))){
-            //if(image_properties->all_data[0].curr_level_data.at<float>(i, 1) != MINF){
-            if(!isnan(image_properties->all_data[0].vertex_map[i].x())){
-                non_zero = i;
-                break;
-            }
-        }
-        std::cout << "For the first not nan vertex & normal values at pixel " << non_zero << "\n" << std::endl;
-        std::cout << "current depth data: " << image_properties->all_data[0].curr_level_data.at<float>(non_zero, 1) << std::endl;
-        std::cout << "current smoothed data: " << image_properties->all_data[0].curr_smoothed_data.at<float>(non_zero, 1) << std::endl;
-        std::cout << "current fX: " << image_properties->all_data[0].curr_fX << std::endl;
-        std::cout << "current fY: " << image_properties->all_data[0].curr_fY << std::endl;
-        std::cout << "current cX: " << image_properties->all_data[0].curr_cX << std::endl;
-        std::cout << "current cY: " << image_properties->all_data[0].curr_cY << std::endl;
-        std::cout << "vertex map: \n" << image_properties->all_data[0].vertex_map[non_zero] << std::endl;
-        std::cout << "normal map: \n" << image_properties->all_data[0].normal_map[non_zero] << std::endl;
-        exit(0);*/
     }
 
 private:
-    int num_levels;
+
     float bilateral_color_sigma;
     float bilateral_spatial_sigma;
     int depth_diameter;
 
-    /*float fX;
-    float fY;
-    float cX;
-    float cY;
-
-    float *m_depthMap;
-    BYTE *m_colorMap;
-    Matrix4f m_trajectory;
-    Matrix4f m_trajectoryInv;
-    Matrix3f m_depthIntrinsics;
-    unsigned int m_colorImageWidth;
-    unsigned int m_colorImageHeight;
-    unsigned int m_depthImageWidth;
-    unsigned int m_depthImageHeight;
-    CameraRefPoints *camera_reference_points;
-    GlobalPoints *global_points;
-    SurfaceLevelData *all_data;*/
 };
 
 #endif

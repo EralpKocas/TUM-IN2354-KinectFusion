@@ -51,7 +51,7 @@ struct SurfaceLevelData
 };
 
 struct ImageProperties{
-    int level = 3;
+    int num_levels = 3;
     float fX;
     float fY;
     float cX;
