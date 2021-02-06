@@ -37,7 +37,7 @@ public:
     //λ = ||K^-1*x||2
 
     //float calculateCurrentTSDF( cv::Mat depthMap, Matrix3f intrinsics, Vector3f camera_ref, int k, Vector3f p){
-    float calculateCurrentTSDF(float depth, Matrix3f intrinsics, Vector3f camera_coord, Vector3f p){
+    float calculateCurrentTSDF(float depth, Matrix3f intrinsics, Vector3f camera_coord, Vector3f p, float truncation_distance){
         //Vector3f camera_pos = camera_ref - p;
         //float current_tsdf = (1.f / calculateLambda(intrinsics, p)) * camera_pos.norm() - depthMap.at<float>(k, 1);
         float current_tsdf = (-1.f) * ((1.f / calculateLambda(intrinsics, p)) * camera_coord.norm() - depth);
@@ -75,11 +75,8 @@ public:
     }
 
     void updateSurfaceReconstruction(ImageProperties*& image_properties){
-        truncation_distance = 1.0; // find the correct value!
         truncate_updated_weight = 128; // check the intuition!
         this->imageProperties = image_properties;
-
-
 
         for(int i=0; i < image_properties->global_tsdf->getDimX(); i++){
             for(int j=0; j < image_properties->global_tsdf->getDimY(); j++){
@@ -93,6 +90,7 @@ public:
                                                      image_properties->global_tsdf->min.z() +
                                                      image_properties->global_tsdf->diag.z() *
                                                      image_properties->global_tsdf->ddz * (float) k);
+
                     if(!global_coord.allFinite()) continue;
                     Vector3f camera_coord = image_properties->m_depthExtrinsics.block<3, 3>(0, 0)
                             * global_coord + image_properties->m_depthExtrinsics.block<3, 1>(0, 3);
@@ -107,7 +105,8 @@ public:
                                                                                           image_properties->all_data[0].img_width, 1);
                     if(depth == MINF) continue;
 
-                    float F_rk = calculateCurrentTSDF(depth, image_properties->m_depthIntrinsics, camera_coord, global_coord);
+                    float F_rk = calculateCurrentTSDF(depth, image_properties->m_depthIntrinsics, camera_coord,
+                            global_coord, image_properties->truncation_distance);
 
                     int W_k = 1;
 
@@ -126,7 +125,7 @@ public:
                     //image_properties->global_tsdf->set(i, j, k, prev_voxel);
 
                     Vector4uc curr_color;
-                    if(F_rk <= truncation_distance / 2 && F_rk >= -truncation_distance / 2)
+                    if(F_rk <= image_properties->truncation_distance / 2 && F_rk >= -image_properties->truncation_distance / 2)
                     {
                         Vector4uc prev_color = image_properties->global_tsdf->get(i, j ,k).color;
                         curr_color = (Vector4uc) image_properties->m_colorMap;
@@ -203,7 +202,6 @@ public:
 private:
 
     float depth_margin;                 //μ
-    float truncation_distance;          //η
     float *m_depthMap;                  //Rk
     int truncate_updated_weight; // define the value to some value!
     ImageProperties* imageProperties;

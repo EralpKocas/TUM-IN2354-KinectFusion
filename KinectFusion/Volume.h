@@ -111,6 +111,15 @@ public:
 		return coord;
 	}
 
+	//! Returns the corresponding node of given cartesian coordinates.
+	inline Vector3f compute_grid(Vector3f p)
+    {
+        return Vector3f(((p[0] - min[0]) / (max[0] - min[0])) / ddx,
+                        ((p[1] - min[1]) / (max[1] - min[1])) / ddy,
+                        ((p[2] - min[2]) / (max[2] - min[2])) / ddz
+                );
+    }
+
 	//! Returns the Data.
 	Voxel* getData();
 

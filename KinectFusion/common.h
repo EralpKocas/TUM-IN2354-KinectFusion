@@ -56,6 +56,7 @@ struct ImageProperties{
     float fY;
     float cX;
     float cY;
+    float truncation_distance;
 
     cv::Mat m_depthMap;
     BYTE *m_colorMap;
