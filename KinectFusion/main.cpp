@@ -7,11 +7,14 @@
 
 #include "SurfaceMeasurement.h"
 #include "SurfaceReconstructionUpdate.h"
+#include "PoseEstimation.h"
 //#include "SurfacePrediction.h"
+#include "SimpleMesh.h"
+#include "MarchingCubes.h"
 
 #define MIN_POINT -1.5f, -1.0f, -0.1f
 #define MAX_POINT 1.5f, 1.0f, 3.5f
-#define RESOLUTION 512, 512, 512
+#define RESOLUTION 10, 10, 10
 
 ImageProperties* init(VirtualSensor_freiburg &sensor)
 {
@@ -55,6 +58,7 @@ int main() {
     }
 
     // convert video to meshes
+    int i = 1;
     while (sensor.processNextFrame()) {
         ImageProperties* imageProperties = init(sensor);
         // get ptr to the current depth frame
@@ -80,14 +84,44 @@ int main() {
 
         SurfaceReconstructionUpdate reconstruction_update;
         reconstruction_update.updateSurfaceReconstruction(imageProperties);
+
+        std::vector<int> iterations = {4, 5, 10};
+
+        PoseEstimation pose_estimation;
+        pose_estimation.estimate_pose(iterations, imageProperties);
+
         /*if(!surface_measurement.init(depthMap, colorMap, trajectory, trajectoryInv, depthIntrinsics))
         {
             std::cout << "Failed to read and assign data!" << std::endl;
             return -1;
         }*/
+        // extract the zero iso-surface using marching cubes
+        SimpleMesh mesh;
+        for (unsigned int x = 0; x < imageProperties->global_tsdf->getDimX() - 1; x++)
+        {
+            std::cerr << "Marching Cubes on slice " << x << " of " << imageProperties->global_tsdf->getDimX() << std::endl;
 
+            for (unsigned int y = 0; y < imageProperties->global_tsdf->getDimY() - 1; y++)
+            {
+                for (unsigned int z = 0; z < imageProperties->global_tsdf->getDimZ() - 1; z++)
+                {
+                    ProcessVolumeCell(imageProperties->global_tsdf, x, y, z, (double)0.00, &mesh);
+                }
+            }
+        }
+
+        // write mesh to file
+        std::stringstream ss;
+
+        ss << "result_" << i++ << ".off";
+        if (!mesh.WriteMesh(ss.str()))
+        {
+            std::cout << "ERROR: unable to write output file!" << std::endl;
+            return -1;
+        }
+        delete imageProperties;
     }
 
-        return 0;
+    return 0;
 }
 

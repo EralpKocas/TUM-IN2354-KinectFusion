@@ -6,9 +6,9 @@
 class PoseEstimation{
 public:
 
-    void ilteber( std::vector<int> iterations, ImageProperties* imageProperties){
+    void estimate_pose( std::vector<int> iterations, ImageProperties* imageProperties){
         Isometry3f T;
-        int level = imageProperties->level;
+        int level = imageProperties->num_levels;
 
         //TODO: Put level into ImageProperties
         for ( int i = iterations[level]; i > 0; i--){
