@@ -28,10 +28,14 @@ public:
     Vector3f calculate_pixel_raycast(Vector3f pixel, Matrix3f rotation, Vector3f translation,
             float fX, float fY, float cX, float cY)
     {
-        float camera_x = ((float) pixel.x() - cX) / fX;
-        float camera_y = ((float) pixel.y() - cY) / fY;
-        // return or set to smth global pose * K^(-1) * u^.
-        return rotation * Vector3f(camera_x, camera_y, 1.f) + translation;
+        float camera_x = ((float) pixel.x() - cX) / fX;  // image to camera
+        float camera_y = ((float) pixel.y() - cY) / fY;  // image to camera
+        return rotation * Vector3f(camera_x, camera_y, 1.f) + translation;  // camera to global
+    }
+
+    Vector3f calculate_raycast_dir(Vector3f eye, Vector3f current_ray)
+    {
+        return (eye - current_ray).normalized();
     }
 
     // TODO: apply marching steps for per pixel u from minimum depth until finding a surface
@@ -66,14 +70,15 @@ public:
                 {
                     for(int j=0; j < height; j++)
                     {
-                        Vector3f ray = calculate_pixel_raycast(Vector3f(float(i), float(j), 1.f), rotation, translation,
+                        Vector3f pixel_ray = calculate_pixel_raycast(Vector3f(float(i), float(j), 1.f), rotation, translation,
                                 image_properties->all_data[level].curr_fX, image_properties->all_data[level].curr_fY,
                                 image_properties->all_data[level].curr_cX, image_properties->all_data[level].curr_cY);
-
+                        Vector3f ray_dir = calculate_raycast_dir(translation, pixel_ray);
                     }
                 }
             }
         }
+
 private:
 
 };
