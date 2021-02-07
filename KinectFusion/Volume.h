@@ -100,9 +100,9 @@ public:
 	}
 
 	//! Returns the cartesian coordinates of node (i,j,k).
-	inline Vector3d pos(int i, int j, int k) const
+	inline Vector3f pos(int i, int j, int k) const
 	{
-		Vector3d coord(0, 0, 0);
+		Vector3f coord(0, 0, 0);
 
 		coord[0] = min[0] + (max[0] - min[0])*(double(i)*ddx);
 		coord[1] = min[1] + (max[1] - min[1])*(double(j)*ddy);

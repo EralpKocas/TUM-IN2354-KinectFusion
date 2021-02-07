@@ -154,8 +154,9 @@ public:
         {
             for(int level=0; level < image_properties->num_levels; level++)
             {
-                Vector3f translation = image_properties->m_depthExtrinsics.block(0, 3, 3, 1);
-                Matrix3f rotation = image_properties->m_depthExtrinsics.block(0, 0, 3, 3);
+                Vector3f translation = get_translation(image_properties);
+                Matrix3f rotation = get_rotation(image_properties);
+
                 float step_size = image_properties->truncation_distance;
                 int width = (int) image_properties->all_data[level].img_width;
                 int height = (int) image_properties->all_data[level].img_height;

@@ -6,25 +6,25 @@
 class PoseEstimation{
 public:
 
-    void estimate_pose( std::vector<int> iterations, ImageProperties* imageProperties){
+    void estimate_pose( std::vector<int> iterations, ImageProperties*& imageProperties){
         Isometry3f T;
-        int level = imageProperties->num_levels;
+        int level = imageProperties->num_levels - 1;
 
-        //TODO: Put level into ImageProperties
-        for ( int i = iterations[level]; i > 0; i--){
-            T = point_to_plane(get_global_vertex_map(imageProperties, level),
-                               imageProperties->all_data[level].vertex_map_predicted,
-                               imageProperties->all_data[level].normal_map_predicted, imageProperties, level);
+        for ( int j = level; j >= 0; j--){
+            for ( int i = 0; i < iterations[level]; i++)
+            T = point_to_plane(get_global_vertex_map(imageProperties, j),
+                               imageProperties->all_data[j].vertex_map_predicted,
+                               imageProperties->all_data[j].normal_map_predicted, imageProperties, j);
             // Return the new pose
             imageProperties->m_trajectory.block(0, 0, 3, 3) = T.rotation();
             imageProperties->m_trajectory.block(0, 3, 3, 1) = T.translation();
-            level--;
+            //level--;
         }
 
     }
 
 
-    Isometry3f point_to_plane( std::vector<Vector3f> source, std::vector<Vector3f> dest, std::vector<Vector3f> normal, ImageProperties* imageProperties, int level){
+    Isometry3f point_to_plane( std::vector<Vector3f> source, std::vector<Vector3f> dest, std::vector<Vector3f> normal, ImageProperties*& imageProperties, int level){
 
         Eigen::Matrix<float, 6, 6, Eigen::RowMajor> A {};
         Eigen::Matrix<float, 6, 1> b {};
@@ -55,43 +55,47 @@ public:
 
 
     //Check correspondences on the distance of vertices and difference in normal values
-    bool check_correspondence_validity(ImageProperties* image_properties, int level, int point){
-        if ( !global_vertex_map){
-            *global_vertex_map = get_global_vertex_map(image_properties, level);
+    bool check_correspondence_validity(ImageProperties*& image_properties, int level, int point){
+        if ( global_vertex_map.size() == 0){
+            global_vertex_map = get_global_vertex_map(image_properties, level);
         }
-        if ( !global_normal_map){
-            *global_normal_map = get_global_normal_map(image_properties, level);
+        if ( global_normal_map.size() == 0){
+            global_normal_map = get_global_normal_map(image_properties, level);
         }
 
         float currDepthValue =  image_properties->all_data[level].curr_smoothed_data.at<float>(point);
+        if(currDepthValue == MINF || isnan(currDepthValue) || point == 0){
+            return false;
+        }
 
         //TODO: Call get_global_vertex_map and get_global_normal_map once !!!
         float distance = (image_properties->all_data[level].vertex_map_predicted[point-1] -
-                (*global_vertex_map)[point]).norm();
+                global_vertex_map[point]).norm();
 
         //const float sine = normal_current_global.cross(normal_previous_global).norm();
-        float angle = (*global_normal_map)[point].
+        float angle = global_normal_map[point].
                 cross(image_properties->all_data[level].normal_map_predicted[point-1]).norm();
 
-        if ( currDepthValue != MINF && distance <= distance_threshold && angle <= angle_threshold ){
+        if ( currDepthValue != MINF && !isnan(currDepthValue) && distance <= distance_threshold && angle <= angle_threshold ){
             return true;
         }
         return false;
     }
 
     //Get current global vertex map from surface measurement
-    std::vector<Vector3f> get_global_vertex_map(ImageProperties* image_properties, int level){
+    std::vector<Vector3f> get_global_vertex_map(ImageProperties*& image_properties, int level){
         Matrix3f rotation = image_properties->m_trajectory.block<3, 3>(0, 0);
         Vector3f translation = image_properties->m_trajectory.block<3, 1>(0, 3);
 
-        std::vector<Vector3f> global_vertex_map;
         int curr_width = (int) image_properties->all_data[level].img_width;
         int curr_height = (int) image_properties->all_data[level].img_height;
         int numWH = curr_width * curr_height;
 
+        std::vector<Vector3f> global_vertex_map = std::vector<Vector3f>(numWH);
+
         for (int i=0; i < numWH; i++){
             float currDepthValue =  image_properties->all_data[level].curr_smoothed_data.at<float>(i);
-            if(currDepthValue == MINF){
+            if(currDepthValue == MINF || isnan(currDepthValue)){
                 global_vertex_map[i] = Vector3f(MINF, MINF, MINF);
             }
             else{
@@ -103,18 +107,19 @@ public:
     }
 
     //Get current global normal map from surface measurement
-    std::vector<Vector3f> get_global_normal_map(ImageProperties* image_properties, int level){
+    std::vector<Vector3f> get_global_normal_map(ImageProperties*& image_properties, int level){
         Matrix3f rotation = image_properties->m_trajectory.block<3, 3>(0, 0);
         Vector3f translation = image_properties->m_trajectory.block<3, 1>(0, 3);
 
-        std::vector<Vector3f> global_normal_map;
         int curr_width = (int) image_properties->all_data[level].img_width;
         int curr_height = (int) image_properties->all_data[level].img_height;
         int numWH = curr_width * curr_height;
 
+        std::vector<Vector3f> global_normal_map = std::vector<Vector3f>(numWH);
+
         for (int i=0; i < numWH; i++){
             float currDepthValue =  image_properties->all_data[level].curr_smoothed_data.at<float>(i);
-            if(currDepthValue == MINF){
+            if(currDepthValue == MINF || isnan(currDepthValue)){
                 global_normal_map[i] = Vector3f(MINF, MINF, MINF);
             }
             else{
@@ -128,8 +133,8 @@ public:
 
 
 private:
-    std::vector<Vector3f> *global_vertex_map = nullptr;
-    std::vector<Vector3f> *global_normal_map = nullptr;
+    std::vector<Vector3f> global_vertex_map;
+    std::vector<Vector3f> global_normal_map;
 
     // The distance threshold in mm
     float distance_threshold { 10.f };

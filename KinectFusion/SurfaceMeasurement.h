@@ -21,7 +21,7 @@ public:
     // initialize
     SurfaceMeasurement() { }
 
-    bool init_pyramid(ImageProperties* image_properties)
+    bool init_pyramid(ImageProperties*& image_properties)
     {
         // TODO: will initialize pyramid for given number of layers
         // TODO: need to change camera parameters with scaling level and need to add cv::pyrDown() so that values are resized accordingly.
@@ -64,7 +64,7 @@ public:
         return Vector4f(vector_3d.x(), vector_3d.y(), vector_3d.z(), (float) 1.0);
     }
 
-    bool init(ImageProperties* image_properties)
+    bool init(ImageProperties*& image_properties)
     {
         bilateral_color_sigma = 1.;
         bilateral_spatial_sigma = 1.;
@@ -74,7 +74,7 @@ public:
     }
 
     // compute bilateral filter
-    void compute_bilateral_filter(ImageProperties* image_properties)
+    void compute_bilateral_filter(ImageProperties*& image_properties)
     {
         for(int i=0; i < image_properties->num_levels; i++){
             cv::bilateralFilter(image_properties->all_data[i].curr_level_data, image_properties->all_data[i].curr_smoothed_data,
@@ -82,7 +82,7 @@ public:
         }
     }
 
-    void helper_compute_vertex_map(ImageProperties* image_properties, int level, float fX, float fY, float cX, float cY)
+    void helper_compute_vertex_map(ImageProperties*& image_properties, int level, float fX, float fY, float cX, float cY)
     {
         int curr_width = (int) image_properties->all_data[level].img_width;
         int curr_height = (int) image_properties->all_data[level].img_height;
@@ -90,7 +90,7 @@ public:
 
         for(int i=0; i < numWH; i++){
             float currDepthValue =  image_properties->all_data[level].curr_smoothed_data.at<float>(i);
-            if(currDepthValue == MINF){
+            if(currDepthValue == MINF || isnan(currDepthValue)){
                 image_properties->all_data[level].vertex_map[i] = Vector3f(MINF, MINF, MINF);
                 // TODO: figure out color!
                 //imageProperties->all_data[level].curr_level_color[i] = Vector4uc(0, 0, 0, 0);
@@ -110,7 +110,7 @@ public:
     }
 
     // TODO: back-project filtered depth values to obtain vertex map
-    void compute_vertex_map(ImageProperties* image_properties){
+    void compute_vertex_map(ImageProperties*& image_properties){
         for(int i=0; i < image_properties->num_levels; i++){
             helper_compute_vertex_map(image_properties, i, image_properties->all_data[i].curr_fX,
                     image_properties->all_data[i].curr_fY, image_properties->all_data[i].curr_cX,
@@ -119,7 +119,7 @@ public:
     }
 
     // TODO: compute normal vectors
-    void helper_compute_normal_map(ImageProperties* image_properties, int level)
+    void helper_compute_normal_map(ImageProperties*& image_properties, int level)
     {
         int curr_width = (int) image_properties->all_data[level].img_width;
         int curr_height = (int) image_properties->all_data[level].img_height;
@@ -160,13 +160,13 @@ public:
 
                 image_properties->all_data[level].normal_map[i] = cross_prod;
                 // TODO: figure out color if necessary (?)!
-                //imageProperties->camera_reference_points[i].color = Vector4uc(imageProperties->m_colorMap[4*i],
-                // imageProperties->m_colorMap[4*i+1], imageProperties->m_colorMap[4*i+2], imageProperties->m_colorMap[4*i+3]);
+                image_properties->camera_reference_points[i].color = Vector4uc(image_properties->m_colorMap[4*i],
+                                                                               image_properties->m_colorMap[4*i+1], image_properties->m_colorMap[4*i+2], image_properties->m_colorMap[4*i+3]);
             }
         }
     }
 
-    void compute_normal_map(ImageProperties* image_properties){
+    void compute_normal_map(ImageProperties*& image_properties){
         for(int i=0; i < image_properties->num_levels; i++){
             helper_compute_normal_map(image_properties, i);
         }
@@ -178,7 +178,7 @@ public:
     // TODO: transorm all to global
 
     // TODO: compute all multiscale
-    void surface_measurement_pipeline(ImageProperties* image_properties)
+    void surface_measurement_pipeline(ImageProperties*& image_properties)
     {
         if(!init(image_properties))
         {

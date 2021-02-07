@@ -121,5 +121,13 @@ void compute_global_points(ImageProperties* imageProperties, int level)
     }
 }
 
+Vector3f get_translation(ImageProperties* image_properties){
+    return image_properties->m_trajectory.block<3, 1>(0, 3);
+}
+
+Matrix3f get_rotation(ImageProperties* image_properties){
+    return image_properties->m_trajectory.block<3, 3>(0, 0);
+}
+
 
 #endif //KINECTFUSION_COMMON_H

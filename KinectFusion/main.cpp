@@ -49,8 +49,8 @@ ImageProperties* init(VirtualSensor_freiburg &sensor)
 int main() {
 
     // Make sure this path points to the data folder
-    //std::string filenameIn = "/Users/beyzatugcebilgic/Desktop/TUM-IN2354-KinectFusion/KinectFusion/data/rgbd_dataset_freiburg1_xyz/";
-    std::string filenameIn = "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/data/rgbd_dataset_freiburg1_xyz/";
+    std::string filenameIn = "/Users/beyzatugcebilgic/Desktop/TUM-IN2354-KinectFusion/KinectFusion/data/rgbd_dataset_freiburg1_xyz/";
+    //std::string filenameIn = "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/data/rgbd_dataset_freiburg1_xyz/";
     // load video
     std::cout << "Initialize virtual sensor..." << std::endl;
     VirtualSensor_freiburg sensor;
@@ -87,8 +87,10 @@ int main() {
         SurfaceMeasurement surface_measurement;
         surface_measurement.surface_measurement_pipeline(imageProperties);
 
-        PoseEstimation pose_estimation;
-        pose_estimation.estimate_pose(iterations, imageProperties);
+        if ( i != 1){
+            PoseEstimation pose_estimation;
+            pose_estimation.estimate_pose(iterations, imageProperties);
+        }
 
         SurfaceReconstructionUpdate reconstruction_update;
         reconstruction_update.updateSurfaceReconstruction(imageProperties);

@@ -8,7 +8,12 @@
 
 #include "Eigen.h"
 
-typedef Eigen::Vector3f Vertex;
+//typedef Eigen::Vector3f Vertex;
+
+struct Vertex{
+    Eigen::Vector3f vertex_pos;
+    Vector4uc vertex_color;
+};
 
 struct Triangle
 {
@@ -68,7 +73,8 @@ public:
 		// save vertices
 		for (unsigned int i = 0; i<m_vertices.size(); i++)
 		{
-			outFile << m_vertices[i].x() << " " << m_vertices[i].y() << " " << m_vertices[i].z() << std::endl;
+			outFile << m_vertices[i].vertex_pos.x() << " " << m_vertices[i].vertex_pos.y() << " " << m_vertices[i].vertex_pos.z()  << " " << +m_vertices[i].vertex_color[0] << " " << +m_vertices[i].vertex_color[1]<< " " << +m_vertices[i].vertex_color[2]
+                                                                                                  << " " << +m_vertices[i].vertex_color[3]<< std::endl;
 		}
 
 		// save faces
