@@ -60,6 +60,7 @@ struct ImageProperties{
 
     cv::Mat m_depthMap;
     BYTE *m_colorMap;
+    //cv::Mat m_colorMap; // TODO: it is wrong!!! check initialization and type. Correct color update in SurfaceReconstructionUpdate.
     Matrix4f m_trajectory;
     Matrix4f m_trajectoryInv;
     Matrix3f m_depthIntrinsics;

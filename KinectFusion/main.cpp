@@ -14,7 +14,7 @@
 
 #define MIN_POINT -1.5f, -1.0f, -0.1f
 #define MAX_POINT 1.5f, 1.0f, 3.5f
-#define RESOLUTION 10, 10, 10
+#define RESOLUTION 20, 20, 20
 
 ImageProperties* init(VirtualSensor_freiburg &sensor)
 {
@@ -22,6 +22,7 @@ ImageProperties* init(VirtualSensor_freiburg &sensor)
 
     imageProperties->m_depthMap = cv::Mat(640*480, 1, CV_32F, sensor.getDepth());
     imageProperties->m_colorMap = sensor.getColorRGBX();
+    //imageProperties->m_colorMap = cv::Mat(640*480, 1, CV_8UC4, sensor.getColorRGBX());
     imageProperties->m_trajectory = sensor.getTrajectory();
     imageProperties->m_trajectoryInv = sensor.getTrajectory().inverse();
     imageProperties->m_depthIntrinsics = sensor.getDepthIntrinsics();
@@ -49,8 +50,8 @@ ImageProperties* init(VirtualSensor_freiburg &sensor)
 int main() {
 
     // Make sure this path points to the data folder
-    std::string filenameIn = "/Users/beyzatugcebilgic/Desktop/TUM-IN2354-KinectFusion/KinectFusion/data/rgbd_dataset_freiburg1_xyz/";
-    //std::string filenameIn = "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/data/rgbd_dataset_freiburg1_xyz/";
+    //std::string filenameIn = "/Users/beyzatugcebilgic/Desktop/TUM-IN2354-KinectFusion/KinectFusion/data/rgbd_dataset_freiburg1_xyz/";
+    std::string filenameIn = "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/data/rgbd_dataset_freiburg1_xyz/";
     // load video
     std::cout << "Initialize virtual sensor..." << std::endl;
     VirtualSensor_freiburg sensor;
@@ -71,7 +72,7 @@ int main() {
 
         // get ptr to the current color frame
         // color is stored as RGBX in row major (4 byte values per pixel, get dimensions via sensor.GetColorImageWidth() / GetColorImageHeight())
-        BYTE *colorMap = imageProperties->m_colorMap;
+        //BYTE *colorMap = imageProperties->m_colorMap;
 
         // get depth intrinsics
         Matrix3f depthIntrinsics = imageProperties->m_depthIntrinsics;
