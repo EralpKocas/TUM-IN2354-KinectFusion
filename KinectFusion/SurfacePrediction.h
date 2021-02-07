@@ -59,6 +59,77 @@ public:
                  curr_grid.y() < 1 || curr_grid.y() >= dy - 1 ||
                  curr_grid.z() < 1 || curr_grid.z() >= dz - 1);
     }
+
+    float calculate_trilinear_interpolation(ImageProperties*& image_properties, Vector3f p)
+    {
+        Vector3i p_int = Vector3i((int) p.x(), (int) p.y(), (int) p.z());
+
+        float c000 = image_properties->global_tsdf->get(p_int.x(), p_int.y(), p_int.z()).tsdf_distance_value;
+        float c001 = image_properties->global_tsdf->get(p_int.x(), p_int.y(), p_int.z() + 1).tsdf_distance_value;
+        float c010 = image_properties->global_tsdf->get(p_int.x(), p_int.y() + 1, p_int.z()).tsdf_distance_value;
+        float c011 = image_properties->global_tsdf->get(p_int.x(), p_int.y() + 1, p_int.z() + 1).tsdf_distance_value;
+        float c100 = image_properties->global_tsdf->get(p_int.x() + 1, p_int.y(), p_int.z()).tsdf_distance_value;
+        float c101 = image_properties->global_tsdf->get(p_int.x() + 1, p_int.y(), p_int.z() + 1).tsdf_distance_value;
+        float c110 = image_properties->global_tsdf->get(p_int.x() + 1, p_int.y() + 1, p_int.z()).tsdf_distance_value;
+        float c111 = image_properties->global_tsdf->get(p_int.x() + 1, p_int.y() + 1, p_int.z() + 1).tsdf_distance_value;
+
+        float xd = p.x() - p_int.x();
+        float yd = p.y() - p_int.y();
+        float zd = p.z() - p_int.z();
+
+        float c00 = c000 * (1 - xd) + c100 * xd;
+        float c01 = c001 * (1 - xd) + c101 * xd;
+        float c10 = c010 * (1 - xd) + c110 * xd;
+        float c11 = c011 * (1 - xd) + c111 * xd;
+
+        float c0 = c00 * (1 - yd) + c10 * yd;
+        float c1 = c01 * (1 - yd) + c11 * yd;
+
+        float c = c0 * (1 - zd) + c1 * zd;
+
+        return c;
+    }
+
+    void helper_compute_vertex_map(ImageProperties*& image_properties, int level)
+    {
+        int curr_width = (int) image_properties->all_data[level].img_width;
+        int curr_height = (int) image_properties->all_data[level].img_height;
+        int numWH = curr_width * curr_height;
+
+        for(int i=0; i < numWH; i++) {
+            Vector3f curr_vertex = image_properties->all_data[level].vertex_map[i];
+            if (curr_vertex.z() == MINF) {
+                image_properties->all_data[level].vertex_map_predicted[i] = Vector3f(MINF, MINF, MINF);
+            } else {
+                int pixel_y = i / curr_width;
+                int pixel_x = i - pixel_y * curr_width;
+
+                int right_pixel = (pixel_x + 1) + pixel_y * curr_width;
+                int bottom_pixel = pixel_x + (pixel_y + 1) * curr_width;
+                int upper_pixel = pixel_x + (pixel_y - 1) * curr_width;
+
+                Vector3f neigh_1 = Vector3f(image_properties->all_data[level].vertex_map_predicted[right_pixel].x() -
+                                            image_properties->all_data[level].vertex_map_predicted[i - 1].x(),
+                                            image_properties->all_data[level].vertex_map_predicted[right_pixel].y() -
+                                            image_properties->all_data[level].vertex_map_predicted[i - 1].y(),
+                                            image_properties->all_data[level].vertex_map_predicted[right_pixel].z() -
+                                            image_properties->all_data[level].vertex_map_predicted[i - 1].z());
+
+                Vector3f neigh_2 = Vector3f(image_properties->all_data[level].vertex_map_predicted[bottom_pixel].x() -
+                                            image_properties->all_data[level].vertex_map_predicted[upper_pixel].x(),
+                                            image_properties->all_data[level].vertex_map_predicted[bottom_pixel].y() -
+                                            image_properties->all_data[level].vertex_map_predicted[upper_pixel].y(),
+                                            image_properties->all_data[level].vertex_map_predicted[bottom_pixel].z() -
+                                            image_properties->all_data[level].vertex_map_predicted[upper_pixel].z());
+
+                Vector3f cross_prod = neigh_1.cross(neigh_2);
+                cross_prod.normalized();
+
+                image_properties->all_data[level].normal_map_predicted[i] = cross_prod;
+            }
+        }
+    }
+
     // TODO: apply marching steps for per pixel u from minimum depth until finding a surface
         // stop conditions:
             // 1. when zero crossing is found
@@ -85,7 +156,7 @@ public:
             {
                 Vector3f translation = image_properties->m_depthExtrinsics.block(0, 3, 3, 1);
                 Matrix3f rotation = image_properties->m_depthExtrinsics.block(0, 0, 3, 3);
-                float truncation_distance = image_properties->truncation_distance;
+                float step_size = image_properties->truncation_distance;
                 int width = (int) image_properties->all_data[level].img_width;
                 int height = (int) image_properties->all_data[level].img_height;
                 for(int i=0; i < width; i++)
@@ -98,7 +169,10 @@ public:
                                 image_properties->all_data[level].curr_cX, image_properties->all_data[level].curr_cY);
                         Vector3f ray_dir = calculate_raycast_dir(translation, pixel_ray);
 
-                        float t = calculate_search_length(translation, pixel_ray, ray_dir);  // t
+                        //float t = calculate_search_length(translation, pixel_ray, ray_dir);  // t
+                        float max_ray_length = Vector3i(image_properties->global_tsdf->getDimX(),
+                                                        image_properties->global_tsdf->getDimY(),
+                                                        image_properties->global_tsdf->getDimZ()).norm();
 
                         Vector3f pixel_grid = image_properties->global_tsdf->compute_grid(pixel_ray);
                         Vector3f ray_dir_grid = image_properties->global_tsdf->compute_grid(ray_dir);
@@ -108,7 +182,9 @@ public:
                                 get((int) eye_grid.x(), (int) eye_grid.y(), (int) eye_grid.z()).tsdf_distance_value;
 
                         float prev_tsdf = tsdf;
-                        for(int step=0; (float) step < t; step+=truncation_distance)
+                        Vector3f prev_grid = eye_grid;
+
+                        for(float step=0; step < max_ray_length; step+=step_size*0.5)
                         {
                             Vector3f curr_grid = eye_grid + (float) step * ray_dir_grid;
 
@@ -117,18 +193,35 @@ public:
                             float curr_tsdf = image_properties->global_tsdf->
                                     get((int) curr_grid.x(), (int) curr_grid.y(), (int) curr_grid.z()).tsdf_distance_value;
 
-                            if(prev_tsdf < 0.f && tsdf > 0.f) break;  // zero-crossing from behind
+                            if(prev_tsdf < 0.f && curr_tsdf > 0.f) break;  // zero-crossing from behind
 
-                            if(prev_tsdf > 0.f && tsdf < 0.f)
+                            if(prev_tsdf > 0.f && curr_tsdf < 0.f)  // zero-crossing is found
                             {
-                                float t_star = 0.f;  // t_star = t - ((step_size * prev_tsdf) / (curr_tsdf - prev_tsdf))
+                                float prev_tri_interpolated_sdf = calculate_trilinear_interpolation(image_properties, prev_grid);
+                                float curr_tri_interpolated_sdf = calculate_trilinear_interpolation(image_properties, curr_grid);
+
+                                //float t_star = step - ((step_size * 0.5f * prev_tsdf)/ (curr_tsdf - prev_tsdf));
+                                // t_star = t - ((step_size * prev_tsdf) / (curr_tsdf - prev_tsdf))
+
+                                float t_star = step - ((step_size * 0.5f * prev_tri_interpolated_sdf)
+                                        / (curr_tri_interpolated_sdf - prev_tri_interpolated_sdf));
+
+                                Vector3f grid_location = eye_grid + t_star * ray_dir_grid;
+
+                                if(!gridInVolume(image_properties, grid_location)) break;
+
+                                Vector3f vertex = eye_grid + t_star * ray_dir_grid;
+                                //Vector3f normal = Vector3f(0, 0, 0);
+
+                                image_properties->all_data[level].vertex_map_predicted[j*width + i] = vertex;
+                                //image_properties->all_data[level].normal_map_predicted[j*width + i] = normal;
                             }
-
                             prev_tsdf = curr_tsdf;
+                            prev_grid = curr_grid;
                         }
-
                     }
                 }
+                helper_compute_vertex_map(image_properties, level);
             }
         }
 

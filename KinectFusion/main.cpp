@@ -8,7 +8,7 @@
 #include "SurfaceMeasurement.h"
 #include "SurfaceReconstructionUpdate.h"
 #include "PoseEstimation.h"
-//#include "SurfacePrediction.h"
+#include "SurfacePrediction.h"
 #include "SimpleMesh.h"
 #include "MarchingCubes.h"
 
@@ -82,16 +82,19 @@ int main() {
         Matrix4f trajectory = imageProperties->m_trajectory;
         Matrix4f trajectoryInv = imageProperties->m_trajectoryInv;
 
+        std::vector<int> iterations = {4, 5, 10};
+
         SurfaceMeasurement surface_measurement;
         surface_measurement.surface_measurement_pipeline(imageProperties);
+
+        PoseEstimation pose_estimation;
+        pose_estimation.estimate_pose(iterations, imageProperties);
 
         SurfaceReconstructionUpdate reconstruction_update;
         reconstruction_update.updateSurfaceReconstruction(imageProperties);
 
-        std::vector<int> iterations = {4, 5, 10};
-
-        PoseEstimation pose_estimation;
-        pose_estimation.estimate_pose(iterations, imageProperties);
+        SurfacePrediction surface_prediction;
+        surface_prediction.predict_surface(imageProperties);
 
         /*if(!surface_measurement.init(depthMap, colorMap, trajectory, trajectoryInv, depthIntrinsics))
         {

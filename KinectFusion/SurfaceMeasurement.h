@@ -50,6 +50,11 @@ public:
                                                                                     image_properties->all_data[i].img_height);
             image_properties->all_data[i].normal_map = std::vector<Vector3f>(image_properties->all_data[i].img_width *
                                                                              image_properties->all_data[i].img_height);
+            image_properties->all_data[i].vertex_map_predicted = std::vector<Vector3f>(image_properties->all_data[i].img_width *
+                                                                             image_properties->all_data[i].img_height);
+            image_properties->all_data[i].normal_map_predicted = std::vector<Vector3f>(image_properties->all_data[i].img_width *
+                                                                             image_properties->all_data[i].img_height);
+
         }
         return true;
     }
