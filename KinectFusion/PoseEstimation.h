@@ -23,7 +23,8 @@ public:
 
     }
 
-
+    //https://www.cs.princeton.edu/~smr/papers/icpstability.pdf
+    //https://www.comp.nus.edu.sg/~lowkl/publications/lowk_point-to-plane_icp_techrep.pdf
     Isometry3f point_to_plane( std::vector<Vector3f> source, std::vector<Vector3f> dest, std::vector<Vector3f> normal, ImageProperties*& imageProperties, int level){
 
         Eigen::Matrix<float, 6, 6, Eigen::RowMajor> A {};

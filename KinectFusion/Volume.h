@@ -16,6 +16,7 @@ struct Voxel
     // color stored as 4 unsigned char
     int tsdf_weight;
     Vector4uc color;
+    bool is_occupied = false;
 };
 
 //! A regular volume dataset
@@ -120,6 +121,19 @@ public:
                 );
     }
 
+    inline Voxel set_occupied(Vector3f p){
+
+	    Voxel voxel = get(((p[0] - min[0]) / (max[0] - min[0])) / ddx,
+            ((p[1] - min[1]) / (max[1] - min[1])) / ddy,
+            ((p[2] - min[2]) / (max[2] - min[2])) / ddz);
+        Voxel curr_voxel;
+        curr_voxel.tsdf_distance_value = voxel.tsdf_distance_value;
+        curr_voxel.tsdf_weight = voxel.tsdf_weight;
+        curr_voxel.color = voxel.color;
+        curr_voxel.is_occupied = true;
+        return curr_voxel;
+	}
+
 	//! Returns the Data.
 	Voxel* getData();
 
@@ -149,6 +163,7 @@ public:
 		return x*dy*dz + y*dz + z;
 	}
 
+    //! VARIABLES
 
 	//! Lower left and Upper right corner.
 	Vector3f min, max;
@@ -163,9 +178,7 @@ public:
 	uint dx, dy, dz;
 
 	Voxel* vol;
-
 	double maxValue, minValue;
-
 	uint m_dim;
 
 private:

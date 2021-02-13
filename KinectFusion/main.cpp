@@ -50,8 +50,8 @@ ImageProperties* init(VirtualSensor_freiburg &sensor)
 int main() {
 
     // Make sure this path points to the data folder
-    //std::string filenameIn = "/Users/beyzatugcebilgic/Desktop/TUM-IN2354-KinectFusion/KinectFusion/data/rgbd_dataset_freiburg1_xyz/";
-    std::string filenameIn = "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/data/rgbd_dataset_freiburg1_xyz/";
+    std::string filenameIn = "/Users/beyzatugcebilgic/Desktop/TUM-IN2354-KinectFusion/KinectFusion/data/rgbd_dataset_freiburg1_xyz/";
+    //std::string filenameIn = "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/data/rgbd_dataset_freiburg1_xyz/";
     // load video
     std::cout << "Initialize virtual sensor..." << std::endl;
     VirtualSensor_freiburg sensor;
@@ -114,7 +114,9 @@ int main() {
             {
                 for (unsigned int z = 0; z < imageProperties->global_tsdf->getDimZ() - 1; z++)
                 {
-                    ProcessVolumeCell(imageProperties->global_tsdf, x, y, z, (double)0.00, &mesh);
+                    if (imageProperties->global_tsdf->get(x, y, z).is_occupied){
+                        ProcessVolumeCell(imageProperties->global_tsdf, x, y, z, (double)0.00, &mesh);
+                    }
                 }
             }
         }

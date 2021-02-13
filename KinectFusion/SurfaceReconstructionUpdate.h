@@ -120,15 +120,15 @@ public:
                     {
                         // TODO: Fix here!!
                         Vector4uc prev_color = image_properties->global_tsdf->get(i, j ,k).color;
-                        curr_color = (Vector4uc) image_properties->m_colorMap;
+                        //curr_color = (Vector4uc) image_properties->m_colorMap;
                         curr_color = calculateWeightedColorUpdate(truncated_weight, prev_color, prev_voxel.tsdf_weight, curr_color);
                     }
 
-                    Voxel* curr_voxel = new Voxel();
-                    curr_voxel->tsdf_distance_value = updated_tsdf;
-                    curr_voxel->tsdf_weight = truncated_weight;
-                    curr_voxel->color = curr_color;
-                    image_properties->global_tsdf->set(i, j, k, *curr_voxel);
+                    Voxel curr_voxel;
+                    curr_voxel.tsdf_distance_value = updated_tsdf;
+                    curr_voxel.tsdf_weight = truncated_weight;
+                    curr_voxel.color = curr_color;
+                    image_properties->global_tsdf->set(i, j, k, curr_voxel);
 
                 }
             }

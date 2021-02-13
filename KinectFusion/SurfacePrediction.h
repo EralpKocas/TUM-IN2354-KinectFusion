@@ -174,6 +174,11 @@ public:
                             float prev_tri_interpolated_sdf = calculate_trilinear_interpolation(image_properties, prev_grid);
                             float curr_tri_interpolated_sdf = calculate_trilinear_interpolation(image_properties, curr_grid);
 
+                            //TODO: CHECK HERE
+                            Voxel before = image_properties->global_tsdf->get(translation.x(), translation.y(), translation.z());
+                            image_properties->global_tsdf->set(translation.x(), translation.y(), translation.z(), image_properties->global_tsdf->set_occupied(translation));
+                            Voxel after = image_properties->global_tsdf->get(translation.x(), translation.y(), translation.z());
+
                             //float t_star = step - ((step_size * 0.5f * prev_tsdf)/ (curr_tsdf - prev_tsdf));
                             // t_star = t - ((step_size * prev_tsdf) / (curr_tsdf - prev_tsdf))
 
