@@ -27,7 +27,7 @@ public:
 
     //λ = ||K^-1*x||2
     float calculateCurrentTSDF(float depth, Matrix3f intrinsics, Vector3f camera_coord, Vector3f p, float truncation_distance){
-        float current_tsdf = (-1.f) * ((1.f / calculateLambda(intrinsics, p)) * camera_coord.norm() - depth);
+        float current_tsdf = (1.f / calculateLambda(intrinsics, p)) * (get_translation(imageProperties) - p).norm() - depth;
         return calculateSDF_truncation(truncation_distance, current_tsdf);
     }
 
@@ -69,28 +69,17 @@ public:
             for(int j=0; j < image_properties->global_tsdf->getDimY(); j++){
                 for(int k=0; k < image_properties->global_tsdf->getDimZ(); k++){
 
-                    /*Vector3f global_coord = Vector3f(image_properties->global_tsdf->min.x() +
-                                                        (image_properties->global_tsdf->max.x() -
-                                                        image_properties->global_tsdf->min.x()) *
-                                                        image_properties->global_tsdf->ddx * (float) i,
-                                                     (image_properties->global_tsdf->max.y() -
-                                                        image_properties->global_tsdf->min.y()) +
-                                                        image_properties->global_tsdf->diag.y() *
-                                                        image_properties->global_tsdf->ddy * (float) j,
-                                                     image_properties->global_tsdf->min.z() +
-                                                        (image_properties->global_tsdf->max.z() -
-                                                        image_properties->global_tsdf->min.z()) *
-                                                        image_properties->global_tsdf->ddz * (float) k);*/
 
                     Vector3f global_coord = image_properties->global_tsdf->pos(i, j, k);
 
                     if(!global_coord.allFinite()) continue;
 
-                    Vector3f camera_coord = get_rotation(image_properties) * global_coord + get_translation(image_properties);
-
+                    //Vector3f camera_coord = get_rotation(image_properties) * global_coord + get_translation(image_properties);
+                    Vector3f camera_coord = (image_properties->m_depthExtrinsics * image_properties->m_trajectory * Vector4f(global_coord.x(),
+                                                                                           global_coord.y(), global_coord.z(), 1.0f)).block<3,1>(0,0);
                     if(!camera_coord.allFinite() && camera_coord.z() <= 0) continue;
 
-                    Vector2f image_coord = perspective_projection(camera_coord); // check the calculation is true!!
+                    Vector2f image_coord = perspective_projection(global_coord); // check the calculation is true!!
 
                     if(image_coord.x() < 0 || image_coord.x() >= image_properties->all_data[0].img_width
                         || image_coord.y() < 0 ||image_coord.y() >= image_properties->all_data[0].img_height)
@@ -150,7 +139,7 @@ public:
         Vector4f p_temp = Vector4f(p.x(), p.y(), p.z(), 1.0);
         Matrix4f identity = Matrix4f::Zero();
         identity.block<3, 3>(0, 0) = Matrix3f::Identity();
-        Vector3f p2 = imageProperties->m_depthIntrinsics * identity.block<3, 4>(0, 0) * imageProperties->m_depthExtrinsics * p_temp;
+        Vector3f p2 = imageProperties->m_depthIntrinsics * identity.block<3, 4>(0, 0) * imageProperties->m_depthExtrinsics * imageProperties->m_trajectory * p_temp;
         return Vector2f(p2.x() / p2.z(), p2.y() / p2.z());
     }
 

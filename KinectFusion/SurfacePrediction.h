@@ -43,7 +43,6 @@ public:
         int dx = image_properties->global_tsdf->getDimX();
         int dy = image_properties->global_tsdf->getDimY();
         int dz = image_properties->global_tsdf->getDimZ();
-
         return !(curr_grid.x() < 1 || curr_grid.x() >= dx - 1 ||
                  curr_grid.y() < 1 || curr_grid.y() >= dy - 1 ||
                  curr_grid.z() < 1 || curr_grid.z() >= dz - 1);
@@ -139,8 +138,11 @@ public:
                     Vector3f pixel_ray = calculate_pixel_raycast(Vector3f(float(i+0.5), float(j+0.5), 1.f), rotation, translation,
                             image_properties->all_data[level].curr_fX, image_properties->all_data[level].curr_fY,
                             image_properties->all_data[level].curr_cX, image_properties->all_data[level].curr_cY);
-
-                    Vector3f ray_dir = calculate_raycast_dir(translation, pixel_ray);
+                    float camera_x = ((float) (i + 0.5) - image_properties->all_data[level].curr_cX) / image_properties->all_data[level].curr_fX;  // image to camera
+                    float camera_y = ((float) (j + 0.5) - image_properties->all_data[level].curr_cY) / image_properties->all_data[level].curr_fY;  // image to camera
+                    Vector3f pixel = Vector3f(camera_x, camera_y, 1.f);
+                    Vector3f ray_dir = (rotation * pixel).normalized();
+                    Vector3f ray_dir_2 = calculate_raycast_dir(translation, pixel_ray);
 
                     //float t = calculate_search_length(translation, pixel_ray, ray_dir);  // t
                     float max_ray_length = Vector3i(image_properties->global_tsdf->getDimX(),
@@ -149,8 +151,18 @@ public:
 
                     //Vector3f pixel_grid = image_properties->global_tsdf->compute_grid(pixel_ray);
                     //Vector3f ray_dir_grid = image_properties->global_tsdf->compute_grid(ray_dir);
-                    Vector3f eye_grid = image_properties->global_tsdf->compute_grid(translation);
 
+
+                    Vector3f init_pos;
+                    for(float step=0; step < max_ray_length; step+=step_size*0.5){
+                        Vector3f curr_pos = translation + (float) step * ray_dir;
+                        Vector3f curr_grid = image_properties->global_tsdf->compute_grid(curr_pos);
+
+                        if(!gridInVolume(image_properties, curr_grid)) continue;
+                        init_pos = curr_pos;
+                        break;
+                    }
+                    Vector3f eye_grid = image_properties->global_tsdf->compute_grid(init_pos);
                     float tsdf = image_properties->global_tsdf->
                             get((int) eye_grid.x(), (int) eye_grid.y(), (int) eye_grid.z()).tsdf_distance_value;
 
@@ -160,7 +172,8 @@ public:
                     for(float step=0; step < max_ray_length; step+=step_size*0.5)
                     {
                         //Vector3f curr_grid = eye_grid + (float) step * ray_dir_grid;
-                        Vector3f curr_grid = translation + (float) step * ray_dir;
+                        Vector3f curr_pos = init_pos + (float) step * ray_dir;
+                        Vector3f curr_grid = image_properties->global_tsdf->compute_grid(curr_pos);
 
                         if(!gridInVolume(image_properties, curr_grid)) continue;
 
@@ -175,9 +188,9 @@ public:
                             float curr_tri_interpolated_sdf = calculate_trilinear_interpolation(image_properties, curr_grid);
 
                             //TODO: CHECK HERE
-                            Voxel before = image_properties->global_tsdf->get(translation.x(), translation.y(), translation.z());
-                            image_properties->global_tsdf->set(translation.x(), translation.y(), translation.z(), image_properties->global_tsdf->set_occupied(translation));
-                            Voxel after = image_properties->global_tsdf->get(translation.x(), translation.y(), translation.z());
+                            Voxel before = image_properties->global_tsdf->get(curr_grid.x(), curr_grid.y(), curr_grid.z());
+                            image_properties->global_tsdf->set(translation.x(), translation.y(), translation.z(), image_properties->global_tsdf->set_occupied(curr_grid));
+                            Voxel after = image_properties->global_tsdf->get(curr_grid.x(), curr_grid.y(), curr_grid.z());
 
                             //float t_star = step - ((step_size * 0.5f * prev_tsdf)/ (curr_tsdf - prev_tsdf));
                             // t_star = t - ((step_size * prev_tsdf) / (curr_tsdf - prev_tsdf))

@@ -114,9 +114,9 @@ int main() {
             {
                 for (unsigned int z = 0; z < imageProperties->global_tsdf->getDimZ() - 1; z++)
                 {
-                    if (imageProperties->global_tsdf->get(x, y, z).is_occupied){
-                        ProcessVolumeCell(imageProperties->global_tsdf, x, y, z, (double)0.00, &mesh);
-                    }
+                    //if (imageProperties->global_tsdf->get(x, y, z).is_occupied){
+                    ProcessVolumeCell(imageProperties->global_tsdf, x, y, z, (double)0.00, &mesh);
+                    //}
                 }
             }
         }
