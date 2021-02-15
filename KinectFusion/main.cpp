@@ -38,7 +38,7 @@ ImageProperties* init(VirtualSensor_freiburg &sensor)
     imageProperties->m_depthImageWidth = 640;
     imageProperties->m_depthImageHeight = 480;
 
-    imageProperties->truncation_distance = 1.0; // find the correct value!
+    imageProperties->truncation_distance = 25.f; // find the correct value!
 
     imageProperties->camera_reference_points = new CameraRefPoints[imageProperties->m_depthImageWidth * imageProperties->m_depthImageHeight];
     imageProperties->global_points = new GlobalPoints[imageProperties->m_depthImageWidth * imageProperties->m_depthImageHeight];

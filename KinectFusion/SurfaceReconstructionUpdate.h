@@ -79,14 +79,15 @@ public:
                                                                                            global_coord.y(), global_coord.z(), 1.0f)).block<3,1>(0,0);
                     if(!camera_coord.allFinite() && camera_coord.z() <= 0) continue;
 
-                    Vector2f image_coord = perspective_projection(global_coord); // check the calculation is true!!
+                    Vector2i image_coord = perspective_projection(global_coord); // check the calculation is true!!
 
                     if(image_coord.x() < 0 || image_coord.x() >= image_properties->all_data[0].img_width
                         || image_coord.y() < 0 ||image_coord.y() >= image_properties->all_data[0].img_height)
                         continue;
 
-                    float depth = image_properties->all_data[0].curr_level_data.at<float>(image_coord.x() + image_coord.y() *
-                                                                                          image_properties->all_data[0].img_width, 1);
+                    int index = image_coord.x() + image_coord.y() * image_properties->all_data[0].img_width;
+                    float depth = image_properties->all_data[0].curr_level_data.at<int>(index, 1);
+
                     if(depth == MINF || depth <= 0) continue;
 
 
@@ -104,20 +105,24 @@ public:
                     int truncated_weight = calculateTruncatedWeight(calculateWeightedAvgWeight
                             (prev_voxel.tsdf_weight, W_k), truncate_updated_weight);
 
-                    Vector4uc curr_color;
-                    if(F_rk <= image_properties->truncation_distance / 2 && F_rk >= -image_properties->truncation_distance / 2)
-                    {
-                        // TODO: Fix here!!
-                        Vector4uc prev_color = image_properties->global_tsdf->get(i, j ,k).color;
-                        //curr_color = (Vector4uc) image_properties->m_colorMap;
-                        curr_color = calculateWeightedColorUpdate(truncated_weight, prev_color, prev_voxel.tsdf_weight, curr_color);
-                    }
-
                     Voxel curr_voxel;
                     curr_voxel.tsdf_distance_value = updated_tsdf;
                     curr_voxel.tsdf_weight = truncated_weight;
-                    curr_voxel.color = curr_color;
-                    image_properties->global_tsdf->set(i, j, k, curr_voxel);
+
+                    Vector4uc curr_color;
+                    if(F_rk <= image_properties->truncation_distance / 2 && F_rk >= -image_properties->truncation_distance / 2)
+                    {
+                        // TODO: check here!!
+                        Vector4uc prev_color = image_properties->global_tsdf->get(i, j ,k).color;
+                        curr_color = Vector4uc(image_properties->m_colorMap[index],
+                                            image_properties->m_colorMap[index+1],
+                                            image_properties->m_colorMap[index+2],
+                                            image_properties->m_colorMap[index+3]);
+                        curr_color = calculateWeightedColorUpdate(truncated_weight, prev_color, prev_voxel.tsdf_weight, curr_color);
+                        curr_voxel.color = curr_color;
+                    }
+
+                    image_properties->global_tsdf->set(i, j, k, curr_voxel);  // check whether assign is successful
 
                 }
             }
@@ -129,18 +134,18 @@ public:
 
     //HELPER FUNCTIONS
     float calculateLambda( Matrix3f intrinsics, Vector3f p){
-        Vector2f projected = perspective_projection(p);
+        Vector2i projected = perspective_projection(p);
         Vector3f dot_p = Vector3f(projected.x(), projected.y(), 1.0f);
         return (intrinsics.inverse() * dot_p).norm();
     }
 
-    Vector2f perspective_projection(Vector3f p)
+    Vector2i perspective_projection(Vector3f p)
     {
         Vector4f p_temp = Vector4f(p.x(), p.y(), p.z(), 1.0);
         Matrix4f identity = Matrix4f::Zero();
         identity.block<3, 3>(0, 0) = Matrix3f::Identity();
         Vector3f p2 = imageProperties->m_depthIntrinsics * identity.block<3, 4>(0, 0) * imageProperties->m_depthExtrinsics * imageProperties->m_trajectory * p_temp;
-        return Vector2f(p2.x() / p2.z(), p2.y() / p2.z());
+        return Vector2i((int) round(p2.x() / p2.z()), (int) round(p2.y() / p2.z()));
     }
 
 private:
