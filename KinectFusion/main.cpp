@@ -44,18 +44,31 @@ ImageProperties* init(VirtualSensor_freiburg &sensor)
 
     imageProperties->truncation_distance = 25.f; // find the correct value!
 
-    imageProperties->camera_reference_points = new CameraRefPoints[imageProperties->m_depthImageWidth * imageProperties->m_depthImageHeight];
-    imageProperties->global_points = new GlobalPoints[imageProperties->m_depthImageWidth * imageProperties->m_depthImageHeight];
+    imageProperties->camera_reference_points = new CameraRefPoints*[imageProperties->num_levels];
+
+    //imageProperties->camera_reference_points = new CameraRefPoints[imageProperties->m_depthImageWidth * imageProperties->m_depthImageHeight];
+
+    imageProperties->global_points = new GlobalPoints*[imageProperties->num_levels];
+
+    //imageProperties->global_points = new GlobalPoints[imageProperties->m_depthImageWidth * imageProperties->m_depthImageHeight];
     imageProperties->global_tsdf = new Volume(Vector3f(MIN_POINT), Vector3f(MAX_POINT), RESOLUTION, 3);
     return imageProperties;
+}
+
+void initSurfaceLevelData(ImageProperties* imageProperties){
+    imageProperties->all_data = new SurfaceLevelData[imageProperties->num_levels];
+    for(int i = 0; i < imageProperties->num_levels; i++){
+        imageProperties->all_data[i].img_width = imageProperties->m_depthImageWidth;
+        imageProperties->all_data[i].img_height = imageProperties->m_depthImageHeight;
+    }
 }
 
 
 int main() {
 
     // Make sure this path points to the data folder
-    //std::string filenameIn = "/Users/beyzatugcebilgic/Desktop/TUM-IN2354-KinectFusion/KinectFusion/data/rgbd_dataset_freiburg1_xyz/";
-    std::string filenameIn = "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/data/rgbd_dataset_freiburg1_xyz/";
+    std::string filenameIn = "/Users/beyzatugcebilgic/Desktop/TUM-IN2354-KinectFusion/KinectFusion/data/rgbd_dataset_freiburg1_xyz/";
+    //std::string filenameIn = "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/data/rgbd_dataset_freiburg1_xyz/";
     // load video
     std::cout << "Initialize virtual sensor..." << std::endl;
     VirtualSensor_freiburg sensor;
@@ -69,6 +82,10 @@ int main() {
     int i = 1;
     while (sensor.processNextFrame()) {
         ImageProperties* imageProperties = init(sensor);
+        initSurfaceLevelData(imageProperties);
+
+        compute_camera_ref_points(imageProperties);
+        compute_global_points(imageProperties);
         // get ptr to the current depth frame
         // depth is stored in row major (get dimensions via sensor.GetDepthImageWidth() / GetDepthImageHeight())
 
@@ -77,15 +94,6 @@ int main() {
         // get ptr to the current color frame
         // color is stored as RGBX in row major (4 byte values per pixel, get dimensions via sensor.GetColorImageWidth() / GetColorImageHeight())
         //BYTE *colorMap = imageProperties->m_colorMap;
-
-        // get depth intrinsics
-        Matrix3f depthIntrinsics = imageProperties->m_depthIntrinsics;
-
-        // compute inverse depth extrinsics
-        Matrix4f depthExtrinsicsInv = (imageProperties->m_depthExtrinsics).inverse();
-
-        Matrix4f trajectory = imageProperties->m_trajectory;
-        Matrix4f trajectoryInv = imageProperties->m_trajectoryInv;
 
         std::vector<int> iterations = {4, 5, 10};
 

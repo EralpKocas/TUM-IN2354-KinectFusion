@@ -69,57 +69,73 @@ struct ImageProperties{
     unsigned int m_colorImageHeight;
     unsigned int m_depthImageWidth;
     unsigned int m_depthImageHeight;
-    CameraRefPoints *camera_reference_points;
-    GlobalPoints *global_points;
+    CameraRefPoints **camera_reference_points;
+    GlobalPoints **global_points;
     SurfaceLevelData *all_data;
     Volume* global_tsdf;
 };
 
 // compute 3d camera reference points
-void compute_camera_ref_points(ImageProperties* imageProperties, int level)
+void compute_camera_ref_points(ImageProperties* imageProperties)
 {
-    int numWH = imageProperties->all_data[level].img_width * imageProperties->all_data[level].img_height;
-    imageProperties->camera_reference_points = new CameraRefPoints[numWH];
-    for(int i=0; i < numWH; i++){
-        if(imageProperties->m_depthMap.at<float>(i) == MINF){
-            imageProperties->camera_reference_points[i].position = Vector3f(MINF, MINF, MINF);
-            imageProperties->global_points[i].color = Vector4uc(0,0,0,0);
-        }
-        else{
-            int pixel_y = i / imageProperties->m_depthImageWidth;
-            int pixel_x = i - pixel_y * imageProperties->m_depthImageWidth;
-            float currDepthValue = imageProperties->m_depthMap.at<float>(i);
-            float camera_x = currDepthValue * ((float) pixel_x - imageProperties->cX) / imageProperties->fX;
-            float camera_y = currDepthValue * ((float) pixel_y - imageProperties->cY) / imageProperties->fY;
+    for(int level=0; level < imageProperties->num_levels; level++){
+        int numWH = imageProperties->all_data[level].img_width * imageProperties->all_data[level].img_height;
+        imageProperties->camera_reference_points[level] = new CameraRefPoints[numWH];
+        for(int i=0; i < numWH; i++){
+            if(imageProperties->m_depthMap.at<float>(i) == MINF){
+                imageProperties->camera_reference_points[level][i].position = Vector3f(MINF, MINF, MINF);
+                imageProperties->camera_reference_points[level][i].color = Vector4uc(0,0,0,0);
+            }
+            else{
+                int pixel_y = i / imageProperties->m_depthImageWidth;
+                int pixel_x = i - pixel_y * imageProperties->m_depthImageWidth;
+                float currDepthValue = imageProperties->m_depthMap.at<float>(i);
+                float camera_x = currDepthValue * ((float) pixel_x - imageProperties->cX) / imageProperties->fX;
+                float camera_y = currDepthValue * ((float) pixel_y - imageProperties->cY) / imageProperties->fY;
 
-            imageProperties->camera_reference_points[i].position = Vector3f(camera_x, camera_y, currDepthValue);
-            imageProperties->camera_reference_points[i].color = Vector4uc(imageProperties->m_colorMap[4*i], imageProperties->m_colorMap[4*i+1], imageProperties->m_colorMap[4*i+2], imageProperties->m_colorMap[4*i+3]);
+                imageProperties->camera_reference_points[level][i].position = Vector3f(camera_x, camera_y, currDepthValue);
+                imageProperties->camera_reference_points[level][i].color = Vector4uc(imageProperties->m_colorMap[4*i], imageProperties->m_colorMap[4*i+1], imageProperties->m_colorMap[4*i+2], imageProperties->m_colorMap[4*i+3]);
+            }
+        }
+    }
+
+
+}
+
+// compute global 3D points
+void compute_global_points(ImageProperties* imageProperties)
+{
+    for(int level=0; level < imageProperties->num_levels; level++) {
+        int numWH = imageProperties->all_data[level].img_width * imageProperties->all_data[level].img_height;
+        imageProperties->global_points[level] = new GlobalPoints[numWH];
+
+        for(int i=0; i < numWH; i++) {
+            if (imageProperties->m_depthMap.at<float>(i) == MINF) {
+                imageProperties->global_points[level][i].position = Vector4f(MINF, MINF, MINF, MINF);
+                imageProperties->global_points[level][i].color = Vector4uc(0, 0, 0, 0);
+            } else {
+                Vector4f camera_ref_vector = Vector4f(imageProperties->camera_reference_points[level][i].position.x(),
+                                                      imageProperties->camera_reference_points[level][i].position.y(),
+                                                      imageProperties->camera_reference_points[level][i].position.z(),
+                                                      (float) 1.0);
+
+                Vector4f global_point = imageProperties->m_trajectory * camera_ref_vector;
+
+                imageProperties->global_points[level][i].position = global_point;
+                imageProperties->global_points[level][i].color = imageProperties->camera_reference_points[level][i].color;
+            }
         }
     }
 }
 
-// compute global 3D points
-void compute_global_points(ImageProperties* imageProperties, int level)
+//World space to image pixel
+Vector2f perspective_projection(ImageProperties* imageProperties, Vector3f p)
 {
-    int numWH = imageProperties->all_data[level].img_width * imageProperties->all_data[level].img_height;
-    imageProperties->global_points = new GlobalPoints[numWH];
-
-    for(int i=0; i < numWH; i++) {
-        if (imageProperties->m_depthMap.at<float>(i) == MINF) {
-            imageProperties->global_points[i].position = Vector4f(MINF, MINF, MINF, MINF);
-            imageProperties->global_points[i].color = Vector4uc(0, 0, 0, 0);
-        } else {
-            Vector4f camera_ref_vector = Vector4f(imageProperties->camera_reference_points[i].position.x(),
-                                                  imageProperties->camera_reference_points[i].position.y(),
-                                                  imageProperties->camera_reference_points[i].position.z(),
-                                                  (float) 1.0);
-
-            Vector4f global_point = imageProperties->m_trajectory * camera_ref_vector;
-
-            imageProperties->global_points[i].position = global_point;
-            imageProperties->global_points[i].color = imageProperties->camera_reference_points[i].color;
-        }
-    }
+    Vector4f p_temp = Vector4f(p.x(), p.y(), p.z(), 1.0);
+    Matrix4f identity = Matrix4f::Zero();
+    identity.block<3, 3>(0, 0) = Matrix3f::Identity();
+    Vector3f p2 = imageProperties->m_depthIntrinsics * identity.block<3, 4>(0, 0) * imageProperties->m_depthExtrinsics * imageProperties->m_trajectory * p_temp;
+    return Vector2f(p2.x() / p2.z(), p2.y() / p2.z());
 }
 
 Vector3f get_translation(ImageProperties* image_properties){

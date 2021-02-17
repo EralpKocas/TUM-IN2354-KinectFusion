@@ -12,21 +12,32 @@ class SurfaceReconstructionUpdate{
 public:
     SurfaceReconstructionUpdate() {}
 
-
-    Vector4f convert_homogeneous_vector(Vector3f vector_3d)
-    {
-        return Vector4f(vector_3d.x(), vector_3d.y(), vector_3d.z(), (float) 1.0);
+    //HELPER FUNCTIONS
+    float calculateLambda( Matrix3f intrinsics, Vector3f p){
+        Vector2i projected = perspective_projection(p);
+        Vector3f dot_p = Vector3f(projected.x(), projected.y(), 1.0f);
+        return (intrinsics.inverse() * dot_p).norm();
     }
+
+    Vector2i perspective_projection(Vector3f p)
+    {
+        Vector4f p_temp = Vector4f(p.x(), p.y(), p.z(), 1.0);
+        Matrix4f identity = Matrix4f::Zero();
+        identity.block<3, 3>(0, 0) = Matrix3f::Identity();
+        Vector3f p2 = imageProperties->m_depthIntrinsics * identity.block<3, 4>(0, 0) * imageProperties->m_depthExtrinsics * imageProperties->m_trajectory * p_temp;
+        return Vector2i((int) round(p2.x() / p2.z()), (int) round(p2.y() / p2.z()));
+    }
+
 
     float calculateSDF_truncation(float truncation_distance, float sdf){
         if (sdf >= -truncation_distance) {
-            return fmin(1.f, sdf / truncation_distance); // determine threshold, 1.f currently
+            return fmin(1.f, sdf / truncation_distance)*(sdf < 0 ? -1 : sdf > 0); // determine threshold, 1.f currently
         }
         else return -1.f; // return - of threshold
     }
 
     //λ = ||K^-1*x||2
-    float calculateCurrentTSDF(float depth, Matrix3f intrinsics, Vector3f camera_coord, Vector3f p, float truncation_distance){
+    float calculateCurrentTSDF(float depth, Matrix3f intrinsics, Vector3f p, float truncation_distance){
         float current_tsdf = (1.f / calculateLambda(intrinsics, p)) * (get_translation(imageProperties) - p).norm() - depth;
         return calculateSDF_truncation(truncation_distance, current_tsdf);
     }
@@ -62,6 +73,11 @@ public:
     }
 
     void updateSurfaceReconstruction(ImageProperties*& image_properties){
+
+        std::ofstream out("out.txt");
+        std::streambuf *coutbuf = std::cout.rdbuf(); //save old buf
+        std::cout.rdbuf(out.rdbuf());
+
         truncate_updated_weight = 128; // check the intuition!
         this->imageProperties = image_properties;
 
@@ -85,25 +101,37 @@ public:
                         continue;
 
                     int index = image_coord.x() + image_coord.y() * image_properties->all_data[0].img_width;
-                    float depth = image_properties->all_data[0].curr_level_data.at<int>((int) image_coord.x(),
-                                                                                        (int) image_coord.y());
+                    float depth = image_properties->all_data[0].curr_level_data.at<float>((int) image_coord.y(),
+                                                                                        (int) image_coord.x());
 
                     if(depth == MINF || depth <= 0) continue;
 
 
-                    float F_rk = calculateCurrentTSDF(depth, image_properties->m_depthIntrinsics, camera_coord,
+                    float F_rk = calculateCurrentTSDF(depth, image_properties->m_depthIntrinsics,
                             global_coord, image_properties->truncation_distance);
 
                     if(F_rk == -1.f) continue;
 
                     int W_k = 1;
-
-                    Voxel prev_voxel = image_properties->global_tsdf->get(i, j, k);
+                    Voxel prev_voxel;
+                    if ( i == 0 || j == 0 || k == 0){
+                        prev_voxel = image_properties->global_tsdf->get(i, j, k);
+                    }
+                    else{
+                        prev_voxel = image_properties->global_tsdf->get(i, j, k-1);
+                    }
 
                     float updated_tsdf = calculateWeightedTSDF(prev_voxel.tsdf_weight, prev_voxel.tsdf_distance_value, W_k, F_rk);
 
                     int truncated_weight = calculateTruncatedWeight(calculateWeightedAvgWeight
                             (prev_voxel.tsdf_weight, W_k), truncate_updated_weight);
+
+                    std::cout << "i: " << i << ", j: " << j << ", k: " << k << std::endl;
+                    std::cout << "depth: " << depth << std::endl;
+                    std::cout << "F_rk: " << F_rk << std::endl;
+                    std::cout << "updated_tsdf: " << updated_tsdf << std::endl;
+                    std::cout << "truncated_weight: " << truncated_weight << std::endl << std::endl;
+
 
                     Voxel curr_voxel;
                     curr_voxel.tsdf_distance_value = updated_tsdf;
@@ -130,22 +158,6 @@ public:
         image_properties = this->imageProperties;
     }
 
-
-    //HELPER FUNCTIONS
-    float calculateLambda( Matrix3f intrinsics, Vector3f p){
-        Vector2i projected = perspective_projection(p);
-        Vector3f dot_p = Vector3f(projected.x(), projected.y(), 1.0f);
-        return (intrinsics.inverse() * dot_p).norm();
-    }
-
-    Vector2i perspective_projection(Vector3f p)
-    {
-        Vector4f p_temp = Vector4f(p.x(), p.y(), p.z(), 1.0);
-        Matrix4f identity = Matrix4f::Zero();
-        identity.block<3, 3>(0, 0) = Matrix3f::Identity();
-        Vector3f p2 = imageProperties->m_depthIntrinsics * identity.block<3, 4>(0, 0) * imageProperties->m_depthExtrinsics * imageProperties->m_trajectory * p_temp;
-        return Vector2i((int) round(p2.x() / p2.z()), (int) round(p2.y() / p2.z()));
-    }
 
 private:
 

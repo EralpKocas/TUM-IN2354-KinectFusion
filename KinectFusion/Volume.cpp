@@ -14,7 +14,7 @@ Volume::Volume(Vector3f min_, Vector3f max_, uint dx_, uint dy_, uint dz_, uint 
 	vol = NULL;
 
 	vol = new Voxel[dx*dy*dz];
-
+    zeroOutMemory();
 	compute_ddx_dddx();
 }
 

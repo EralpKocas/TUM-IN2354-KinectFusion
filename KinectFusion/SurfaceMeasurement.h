@@ -48,12 +48,13 @@ public:
 
             if(i==0){
                 image_properties->all_data[i].curr_level_data = image_properties->m_depthMap;
+                compute_bilateral_filter(image_properties);
             }
             else{
-                image_properties->all_data[i].curr_level_data = cv::Mat(image_properties->all_data[i].img_width,
+                image_properties->all_data[i].curr_smoothed_data = cv::Mat(image_properties->all_data[i].img_width,
                         image_properties->all_data[i].img_height, CV_32F);
-                cv::pyrDown(image_properties->all_data[i-1].curr_level_data,
-                        image_properties->all_data[i].curr_level_data);
+                cv::pyrDown(image_properties->all_data[i-1].curr_smoothed_data,
+                        image_properties->all_data[i].curr_smoothed_data);
             }
 
             //std::cout << "image_properties->all_data[i].curr_level_data: \n" << image_properties->all_data[i].curr_level_data << std::endl;
@@ -88,10 +89,12 @@ public:
     // compute bilateral filter
     void compute_bilateral_filter(ImageProperties*& image_properties)
     {
-        for(int i=0; i < image_properties->num_levels; i++){
+        /*for(int i=0; i < image_properties->num_levels; i++){
             cv::bilateralFilter(image_properties->all_data[i].curr_level_data, image_properties->all_data[i].curr_smoothed_data,
                     depth_diameter, bilateral_color_sigma, bilateral_spatial_sigma, cv::BORDER_DEFAULT);
-        }
+        }*/
+        cv::bilateralFilter(image_properties->all_data[0].curr_level_data, image_properties->all_data[0].curr_smoothed_data,
+                            depth_diameter, bilateral_color_sigma, bilateral_spatial_sigma, cv::BORDER_DEFAULT);
     }
 
     void helper_compute_vertex_map(ImageProperties*& image_properties, int level, float fX, float fY, float cX, float cY)
@@ -196,7 +199,6 @@ public:
         {
             std::cout << "Failed to initialize the SurfaceMeasurement step!\nCheck multiscale pyramid creation!" << std::endl;
         }
-        compute_bilateral_filter(image_properties);
         compute_vertex_map(image_properties);
         compute_normal_map(image_properties);
 
