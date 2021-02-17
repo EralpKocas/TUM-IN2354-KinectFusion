@@ -69,7 +69,6 @@ public:
             for(int j=0; j < image_properties->global_tsdf->getDimY(); j++){
                 for(int k=0; k < image_properties->global_tsdf->getDimZ(); k++){
 
-
                     Vector3f global_coord = image_properties->global_tsdf->pos(i, j, k);
 
                     if(!global_coord.allFinite()) continue;
@@ -86,7 +85,8 @@ public:
                         continue;
 
                     int index = image_coord.x() + image_coord.y() * image_properties->all_data[0].img_width;
-                    float depth = image_properties->all_data[0].curr_level_data.at<int>(index, 1);
+                    float depth = image_properties->all_data[0].curr_level_data.at<int>((int) image_coord.x(),
+                                                                                        (int) image_coord.y());
 
                     if(depth == MINF || depth <= 0) continue;
 
@@ -123,7 +123,6 @@ public:
                     }
 
                     image_properties->global_tsdf->set(i, j, k, curr_voxel);  // check whether assign is successful
-
                 }
             }
         }

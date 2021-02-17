@@ -94,14 +94,15 @@ public:
 
         std::vector<Vector3f> global_vertex_map = std::vector<Vector3f>(numWH);
 
-        for (int i=0; i < numWH; i++){
-            float currDepthValue =  image_properties->all_data[level].curr_smoothed_data.at<float>(i);
-            if(currDepthValue == MINF || isnan(currDepthValue)){
-                global_vertex_map[i] = Vector3f(MINF, MINF, MINF);
-            }
-            else{
-                global_vertex_map[i] = rotation * image_properties->all_data[level].vertex_map[i] + translation;
-
+        for(int i=0; i < curr_height; i++){
+            for(int j=0; j < curr_width; j++) {
+                float currDepthValue = image_properties->all_data[level].curr_smoothed_data.at<float>(i, j);
+                if (currDepthValue == MINF || isnan(currDepthValue)) {
+                    global_vertex_map[j + curr_width * i] = Vector3f(MINF, MINF, MINF);
+                } else {
+                    global_vertex_map[j + curr_width * i] = rotation *
+                            image_properties->all_data[level].vertex_map[j + curr_width * i] + translation;
+                }
             }
         }
         return global_vertex_map;
@@ -118,13 +119,14 @@ public:
 
         std::vector<Vector3f> global_normal_map = std::vector<Vector3f>(numWH);
 
-        for (int i=0; i < numWH; i++){
-            float currDepthValue =  image_properties->all_data[level].curr_smoothed_data.at<float>(i);
-            if(currDepthValue == MINF || isnan(currDepthValue)){
-                global_normal_map[i] = Vector3f(MINF, MINF, MINF);
-            }
-            else{
-                global_normal_map[i] = rotation * image_properties->all_data[level].normal_map[i];
+        for(int i=0; i < curr_height; i++){
+            for(int j=0; j < curr_width; j++) {
+                float currDepthValue = image_properties->all_data[level].curr_smoothed_data.at<float>(i, j);
+                if (currDepthValue == MINF || isnan(currDepthValue)) {
+                    global_normal_map[j + curr_width * i] = Vector3f(MINF, MINF, MINF);
+                } else {
+                    global_normal_map[j + curr_width * i] = rotation * image_properties->all_data[level].normal_map[j + curr_width * i];
+                }
             }
         }
         return global_normal_map;

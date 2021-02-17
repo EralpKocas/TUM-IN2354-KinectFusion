@@ -24,7 +24,7 @@ public:
 
     Vector3f calculate_raycast_dir(Vector3f eye, Vector3f current_ray)
     {
-        return (eye - current_ray).normalized();
+        return (current_ray - eye).normalized();
     }
 
     // P = O + t * R where R is normalized ray direction and O is eye, translation vector in our case.
@@ -141,8 +141,8 @@ public:
                     float camera_x = ((float) (i + 0.5) - image_properties->all_data[level].curr_cX) / image_properties->all_data[level].curr_fX;  // image to camera
                     float camera_y = ((float) (j + 0.5) - image_properties->all_data[level].curr_cY) / image_properties->all_data[level].curr_fY;  // image to camera
                     Vector3f pixel = Vector3f(camera_x, camera_y, 1.f);
-                    Vector3f ray_dir = (rotation * pixel).normalized();
-                    Vector3f ray_dir_2 = calculate_raycast_dir(translation, pixel_ray);
+                    Vector3f ray_dir_2 = (rotation * pixel).normalized();
+                    Vector3f ray_dir = calculate_raycast_dir(translation, pixel_ray);
 
                     //float t = calculate_search_length(translation, pixel_ray, ray_dir);  // t
                     float max_ray_length = Vector3i(image_properties->global_tsdf->getDimX(),

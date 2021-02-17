@@ -36,14 +36,28 @@ public:
             image_properties->all_data[i].curr_cX = image_properties->cX / scale;
             image_properties->all_data[i].curr_cY = image_properties->cY / scale;
 
+            /*std::cout << "i: \n" << i << std::endl;
+            std::cout << "scale: \n" << scale << std::endl;
+            std::cout << "image_properties->all_data[i].img_width: \n" << image_properties->all_data[i].img_width << std::endl;
+            std::cout << "image_properties->all_data[i].img_height: \n" << image_properties->all_data[i].img_height << std::endl;
+            std::cout << "image_properties->all_data[i].curr_fX: \n" << image_properties->all_data[i].curr_fX << std::endl;
+            std::cout << "image_properties->all_data[i].curr_fY: \n" << image_properties->all_data[i].curr_fY << std::endl;
+            std::cout << "image_properties->all_data[i].curr_cX: \n" << image_properties->all_data[i].curr_cX << std::endl;
+            std::cout << "image_properties->all_data[i].curr_cY: \n" << image_properties->all_data[i].curr_cY << std::endl;
+            */
 
             if(i==0){
                 image_properties->all_data[i].curr_level_data = image_properties->m_depthMap;
             }
             else{
+                image_properties->all_data[i].curr_level_data = cv::Mat(image_properties->all_data[i].img_width,
+                        image_properties->all_data[i].img_height, CV_32F);
                 cv::pyrDown(image_properties->all_data[i-1].curr_level_data,
-                            image_properties->all_data[i].curr_level_data);
+                        image_properties->all_data[i].curr_level_data);
             }
+
+            //std::cout << "image_properties->all_data[i].curr_level_data: \n" << image_properties->all_data[i].curr_level_data << std::endl;
+
             image_properties->all_data[i].vertex_map = std::vector<Vector3f>(image_properties->all_data[i].img_width *
                                                                                     image_properties->all_data[i].img_height);
             image_properties->all_data[i].normal_map = std::vector<Vector3f>(image_properties->all_data[i].img_width *
@@ -84,24 +98,28 @@ public:
     {
         int curr_width = (int) image_properties->all_data[level].img_width;
         int curr_height = (int) image_properties->all_data[level].img_height;
-        int numWH = curr_width * curr_height;
+        //int numWH = curr_width * curr_height;
 
-        for(int i=0; i < numWH; i++){
-            float currDepthValue =  image_properties->all_data[level].curr_smoothed_data.at<float>(i);
-            if(currDepthValue == MINF || isnan(currDepthValue)){
-                image_properties->all_data[level].vertex_map[i] = Vector3f(MINF, MINF, MINF);
-                //imageProperties->all_data[level].curr_level_color[i] = Vector4uc(0, 0, 0, 0);
-            }
-            else{
-                int pixel_y = i / curr_width;
-                int pixel_x = i - pixel_y * curr_width;
-                float camera_x = currDepthValue * ((float) pixel_x - cX) / fX;
-                float camera_y = currDepthValue * ((float) pixel_y - cY) / fY;
+        for(int i=0; i < curr_height; i++){
+            for(int j=0; j < curr_width; j++){
+                float currDepthValue =  image_properties->all_data[level].curr_smoothed_data.at<float>(i, j);
+                if(currDepthValue == MINF || isnan(currDepthValue)){
+                    image_properties->all_data[level].vertex_map[j + i * curr_width] = Vector3f(MINF, MINF, MINF);
+                    //imageProperties->all_data[level].curr_level_color[i] = Vector4uc(0, 0, 0, 0);
+                }
+                else{
+                    //int pixel_y = i / curr_width;
+                    //int pixel_x = i - pixel_y * curr_width;
+                    int pixel_x = j;
+                    int pixel_y = i;
+                    float camera_x = currDepthValue * ((float) pixel_x - cX) / fX;
+                    float camera_y = currDepthValue * ((float) pixel_y - cY) / fY;
 
-                image_properties->all_data[level].vertex_map[i] = Vector3f(camera_x, camera_y, currDepthValue);
+                    image_properties->all_data[level].vertex_map[j + i * curr_width] = Vector3f(camera_x, camera_y, currDepthValue);
 
-                //imageProperties->camera_reference_points[i].color = Vector4uc(imageProperties->m_colorMap[4*i],
-                // imageProperties->m_colorMap[4*i+1], imageProperties->m_colorMap[4*i+2], imageProperties->m_colorMap[4*i+3]);
+                    //imageProperties->camera_reference_points[i].color = Vector4uc(imageProperties->m_colorMap[4*i],
+                    // imageProperties->m_colorMap[4*i+1], imageProperties->m_colorMap[4*i+2], imageProperties->m_colorMap[4*i+3]);
+                }
             }
         }
     }
@@ -120,48 +138,48 @@ public:
     {
         int curr_width = (int) image_properties->all_data[level].img_width;
         int curr_height = (int) image_properties->all_data[level].img_height;
-        int numWH = curr_width * curr_height;
+        //int numWH = curr_width * curr_height;
 
-        for(int i=0; i < numWH; i++){
-            Vector3f curr_vertex = image_properties->all_data[level].vertex_map[i];
+        for(int i=0; i < curr_height; i++){
+            for(int j=0; j < curr_width; j++) {
+                Vector3f curr_vertex = image_properties->all_data[level].vertex_map[j + i * curr_width];
 
-            if(curr_vertex.z() == MINF){
-                image_properties->all_data[level].vertex_map[i] = Vector3f(MINF, MINF, MINF);
-                //imageProperties->all_data[level].curr_level_color[i] = Vector4uc(0, 0, 0, 0);
-            }
-            else{
-                int pixel_y = i / curr_width;
-                int pixel_x = i - pixel_y * curr_width;
+                if (curr_vertex.z() == MINF) {
+                    image_properties->all_data[level].normal_map[j + i * curr_width] = Vector3f(MINF, MINF, MINF);
+                    //imageProperties->all_data[level].curr_level_color[i] = Vector4uc(0, 0, 0, 0);
+                } else {
+                    int pixel_y = i;
+                    int pixel_x = j;
 
-                int right_pixel = (pixel_x + 1) + pixel_y * curr_width;
-                int left_pixel = (pixel_x - 1) + pixel_y * curr_width;
-                int bottom_pixel = pixel_x + (pixel_y + 1) * curr_width;
-                int upper_pixel = pixel_x + (pixel_y - 1) * curr_width;
+                    int right_pixel = (pixel_x + 1) + pixel_y * curr_width;
+                    int left_pixel = (pixel_x - 1) + pixel_y * curr_width;
+                    int bottom_pixel = pixel_x + (pixel_y + 1) * curr_width;
+                    int upper_pixel = pixel_x + (pixel_y - 1) * curr_width;
 
+                    Vector3f neigh_1 = Vector3f(image_properties->all_data[level].vertex_map[left_pixel].x() -
+                                                image_properties->all_data[level].vertex_map[right_pixel].x(),
+                                                image_properties->all_data[level].vertex_map[left_pixel].y() -
+                                                image_properties->all_data[level].vertex_map[right_pixel].y(),
+                                                image_properties->all_data[level].vertex_map[left_pixel].z() -
+                                                image_properties->all_data[level].vertex_map[right_pixel].z());
 
-                Vector3f neigh_1 = Vector3f(image_properties->all_data[level].vertex_map[left_pixel].x() -
-                                            image_properties->all_data[level].vertex_map[right_pixel].x(),
-                                            image_properties->all_data[level].vertex_map[left_pixel].y() -
-                                            image_properties->all_data[level].vertex_map[right_pixel].y(),
-                                            image_properties->all_data[level].vertex_map[left_pixel].z() -
-                                            image_properties->all_data[level].vertex_map[right_pixel].z());
+                    Vector3f neigh_2 = Vector3f(image_properties->all_data[level].vertex_map[upper_pixel].x() -
+                                                image_properties->all_data[level].vertex_map[bottom_pixel].x(),
+                                                image_properties->all_data[level].vertex_map[upper_pixel].y() -
+                                                image_properties->all_data[level].vertex_map[bottom_pixel].y(),
+                                                image_properties->all_data[level].vertex_map[upper_pixel].z() -
+                                                image_properties->all_data[level].vertex_map[bottom_pixel].z());
 
-                Vector3f neigh_2 = Vector3f(image_properties->all_data[level].vertex_map[upper_pixel].x() -
-                                            image_properties->all_data[level].vertex_map[bottom_pixel].x(),
-                                            image_properties->all_data[level].vertex_map[upper_pixel].y() -
-                                            image_properties->all_data[level].vertex_map[bottom_pixel].y(),
-                                            image_properties->all_data[level].vertex_map[upper_pixel].z() -
-                                            image_properties->all_data[level].vertex_map[bottom_pixel].z());
+                    Vector3f cross_prod = neigh_1.cross(neigh_2);
+                    cross_prod.normalize();
+                    if (cross_prod.z() > 0) cross_prod *= -1;
+                    image_properties->all_data[level].normal_map[j + i * curr_width] = cross_prod;
 
-                Vector3f cross_prod = neigh_1.cross(neigh_2);
-                cross_prod.normalize();
-                if(cross_prod.z() > 0) cross_prod *= -1;
-                image_properties->all_data[level].normal_map[i] = cross_prod;
-
-                /*image_properties->camera_reference_points[i].color = Vector4uc(image_properties->m_colorMap[4*i],
-                                                                               image_properties->m_colorMap[4*i+1],
-                                                                               image_properties->m_colorMap[4*i+2],
-                                                                               image_properties->m_colorMap[4*i+3]);*/
+                    /*image_properties->camera_reference_points[i].color = Vector4uc(image_properties->m_colorMap[4*i],
+                                                                                   image_properties->m_colorMap[4*i+1],
+                                                                                   image_properties->m_colorMap[4*i+2],
+                                                                                   image_properties->m_colorMap[4*i+3]);*/
+                }
             }
         }
     }

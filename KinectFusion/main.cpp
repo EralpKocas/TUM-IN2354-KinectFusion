@@ -2,6 +2,10 @@
 //#include <fstream>
 #include <array>
 
+#include <iostream>
+#include <fstream>
+#include <string>
+
 #include <common.h>
 #include "VirtualSensor_freiburg.h"
 
@@ -20,7 +24,7 @@ ImageProperties* init(VirtualSensor_freiburg &sensor)
 {
     ImageProperties* imageProperties = new ImageProperties();
 
-    imageProperties->m_depthMap = cv::Mat(640*480, 1, CV_32F, sensor.getDepth());
+    imageProperties->m_depthMap = cv::Mat(640, 480, CV_32F, sensor.getDepth());
     imageProperties->m_colorMap = sensor.getColorRGBX();
     //imageProperties->m_colorMap = cv::Mat(640*480, 1, CV_8UC4, sensor.getColorRGBX());
     imageProperties->m_trajectory = sensor.getTrajectory();
@@ -50,8 +54,8 @@ ImageProperties* init(VirtualSensor_freiburg &sensor)
 int main() {
 
     // Make sure this path points to the data folder
-    std::string filenameIn = "/Users/beyzatugcebilgic/Desktop/TUM-IN2354-KinectFusion/KinectFusion/data/rgbd_dataset_freiburg1_xyz/";
-    //std::string filenameIn = "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/data/rgbd_dataset_freiburg1_xyz/";
+    //std::string filenameIn = "/Users/beyzatugcebilgic/Desktop/TUM-IN2354-KinectFusion/KinectFusion/data/rgbd_dataset_freiburg1_xyz/";
+    std::string filenameIn = "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/data/rgbd_dataset_freiburg1_xyz/";
     // load video
     std::cout << "Initialize virtual sensor..." << std::endl;
     VirtualSensor_freiburg sensor;
@@ -85,6 +89,10 @@ int main() {
 
         std::vector<int> iterations = {4, 5, 10};
 
+        //std::ofstream out("out.txt");
+        //std::streambuf *coutbuf = std::cout.rdbuf(); //save old buf
+        //std::cout.rdbuf(out.rdbuf());
+
         SurfaceMeasurement surface_measurement;
         surface_measurement.surface_measurement_pipeline(imageProperties);
 
@@ -108,8 +116,6 @@ int main() {
         SimpleMesh mesh;
         for (unsigned int x = 0; x < imageProperties->global_tsdf->getDimX() - 1; x++)
         {
-            std::cerr << "Marching Cubes on slice " << x << " of " << imageProperties->global_tsdf->getDimX() << std::endl;
-
             for (unsigned int y = 0; y < imageProperties->global_tsdf->getDimY() - 1; y++)
             {
                 for (unsigned int z = 0; z < imageProperties->global_tsdf->getDimZ() - 1; z++)
