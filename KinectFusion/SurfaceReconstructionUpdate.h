@@ -31,7 +31,7 @@ public:
 
     float calculateSDF_truncation(float truncation_distance, float sdf){
         if (sdf >= -truncation_distance) {
-            return fmin(1.f, sdf / truncation_distance)*(sdf < 0 ? -1 : sdf > 0); // determine threshold, 1.f currently
+            return fmin(1.f, sdf / truncation_distance) * (sdf < 0 ? -1 : sdf > 0); // determine threshold, 1.f currently
         }
         else return -1.f; // return - of threshold
     }
@@ -72,20 +72,20 @@ public:
                          (current_weight + new_weight));
     }
 
-    void updateSurfaceReconstruction(ImageProperties*& image_properties){
+    void updateSurfaceReconstruction(ImageProperties*& image_properties, Volume*& global_volume){
 
-        std::ofstream out("out.txt");
-        std::streambuf *coutbuf = std::cout.rdbuf(); //save old buf
-        std::cout.rdbuf(out.rdbuf());
+        //std::ofstream out("out.txt");
+        //std::streambuf *coutbuf = std::cout.rdbuf(); //save old buf
+        //std::cout.rdbuf(out.rdbuf());
 
         truncate_updated_weight = 128; // check the intuition!
         this->imageProperties = image_properties;
 
-        for(int i=0; i < image_properties->global_tsdf->getDimX(); i++){
-            for(int j=0; j < image_properties->global_tsdf->getDimY(); j++){
-                for(int k=0; k < image_properties->global_tsdf->getDimZ(); k++){
+        for(int i=0; i < global_volume->getDimX(); i++){
+            for(int j=0; j < global_volume->getDimY(); j++){
+                for(int k=0; k < global_volume->getDimZ(); k++){
 
-                    Vector3f global_coord = image_properties->global_tsdf->pos(i, j, k);
+                    Vector3f global_coord = global_volume->pos(i, j, k);
 
                     if(!global_coord.allFinite()) continue;
 
@@ -114,23 +114,24 @@ public:
 
                     int W_k = 1;
                     Voxel prev_voxel;
-                    if ( i == 0 || j == 0 || k == 0){
-                        prev_voxel = image_properties->global_tsdf->get(i, j, k);
+                    /*if ( i == 0 || j == 0 || k == 0){
+                        prev_voxel = global_volume->get(i, j, k);
                     }
                     else{
-                        prev_voxel = image_properties->global_tsdf->get(i, j, k-1);
-                    }
+                        prev_voxel = global_volume->get(i, j, k-1);
+                    }*/
+                    prev_voxel = global_volume->get(i, j, k);
 
                     float updated_tsdf = calculateWeightedTSDF(prev_voxel.tsdf_weight, prev_voxel.tsdf_distance_value, W_k, F_rk);
 
                     int truncated_weight = calculateTruncatedWeight(calculateWeightedAvgWeight
                             (prev_voxel.tsdf_weight, W_k), truncate_updated_weight);
 
-                    std::cout << "i: " << i << ", j: " << j << ", k: " << k << std::endl;
+                    /*std::cout << "i: " << i << ", j: " << j << ", k: " << k << std::endl;
                     std::cout << "depth: " << depth << std::endl;
                     std::cout << "F_rk: " << F_rk << std::endl;
                     std::cout << "updated_tsdf: " << updated_tsdf << std::endl;
-                    std::cout << "truncated_weight: " << truncated_weight << std::endl << std::endl;
+                    std::cout << "truncated_weight: " << truncated_weight << std::endl << std::endl;*/
 
 
                     Voxel curr_voxel;
@@ -141,16 +142,16 @@ public:
                     if(F_rk <= image_properties->truncation_distance / 2 && F_rk >= -image_properties->truncation_distance / 2)
                     {
                         // TODO: check here!!
-                        Vector4uc prev_color = image_properties->global_tsdf->get(i, j ,k).color;
+                        Vector4uc prev_color = global_volume->get(i, j ,k).color;
                         curr_color = Vector4uc(image_properties->m_colorMap[index],
                                             image_properties->m_colorMap[index+1],
                                             image_properties->m_colorMap[index+2],
                                             image_properties->m_colorMap[index+3]);
-                        curr_color = calculateWeightedColorUpdate(truncated_weight, prev_color, prev_voxel.tsdf_weight, curr_color);
+                        curr_color = calculateWeightedColorUpdate(prev_voxel.tsdf_weight, prev_color, W_k, curr_color);
                         curr_voxel.color = curr_color;
                     }
 
-                    image_properties->global_tsdf->set(i, j, k, curr_voxel);  // check whether assign is successful
+                    global_volume->set(i, j, k, curr_voxel);  // check whether assign is successful
                 }
             }
         }

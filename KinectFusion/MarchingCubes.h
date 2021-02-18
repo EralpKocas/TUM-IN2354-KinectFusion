@@ -372,7 +372,7 @@ will be loaded up with the vertices at most 5 triangular facets.
 0 will be returned if the grid cell is either totally above
 or totally below the isolevel.
 */
-int Polygonise(MC_Gridcell grid, double isolevel, MC_Triangle* triangles) {
+int Polygonise(MC_Gridcell* grid, double isolevel, MC_Triangle* triangles) {
 
 	int ntriang;
 	int cubeindex;
@@ -380,14 +380,14 @@ int Polygonise(MC_Gridcell grid, double isolevel, MC_Triangle* triangles) {
 	Vector4uc colorlist[12];
 
 	cubeindex = 0;
-	if (grid.val[0] < isolevel) cubeindex |= 1;
-	if (grid.val[1] < isolevel) cubeindex |= 2;
-	if (grid.val[2] < isolevel) cubeindex |= 4;
-	if (grid.val[3] < isolevel) cubeindex |= 8;
-	if (grid.val[4] < isolevel) cubeindex |= 16;
-	if (grid.val[5] < isolevel) cubeindex |= 32;
-	if (grid.val[6] < isolevel) cubeindex |= 64;
-	if (grid.val[7] < isolevel) cubeindex |= 128;
+	if (grid->val[0] < isolevel) cubeindex |= 1;
+	if (grid->val[1] < isolevel) cubeindex |= 2;
+	if (grid->val[2] < isolevel) cubeindex |= 4;
+	if (grid->val[3] < isolevel) cubeindex |= 8;
+	if (grid->val[4] < isolevel) cubeindex |= 16;
+	if (grid->val[5] < isolevel) cubeindex |= 32;
+	if (grid->val[6] < isolevel) cubeindex |= 64;
+	if (grid->val[7] < isolevel) cubeindex |= 128;
 
 	/* Cube is entirely in/out of the surface */
 	if (edgeTable[cubeindex] == 0)
@@ -395,41 +395,41 @@ int Polygonise(MC_Gridcell grid, double isolevel, MC_Triangle* triangles) {
 
 	/* Find the vertices where the surface intersects the cube */
 	if (edgeTable[cubeindex] & 1)
-		vertlist[0] = VertexInterp(isolevel, grid.p[0], grid.p[1], grid.val[0], grid.val[1]);
-        colorlist[0] = ColorInterp(isolevel, grid.color[0], grid.color[1], grid.val[0], grid.val[1]);
+		vertlist[0] = VertexInterp(isolevel, grid->p[0], grid->p[1], grid->val[0], grid->val[1]);
+        colorlist[0] = ColorInterp(isolevel, grid->color[0], grid->color[1], grid->val[0], grid->val[1]);
     if (edgeTable[cubeindex] & 2)
-		vertlist[1] = VertexInterp(isolevel, grid.p[1], grid.p[2], grid.val[1], grid.val[2]);
-        colorlist[1] = ColorInterp(isolevel, grid.color[1], grid.color[2], grid.val[1], grid.val[2]);
+		vertlist[1] = VertexInterp(isolevel, grid->p[1], grid->p[2], grid->val[1], grid->val[2]);
+        colorlist[1] = ColorInterp(isolevel, grid->color[1], grid->color[2], grid->val[1], grid->val[2]);
     if (edgeTable[cubeindex] & 4)
-		vertlist[2] = VertexInterp(isolevel, grid.p[2], grid.p[3], grid.val[2], grid.val[3]);
-        colorlist[2] = ColorInterp(isolevel, grid.color[2], grid.color[3], grid.val[2], grid.val[3]);
+		vertlist[2] = VertexInterp(isolevel, grid->p[2], grid->p[3], grid->val[2], grid->val[3]);
+        colorlist[2] = ColorInterp(isolevel, grid->color[2], grid->color[3], grid->val[2], grid->val[3]);
     if (edgeTable[cubeindex] & 8)
-		vertlist[3] = VertexInterp(isolevel, grid.p[3], grid.p[0], grid.val[3], grid.val[0]);
-        colorlist[3] = ColorInterp(isolevel, grid.color[3], grid.color[0], grid.val[3], grid.val[0]);
+		vertlist[3] = VertexInterp(isolevel, grid->p[3], grid->p[0], grid->val[3], grid->val[0]);
+        colorlist[3] = ColorInterp(isolevel, grid->color[3], grid->color[0], grid->val[3], grid->val[0]);
     if (edgeTable[cubeindex] & 16)
-		vertlist[4] = VertexInterp(isolevel, grid.p[4], grid.p[5], grid.val[4], grid.val[5]);
-        colorlist[4] = ColorInterp(isolevel, grid.color[4], grid.color[5], grid.val[4], grid.val[5]);
+		vertlist[4] = VertexInterp(isolevel, grid->p[4], grid->p[5], grid->val[4], grid->val[5]);
+        colorlist[4] = ColorInterp(isolevel, grid->color[4], grid->color[5], grid->val[4], grid->val[5]);
     if (edgeTable[cubeindex] & 32)
-		vertlist[5] = VertexInterp(isolevel, grid.p[5], grid.p[6], grid.val[5], grid.val[6]);
-        colorlist[5] = ColorInterp(isolevel, grid.color[5], grid.color[6], grid.val[5], grid.val[6]);
+		vertlist[5] = VertexInterp(isolevel, grid->p[5], grid->p[6], grid->val[5], grid->val[6]);
+        colorlist[5] = ColorInterp(isolevel, grid->color[5], grid->color[6], grid->val[5], grid->val[6]);
     if (edgeTable[cubeindex] & 64)
-		vertlist[6] = VertexInterp(isolevel, grid.p[6], grid.p[7], grid.val[6], grid.val[7]);
-        colorlist[6] = ColorInterp(isolevel, grid.color[6], grid.color[7], grid.val[6], grid.val[7]);
+		vertlist[6] = VertexInterp(isolevel, grid->p[6], grid->p[7], grid->val[6], grid->val[7]);
+        colorlist[6] = ColorInterp(isolevel, grid->color[6], grid->color[7], grid->val[6], grid->val[7]);
     if (edgeTable[cubeindex] & 128)
-		vertlist[7] = VertexInterp(isolevel, grid.p[7], grid.p[4], grid.val[7], grid.val[4]);
-        colorlist[7] = ColorInterp(isolevel, grid.color[7], grid.color[4], grid.val[7], grid.val[4]);
+		vertlist[7] = VertexInterp(isolevel, grid->p[7], grid->p[4], grid->val[7], grid->val[4]);
+        colorlist[7] = ColorInterp(isolevel, grid->color[7], grid->color[4], grid->val[7], grid->val[4]);
     if (edgeTable[cubeindex] & 256)
-		vertlist[8] = VertexInterp(isolevel, grid.p[0], grid.p[4], grid.val[0], grid.val[4]);
-        colorlist[8] = ColorInterp(isolevel, grid.color[0], grid.color[4], grid.val[0], grid.val[4]);
+		vertlist[8] = VertexInterp(isolevel, grid->p[0], grid->p[4], grid->val[0], grid->val[4]);
+        colorlist[8] = ColorInterp(isolevel, grid->color[0], grid->color[4], grid->val[0], grid->val[4]);
     if (edgeTable[cubeindex] & 512)
-		vertlist[9] = VertexInterp(isolevel, grid.p[1], grid.p[5], grid.val[1], grid.val[5]);
-        colorlist[9] = ColorInterp(isolevel, grid.color[1], grid.color[5], grid.val[1], grid.val[5]);
+		vertlist[9] = VertexInterp(isolevel, grid->p[1], grid->p[5], grid->val[1], grid->val[5]);
+        colorlist[9] = ColorInterp(isolevel, grid->color[1], grid->color[5], grid->val[1], grid->val[5]);
     if (edgeTable[cubeindex] & 1024)
-		vertlist[10] = VertexInterp(isolevel, grid.p[2], grid.p[6], grid.val[2], grid.val[6]);
-        colorlist[10] = ColorInterp(isolevel, grid.color[2], grid.color[6], grid.val[2], grid.val[6]);
+		vertlist[10] = VertexInterp(isolevel, grid->p[2], grid->p[6], grid->val[2], grid->val[6]);
+        colorlist[10] = ColorInterp(isolevel, grid->color[2], grid->color[6], grid->val[2], grid->val[6]);
     if (edgeTable[cubeindex] & 2048)
-		vertlist[11] = VertexInterp(isolevel, grid.p[3], grid.p[7], grid.val[3], grid.val[7]);
-        colorlist[11] = ColorInterp(isolevel, grid.color[3], grid.color[7], grid.val[3], grid.val[7]);
+		vertlist[11] = VertexInterp(isolevel, grid->p[3], grid->p[7], grid->val[3], grid->val[7]);
+        colorlist[11] = ColorInterp(isolevel, grid->color[3], grid->color[7], grid->val[3], grid->val[7]);
 
     /* Create the triangle */
 	ntriang = 0;
@@ -447,9 +447,9 @@ int Polygonise(MC_Gridcell grid, double isolevel, MC_Triangle* triangles) {
 }
 
 
-bool ProcessVolumeCell(Volume* vol, int x, int y, int z, double iso, SimpleMesh* mesh)
+bool ProcessVolumeCell(Volume*& vol, int x, int y, int z, double iso, SimpleMesh* mesh)
 {
-	MC_Gridcell cell;
+	MC_Gridcell *cell = new MC_Gridcell;
 
 	Vector3f tmp;
 
@@ -457,53 +457,53 @@ bool ProcessVolumeCell(Volume* vol, int x, int y, int z, double iso, SimpleMesh*
 	tmp = vol->pos(x + 1, y, z);
 
 	Voxel vox = vol->get(x + 1, y, z);
-	cell.p[0] = Vector3d(tmp[0], tmp[1], tmp[2]);
-	cell.color[0] = vox.color;
+	cell->p[0] = Vector3d(tmp[0], tmp[1], tmp[2]);
+	cell->color[0] = vox.color;
 
 	tmp = vol->pos(x, y, z);
 	vox = vol->get(x, y, z);
-    cell.p[1] = Vector3d(tmp[0], tmp[1], tmp[2]);
-    cell.color[1] = vox.color;
+    cell->p[1] = Vector3d(tmp[0], tmp[1], tmp[2]);
+    cell->color[1] = vox.color;
 
     tmp = vol->pos(x, y + 1, z);
     vox = vol->get(x, y + 1, z);
-    cell.p[2] = Vector3d(tmp[0], tmp[1], tmp[2]);
-    cell.color[2] = vox.color;
+    cell->p[2] = Vector3d(tmp[0], tmp[1], tmp[2]);
+    cell->color[2] = vox.color;
 
     tmp = vol->pos(x + 1, y + 1, z);
     vox = vol->get(x + 1, y + 1, z);
-    cell.p[3] = Vector3d(tmp[0], tmp[1], tmp[2]);
-    cell.color[3] = vox.color;
+    cell->p[3] = Vector3d(tmp[0], tmp[1], tmp[2]);
+    cell->color[3] = vox.color;
 
     tmp = vol->pos(x + 1, y, z + 1);
     vox = vol->get(x + 1, y, z + 1);
-    cell.p[4] = Vector3d(tmp[0], tmp[1], tmp[2]);
-    cell.color[4] = vox.color;
+    cell->p[4] = Vector3d(tmp[0], tmp[1], tmp[2]);
+    cell->color[4] = vox.color;
 
     tmp = vol->pos(x, y, z + 1);
     vox = vol->get(x, y, z + 1);
-    cell.p[5] = Vector3d(tmp[0], tmp[1], tmp[2]);
-    cell.color[5] = vox.color;
+    cell->p[5] = Vector3d(tmp[0], tmp[1], tmp[2]);
+    cell->color[5] = vox.color;
 
     tmp = vol->pos(x, y + 1, z + 1);
     vox = vol->get(x, y + 1, z + 1);
-    cell.p[6] = Vector3d(tmp[0], tmp[1], tmp[2]);
-    cell.color[6] = vox.color;
+    cell->p[6] = Vector3d(tmp[0], tmp[1], tmp[2]);
+    cell->color[6] = vox.color;
 
     tmp = vol->pos(x + 1, y + 1, z + 1);
     vox = vol->get(x + 1, y + 1, z + 1);
-    cell.p[7] = Vector3d(tmp[0], tmp[1], tmp[2]);
-    cell.color[7] = vox.color;
+    cell->p[7] = Vector3d(tmp[0], tmp[1], tmp[2]);
+    cell->color[7] = vox.color;
 
     // cell corner values
-	cell.val[0] = (double)vol->get(x + 1, y, z).tsdf_distance_value;
-	cell.val[1] = (double)vol->get(x, y, z).tsdf_distance_value;
-	cell.val[2] = (double)vol->get(x, y + 1, z).tsdf_distance_value;
-	cell.val[3] = (double)vol->get(x + 1, y + 1, z).tsdf_distance_value;
-	cell.val[4] = (double)vol->get(x + 1, y, z + 1).tsdf_distance_value;
-	cell.val[5] = (double)vol->get(x, y, z + 1).tsdf_distance_value;
-	cell.val[6] = (double)vol->get(x, y + 1, z + 1).tsdf_distance_value;
-	cell.val[7] = (double)vol->get(x + 1, y + 1, z + 1).tsdf_distance_value;
+	cell->val[0] = (double)vol->get(x + 1, y, z).tsdf_distance_value;
+	cell->val[1] = (double)vol->get(x, y, z).tsdf_distance_value;
+	cell->val[2] = (double)vol->get(x, y + 1, z).tsdf_distance_value;
+	cell->val[3] = (double)vol->get(x + 1, y + 1, z).tsdf_distance_value;
+	cell->val[4] = (double)vol->get(x + 1, y, z + 1).tsdf_distance_value;
+	cell->val[5] = (double)vol->get(x, y, z + 1).tsdf_distance_value;
+	cell->val[6] = (double)vol->get(x, y + 1, z + 1).tsdf_distance_value;
+	cell->val[7] = (double)vol->get(x + 1, y + 1, z + 1).tsdf_distance_value;
 
 	MC_Triangle tris[6];
 	int numTris = Polygonise(cell, iso, tris);
@@ -513,23 +513,23 @@ bool ProcessVolumeCell(Volume* vol, int x, int y, int z, double iso, SimpleMesh*
 
 	for (int i1 = 0; i1 < numTris; i1++)
 	{
-		Vertex v0;
-		v0.vertex_pos = Vector3f((float)tris[i1].p[0][0], (float)tris[i1].p[0][1], (float)tris[i1].p[0][2]);
-        v0.vertex_color = Vector4uc((float)tris[i1].color[0][0], (float)tris[i1].color[0][1], (float)tris[i1].color[0][2], (float)tris[i1].color[0][3]);
+		Vertex* v0 = new Vertex;
+		v0->vertex_pos = Vector3f((float)tris[i1].p[0][0], (float)tris[i1].p[0][1], (float)tris[i1].p[0][2]);
+        v0->vertex_color = Vector4uc((float)tris[i1].color[0][0], (float)tris[i1].color[0][1], (float)tris[i1].color[0][2], (float)tris[i1].color[0][3]);
 
-        Vertex v1;
-        v1.vertex_pos = Vector3f((float)tris[i1].p[1][0], (float)tris[i1].p[1][1], (float)tris[i1].p[1][2]);
-        v1.vertex_color = Vector4uc((float)tris[i1].color[1][0], (float)tris[i1].color[1][1], (float)tris[i1].color[1][2], (float)tris[i1].color[1][3]);
+        Vertex* v1 = new Vertex;
+        v1->vertex_pos = Vector3f((float)tris[i1].p[1][0], (float)tris[i1].p[1][1], (float)tris[i1].p[1][2]);
+        v1->vertex_color = Vector4uc((float)tris[i1].color[1][0], (float)tris[i1].color[1][1], (float)tris[i1].color[1][2], (float)tris[i1].color[1][3]);
 
-        Vertex v2;
-        v2.vertex_pos = Vector3f((float)tris[i1].p[2][0], (float)tris[i1].p[2][1], (float)tris[i1].p[2][2]);
-        v2.vertex_color = Vector4uc((float)tris[i1].color[2][0], (float)tris[i1].color[2][1], (float)tris[i1].color[2][2], (float)tris[i1].color[2][3]);
+        Vertex* v2 = new Vertex;
+        v2->vertex_pos = Vector3f((float)tris[i1].p[2][0], (float)tris[i1].p[2][1], (float)tris[i1].p[2][2]);
+        v2->vertex_color = Vector4uc((float)tris[i1].color[2][0], (float)tris[i1].color[2][1], (float)tris[i1].color[2][2], (float)tris[i1].color[2][3]);
 
 
 		unsigned int vhandle[3];
-		vhandle[0] = mesh->AddVertex(v0);
-		vhandle[1] = mesh->AddVertex(v1);
-		vhandle[2] = mesh->AddVertex(v2);
+		vhandle[0] = mesh->AddVertex(*v0);
+		vhandle[1] = mesh->AddVertex(*v1);
+		vhandle[2] = mesh->AddVertex(*v2);
 
 		mesh->AddFace(vhandle[0], vhandle[1], vhandle[2]);
 	}

@@ -72,7 +72,7 @@ struct ImageProperties{
     CameraRefPoints **camera_reference_points;
     GlobalPoints **global_points;
     SurfaceLevelData *all_data;
-    Volume* global_tsdf;
+    //Volume* global_tsdf;
 };
 
 // compute 3d camera reference points

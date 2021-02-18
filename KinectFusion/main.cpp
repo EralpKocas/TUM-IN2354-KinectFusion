@@ -44,14 +44,14 @@ ImageProperties* init(VirtualSensor_freiburg &sensor)
 
     imageProperties->truncation_distance = 25.f; // find the correct value!
 
-    imageProperties->camera_reference_points = new CameraRefPoints*[imageProperties->num_levels];
+    //imageProperties->camera_reference_points = new CameraRefPoints*[imageProperties->num_levels];
 
     //imageProperties->camera_reference_points = new CameraRefPoints[imageProperties->m_depthImageWidth * imageProperties->m_depthImageHeight];
 
-    imageProperties->global_points = new GlobalPoints*[imageProperties->num_levels];
+    //imageProperties->global_points = new GlobalPoints*[imageProperties->num_levels];
 
     //imageProperties->global_points = new GlobalPoints[imageProperties->m_depthImageWidth * imageProperties->m_depthImageHeight];
-    imageProperties->global_tsdf = new Volume(Vector3f(MIN_POINT), Vector3f(MAX_POINT), RESOLUTION, 3);
+    //imageProperties->global_tsdf = new Volume(Vector3f(MIN_POINT), Vector3f(MAX_POINT), RESOLUTION, 3);
     return imageProperties;
 }
 
@@ -67,8 +67,8 @@ void initSurfaceLevelData(ImageProperties* imageProperties){
 int main() {
 
     // Make sure this path points to the data folder
-    std::string filenameIn = "/Users/beyzatugcebilgic/Desktop/TUM-IN2354-KinectFusion/KinectFusion/data/rgbd_dataset_freiburg1_xyz/";
-    //std::string filenameIn = "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/data/rgbd_dataset_freiburg1_xyz/";
+    //std::string filenameIn = "/Users/beyzatugcebilgic/Desktop/TUM-IN2354-KinectFusion/KinectFusion/data/rgbd_dataset_freiburg1_xyz/";
+    std::string filenameIn = "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/data/rgbd_dataset_freiburg1_xyz/";
     // load video
     std::cout << "Initialize virtual sensor..." << std::endl;
     VirtualSensor_freiburg sensor;
@@ -78,14 +78,17 @@ int main() {
         return -1;
     }
 
+    Volume* global_volume = new Volume(Vector3f(MIN_POINT), Vector3f(MAX_POINT), RESOLUTION, 3);
+
     // convert video to meshes
     int i = 1;
     while (sensor.processNextFrame()) {
         ImageProperties* imageProperties = init(sensor);
         initSurfaceLevelData(imageProperties);
 
-        compute_camera_ref_points(imageProperties);
-        compute_global_points(imageProperties);
+        //compute_camera_ref_points(imageProperties);
+        //compute_global_points(imageProperties);
+
         // get ptr to the current depth frame
         // depth is stored in row major (get dimensions via sensor.GetDepthImageWidth() / GetDepthImageHeight())
 
@@ -110,10 +113,10 @@ int main() {
         }
 
         SurfaceReconstructionUpdate reconstruction_update;
-        reconstruction_update.updateSurfaceReconstruction(imageProperties);
+        reconstruction_update.updateSurfaceReconstruction(imageProperties, global_volume);
 
         SurfacePrediction surface_prediction;
-        surface_prediction.predict_surface(imageProperties);
+        surface_prediction.predict_surface(imageProperties, global_volume);
 
         /*if(!surface_measurement.init(depthMap, colorMap, trajectory, trajectoryInv, depthIntrinsics))
         {
@@ -122,14 +125,14 @@ int main() {
         }*/
         // extract the zero iso-surface using marching cubes
         SimpleMesh mesh;
-        for (unsigned int x = 0; x < imageProperties->global_tsdf->getDimX() - 1; x++)
+        for (unsigned int x = 0; x < global_volume->getDimX() - 1; x++)
         {
-            for (unsigned int y = 0; y < imageProperties->global_tsdf->getDimY() - 1; y++)
+            for (unsigned int y = 0; y < global_volume->getDimY() - 1; y++)
             {
-                for (unsigned int z = 0; z < imageProperties->global_tsdf->getDimZ() - 1; z++)
+                for (unsigned int z = 0; z < global_volume->getDimZ() - 1; z++)
                 {
                     //if (imageProperties->global_tsdf->get(x, y, z).is_occupied){
-                    ProcessVolumeCell(imageProperties->global_tsdf, x, y, z, (double)0.00, &mesh);
+                    ProcessVolumeCell(global_volume, x, y, z, (double)0.00, &mesh);
                     //}
                 }
             }
@@ -144,7 +147,7 @@ int main() {
             std::cout << "ERROR: unable to write output file!" << std::endl;
             return -1;
         }
-        delete imageProperties;
+        //delete imageProperties;
     }
 
     return 0;
