@@ -51,10 +51,22 @@ public:
                 compute_bilateral_filter(image_properties);
             }
             else{
+                // TODO: downsample raw depth as
                 image_properties->all_data[i].curr_smoothed_data = cv::Mat(image_properties->all_data[i].img_width,
                         image_properties->all_data[i].img_height, CV_32F);
                 cv::pyrDown(image_properties->all_data[i-1].curr_smoothed_data,
                         image_properties->all_data[i].curr_smoothed_data);
+
+                int rows = image_properties->all_data[i].curr_smoothed_data.rows;
+                int cols = image_properties->all_data[i].curr_smoothed_data.cols;
+
+                /*cv::Size s = image_properties->all_data[i].curr_smoothed_data.size();
+                rows = s.height;
+                cols = s.width;
+                std::cout << "level: " << i << std::endl;
+                std::cout << "num row: " << rows << std::endl;
+                std::cout << "num cols: " << cols << std::endl;*/
+
             }
 
             //std::cout << "image_properties->all_data[i].curr_level_data: \n" << image_properties->all_data[i].curr_level_data << std::endl;
@@ -105,8 +117,9 @@ public:
 
         for(int i=0; i < curr_height; i++){
             for(int j=0; j < curr_width; j++){
-                float currDepthValue =  image_properties->all_data[level].curr_smoothed_data.at<float>(i, j);
-                if(currDepthValue == MINF || isnan(currDepthValue)){
+                //float currDepthValue =  image_properties->all_data[level].curr_smoothed_data.at<float>(i, j);
+                float currDepthValue =  image_properties->depthMap[i * curr_width + j];
+                if(currDepthValue == MINF || isnan(currDepthValue) || currDepthValue > 1000.f){
                     image_properties->all_data[level].vertex_map[j + i * curr_width] = Vector3f(MINF, MINF, MINF);
                     //imageProperties->all_data[level].curr_level_color[i] = Vector4uc(0, 0, 0, 0);
                 }
@@ -118,7 +131,13 @@ public:
                     float camera_x = currDepthValue * ((float) pixel_x - cX) / fX;
                     float camera_y = currDepthValue * ((float) pixel_y - cY) / fY;
 
+                    // for testing
+                    /*Vector4f world_pos = image_properties->m_trajectoryInv *
+                            image_properties->m_depthExtrinsics.inverse() *
+                            Vector4f(camera_x, camera_y, currDepthValue, 1.0);*/
+                    //Vector4f world_pos = image_properties->m_trajectory * Vector4f(camera_x, camera_y, currDepthValue, 1.f);
                     image_properties->all_data[level].vertex_map[j + i * curr_width] = Vector3f(camera_x, camera_y, currDepthValue);
+                    //image_properties->all_data[level].vertex_map[j + i * curr_width] = Vector3f(world_pos.x(), world_pos.y(), world_pos.z());
 
                     //imageProperties->camera_reference_points[i].color = Vector4uc(imageProperties->m_colorMap[4*i],
                     // imageProperties->m_colorMap[4*i+1], imageProperties->m_colorMap[4*i+2], imageProperties->m_colorMap[4*i+3]);
@@ -129,11 +148,15 @@ public:
 
     // back-project filtered depth values to obtain vertex map
     void compute_vertex_map(ImageProperties*& image_properties){
-        for(int i=0; i < image_properties->num_levels; i++){
+        /*for(int i=0; i < image_properties->num_levels; i++){
             helper_compute_vertex_map(image_properties, i, image_properties->all_data[i].curr_fX,
                     image_properties->all_data[i].curr_fY, image_properties->all_data[i].curr_cX,
                     image_properties->all_data[i].curr_cY);
-        }
+        }*/
+        helper_compute_vertex_map(image_properties, 0, image_properties->all_data[0].curr_fX,
+                                  image_properties->all_data[0].curr_fY, image_properties->all_data[0].curr_cX,
+                                  image_properties->all_data[0].curr_cY);
+
     }
 
     // compute normal vectors
@@ -143,8 +166,8 @@ public:
         int curr_height = (int) image_properties->all_data[level].img_height;
         //int numWH = curr_width * curr_height;
 
-        for(int i=0; i < curr_height; i++){
-            for(int j=0; j < curr_width; j++) {
+        for(int i=1; i < curr_height-1; i++){
+            for(int j=1; j < curr_width-1; j++) {
                 Vector3f curr_vertex = image_properties->all_data[level].vertex_map[j + i * curr_width];
 
                 if (curr_vertex.z() == MINF) {

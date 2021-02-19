@@ -84,7 +84,7 @@ public:
         for(int i=0; i < global_volume->getDimX(); i++){
             for(int j=0; j < global_volume->getDimY(); j++){
                 for(int k=0; k < global_volume->getDimZ(); k++){
-
+                    // TODO: check is there a way to visualize TSDF or may use marching cubes to understand what is going on!
                     Vector3f global_coord = global_volume->pos(i, j, k);
 
                     if(!global_coord.allFinite()) continue;
@@ -94,7 +94,7 @@ public:
                                                                                            global_coord.y(), global_coord.z(), 1.0f)).block<3,1>(0,0);
                     if(!camera_coord.allFinite() && camera_coord.z() <= 0) continue;
 
-                    Vector2i image_coord = perspective_projection(global_coord); // check the calculation is true!!
+                    Vector2i image_coord = perspective_projection(camera_coord); // check the calculation is true!!
 
                     if(image_coord.x() < 0 || image_coord.x() >= image_properties->all_data[0].img_width
                         || image_coord.y() < 0 ||image_coord.y() >= image_properties->all_data[0].img_height)
@@ -106,7 +106,7 @@ public:
 
                     if(depth == MINF || depth <= 0) continue;
 
-
+                    // TODO: check optional TSDF -> camera_coord.z() - depth
                     float F_rk = calculateCurrentTSDF(depth, image_properties->m_depthIntrinsics,
                             global_coord, image_properties->truncation_distance);
 

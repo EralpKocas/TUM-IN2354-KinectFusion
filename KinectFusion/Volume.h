@@ -99,8 +99,7 @@ public:
 	{
 		return min[2] + diag[2] * (double(i)*ddz);
 	}
-
-	//! Returns the cartesian coordinates of node (i,j,k).
+    //! Returns the cartesian coordinates of node (i,j,k).
 	inline Vector3f pos(int i, int j, int k) const
 	{
 		Vector3f coord(0, 0, 0);

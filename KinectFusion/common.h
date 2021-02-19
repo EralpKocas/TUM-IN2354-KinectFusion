@@ -58,6 +58,8 @@ struct ImageProperties{
     float cY;
     float truncation_distance;
 
+    float* depthMap;
+    float* prev_depthMap;
     cv::Mat m_depthMap;
     BYTE *m_colorMap;
     //cv::Mat m_colorMap; // TODO: it is wrong!!! check initialization and type. Correct color update in SurfaceReconstructionUpdate.

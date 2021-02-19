@@ -5,33 +5,37 @@
 
 class PoseEstimation{
 public:
-
-    void estimate_pose( std::vector<int> iterations, ImageProperties*& imageProperties){
+    // TODO: test pose estimation with point clouds to understand it is working
+    void estimate_pose( std::vector<int> iterations, ImageProperties*& imageProperties, ImageProperties*& new_imageProperties){
         Isometry3f T;
-        int level = imageProperties->num_levels - 1;
-
+        //int level = imageProperties->num_levels - 1;
+        int level = 0;
         for ( int j = level; j >= 0; j--){
             for ( int i = 0; i < iterations[level]; i++)
-            T = point_to_plane(get_global_vertex_map(imageProperties, j),
-                               imageProperties->all_data[j].vertex_map_predicted,
-                               imageProperties->all_data[j].normal_map_predicted, imageProperties, j);
+            //T = point_to_plane(get_global_vertex_map(imageProperties, j),
+            //                   imageProperties->all_data[j].vertex_map_predicted,
+            //                   imageProperties->all_data[j].normal_map_predicted, imageProperties, j);
+            //T = point_to_plane(get_global_vertex_map(imageProperties, j),
+            T = point_to_plane(new_imageProperties->all_data[j].vertex_map,
+                               imageProperties->all_data[j].vertex_map,
+                               imageProperties->all_data[j].normal_map, imageProperties, new_imageProperties, j);
             // Return the new pose
-            imageProperties->m_trajectory.block(0, 0, 3, 3) = T.rotation();
-            imageProperties->m_trajectory.block(0, 3, 3, 1) = T.translation();
+            new_imageProperties->m_trajectory.block(0, 0, 3, 3) = T.rotation();
+            new_imageProperties->m_trajectory.block(0, 3, 3, 1) = T.translation();
             //level--;
         }
-
     }
 
     //https://www.cs.princeton.edu/~smr/papers/icpstability.pdf
     //https://www.comp.nus.edu.sg/~lowkl/publications/lowk_point-to-plane_icp_techrep.pdf
-    Isometry3f point_to_plane( std::vector<Vector3f> source, std::vector<Vector3f> dest, std::vector<Vector3f> normal, ImageProperties*& imageProperties, int level){
+    Isometry3f point_to_plane( std::vector<Vector3f> source, std::vector<Vector3f> dest, std::vector<Vector3f> normal, ImageProperties*& imageProperties,
+                               ImageProperties*& new_imageProperties, int level){
 
         Eigen::Matrix<float, 6, 6, Eigen::RowMajor> A {};
         Eigen::Matrix<float, 6, 1> b {};
 
         for ( int i = 0; i < source.size(); i++){
-            if (check_correspondence_validity(imageProperties, level, i)){
+            if (check_correspondence_validity(imageProperties, new_imageProperties, level, i)){
                 Vector3f pointToNormal = source[i].cross(normal[i]);
                 A.block<3,3>(0,0) += pointToNormal * pointToNormal.transpose();
                 A.block<3,3>(0,3) += normal[i] * pointToNormal.transpose();
@@ -56,26 +60,25 @@ public:
 
 
     //Check correspondences on the distance of vertices and difference in normal values
-    bool check_correspondence_validity(ImageProperties*& image_properties, int level, int point){
-        if ( global_vertex_map.size() == 0){
+    bool check_correspondence_validity(ImageProperties*& image_properties, ImageProperties*& new_image_properties, int level, int point){
+        /*if ( global_vertex_map.size() == 0){
             global_vertex_map = get_global_vertex_map(image_properties, level);
         }
         if ( global_normal_map.size() == 0){
             global_normal_map = get_global_normal_map(image_properties, level);
-        }
+        }*/
 
-        float currDepthValue =  image_properties->all_data[level].curr_smoothed_data.at<float>(point);
+        float currDepthValue =  new_image_properties->depthMap[point];
         if(currDepthValue == MINF || isnan(currDepthValue) || point == 0){
             return false;
         }
 
-        //TODO: Call get_global_vertex_map and get_global_normal_map once !!!
-        float distance = (image_properties->all_data[level].vertex_map_predicted[point-1] -
-                global_vertex_map[point]).norm();
+        float distance = (image_properties->all_data[level].vertex_map[point-1] -
+                new_image_properties->all_data[level].vertex_map[point]).norm();
 
         //const float sine = normal_current_global.cross(normal_previous_global).norm();
-        float angle = global_normal_map[point].
-                cross(image_properties->all_data[level].normal_map_predicted[point-1]).norm();
+        float angle = image_properties->all_data[level].normal_map[point].
+                cross(new_image_properties->all_data[level].normal_map[point-1]).norm();
 
         if ( currDepthValue != MINF && !isnan(currDepthValue) && distance <= distance_threshold && angle <= angle_threshold ){
             return true;
@@ -96,7 +99,8 @@ public:
 
         for(int i=0; i < curr_height; i++){
             for(int j=0; j < curr_width; j++) {
-                float currDepthValue = image_properties->all_data[level].curr_smoothed_data.at<float>(i, j);
+                //float currDepthValue = image_properties->all_data[level].curr_smoothed_data.at<float>(i, j);
+                float currDepthValue = image_properties->depthMap[i*curr_width + j];
                 if (currDepthValue == MINF || isnan(currDepthValue)) {
                     global_vertex_map[j + curr_width * i] = Vector3f(MINF, MINF, MINF);
                 } else {
@@ -121,7 +125,7 @@ public:
 
         for(int i=0; i < curr_height; i++){
             for(int j=0; j < curr_width; j++) {
-                float currDepthValue = image_properties->all_data[level].curr_smoothed_data.at<float>(i, j);
+                float currDepthValue = image_properties->depthMap[i*curr_width + j];
                 if (currDepthValue == MINF || isnan(currDepthValue)) {
                     global_normal_map[j + curr_width * i] = Vector3f(MINF, MINF, MINF);
                 } else {
