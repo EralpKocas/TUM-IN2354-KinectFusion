@@ -3,6 +3,7 @@
 #include <string>
 
 #include <math.h>
+#include "common_functions.h"
 
 __global__ // This keyword means the code runs on the GPU.
 void add(int n, float *x, float *y)
@@ -43,7 +44,6 @@ int main(void)
         maxError = fmax(maxError, fabs(y[i]-3.0f));
         }
     std::cout << "Max error: " << maxError << std::endl;
-
     // Free memory
     cudaFree(x);
     cudaFree(y);

@@ -1,0 +1,12 @@
+//
+// Created by eralpkocas on 24.05.21.
+//
+
+#ifndef TUM_IN2354_KINECTFUSION_DATA_TYPES_H
+#define TUM_IN2354_KINECTFUSION_DATA_TYPES_H
+
+
+
+
+
+#endif //TUM_IN2354_KINECTFUSION_DATA_TYPES_H
