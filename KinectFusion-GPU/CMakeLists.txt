@@ -22,18 +22,17 @@ ENDIF()
 #    include_directories("${OpenCV_INCLUDE_DIRS}")
 #    link_directories(${OpenCV_DIR}/lib)
 #endif (OpenCV_INCLUDE_DIRS)
-set(OpenCV_INCLUDE_DIR /home/eralpkocas/Documents/build/include/)
-set(OpenCV_LIB_DIR /home/eralpkocas/Documents/build/lib/)
+#set(OpenCV_INCLUDE_DIR /home/eralpkocas/Documents/build/include/)
+#set(OpenCV_LIB_DIR /home/eralpkocas/Documents/build/lib/)
 
 SET(CUDA_PROPAGATE_HOST_FLAGS OFF)
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Weffc++")
-
 set(SOURCE_FILES
         main.cu
         data_types.h
         Eigen.h
         common_functions.h)
-
+message('ASDSAD',${Eigen3_INCLUDE_DIR})
 #add_executable(KinectFusion-GPU main.cu ${SOURCE_FILES})
 file(GLOB KinectFusion_SRCS "./*.cu" "./*.cpp" "./*.h")
 
