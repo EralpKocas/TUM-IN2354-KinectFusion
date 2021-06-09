@@ -5,7 +5,7 @@
 #ifndef TUM_IN2354_KINECTFUSION_DATA_TYPES_H
 #define TUM_IN2354_KINECTFUSION_DATA_TYPES_H
 
-/*
+
 struct CameraRefPoints
 {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -75,5 +75,5 @@ struct ImageProperties{
     SurfaceLevelData *all_data;
     //Volume* global_tsdf;
 };
-*/
+
 #endif //TUM_IN2354_KINECTFUSION_DATA_TYPES_H

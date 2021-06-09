@@ -16,7 +16,9 @@ Vector3f get_translation()
 
 Matrix3f get_rotation()
 {
-    return Matrix3f::setZero();
+    Matrix3f a;
+    a = a.setZero();
+    return a;
 }
 
 
