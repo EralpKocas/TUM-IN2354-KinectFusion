@@ -8,6 +8,7 @@ set(CMAKE_CXX_STANDARD 14)
 
 find_package(Eigen3 REQUIRED)
 find_package(CUDA 6.5 REQUIRED)
+find_package(OpenCV REQUIRED COMPONENTS core imgproc highgui)
 
 set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS};-std=c++11")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_FORCE_INLINES -Wall")
@@ -22,14 +23,16 @@ ENDIF()
 #    include_directories("${OpenCV_INCLUDE_DIRS}")
 #    link_directories(${OpenCV_DIR}/lib)
 #endif (OpenCV_INCLUDE_DIRS)
-set(OpenCV_INCLUDE_DIR /home/eralpkocas/Documents/build/include/)
-set(OpenCV_LIB_DIR /home/eralpkocas/Documents/build/lib/)
+
+#set(OpenCV_INCLUDE_DIR /usr/local/include/opencv4/)
+#set(OpenCV_LIB_DIR /usr/local/lib/)
 
 SET(CUDA_PROPAGATE_HOST_FLAGS OFF)
 
 set(FreeImage_INCLUDE_DIR /usr/include/)
 set(FreeImage_LIBRARY_DIR /usr/lib/x86_64-linux-gnu/)
 
+message(${OpenCV_INCLUDE_DIRS})
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Weffc++")
 set(SOURCE_FILES
         main.cu
@@ -46,5 +49,5 @@ file(GLOB KinectFusion_SRCS "./*.cu" "./*.cpp" "./*.h")
 cuda_add_library(run-kf-gpu-lib STATIC "${KinectFusion_SRCS}")
 link_directories(${FreeImage_LIBRARY_DIR})
 cuda_add_executable(run-kf-gpu "${SOURCE_FILES}")
-target_link_libraries(run-kf-gpu Eigen3::Eigen freeimage)
-target_include_directories(run-kf-gpu PUBLIC ${OpenCV_INCLUDE_DIR} ${OpenCV_LIB_DIR})
+target_link_libraries(run-kf-gpu Eigen3::Eigen freeimage ${OpenCV_LIB_DIRS})
+target_include_directories(run-kf-gpu PUBLIC ${OpenCV_INCLUDE_DIRS})

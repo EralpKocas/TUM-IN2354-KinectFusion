@@ -6,6 +6,10 @@
 #include "common_functions.h"
 #include "VirtualSensor_freiburg.h"
 
+//#include <opencv4/opencv2/opencv_modules.hpp>
+//#include <opencv4/opencv2/opencv.hpp>
+#include <opencv2/core/mat.hpp>
+
 __global__ // This keyword means the code runs on the GPU.
 void add(int n, float *x, float *y)
     {
@@ -51,7 +55,6 @@ int main(void)
 
     // Make sure this path points to the data folder
     //std::string filenameIn = "/Users/beyzatugcebilgic/Desktop/TUM-IN2354-KinectFusion/KinectFusion/data/rgbd_dataset_freiburg1_xyz/";
-    //std::string filenameIn = "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/data/rgbd_dataset_freiburg1_xyz/";
     std::string filenameIn = "/media/eralpkocas/hdd/TUM/3D_Scanning/data/rgbd_dataset_freiburg1_xyz/";
     // load video
     std::cout << "Initialize virtual sensor..." << std::endl;
@@ -63,7 +66,10 @@ int main(void)
     }
 
     while (sensor.processNextFrame()) {
-
+        // step 1: Surface Measurement
+        // step 2: Pose Estimation, for frame == 0, don't perform
+        // step 3: Surface Reconstruction Update
+        // step 4: Raycast Prediction
     }
 
     return 0;
