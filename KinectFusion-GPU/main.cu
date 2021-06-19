@@ -4,6 +4,7 @@
 
 #include <math.h>
 #include "common_functions.h"
+#include "VirtualSensor_freiburg.h"
 
 __global__ // This keyword means the code runs on the GPU.
 void add(int n, float *x, float *y)
@@ -47,6 +48,23 @@ int main(void)
     // Free memory
     cudaFree(x);
     cudaFree(y);
+
+    // Make sure this path points to the data folder
+    //std::string filenameIn = "/Users/beyzatugcebilgic/Desktop/TUM-IN2354-KinectFusion/KinectFusion/data/rgbd_dataset_freiburg1_xyz/";
+    //std::string filenameIn = "/Users/eralpkocas/Documents/TUM/3D Scanning & Motion Planning/TUM-IN2354-KinectFusion/KinectFusion/data/rgbd_dataset_freiburg1_xyz/";
+    std::string filenameIn = "/media/eralpkocas/hdd/TUM/3D_Scanning/data/rgbd_dataset_freiburg1_xyz/";
+    // load video
+    std::cout << "Initialize virtual sensor..." << std::endl;
+    VirtualSensor_freiburg sensor;
+    if (!sensor.init(filenameIn))
+    {
+        std::cout << "Failed to initialize the sensor!\nCheck file path!" << std::endl;
+        return -1;
+    }
+
+    while (sensor.processNextFrame()) {
+
+    }
 
     return 0;
     }
