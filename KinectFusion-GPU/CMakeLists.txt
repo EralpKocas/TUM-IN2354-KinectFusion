@@ -31,7 +31,6 @@ SET(CUDA_PROPAGATE_HOST_FLAGS OFF)
 set(FreeImage_INCLUDE_DIR /usr/include/)
 set(FreeImage_LIBRARY_DIR /usr/lib/x86_64-linux-gnu/)
 
-message(${OpenCV_INCLUDE_DIRS})
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Weffc++")
 set(SOURCE_FILES
         main.cu
