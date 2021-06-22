@@ -7,8 +7,8 @@
 #include "data_types.h"
 #include "VirtualSensor_freiburg.h"
 #include <opencv2/core/mat.hpp>
-//#include "opencv2/imgproc/imgproc.hpp"
-//#include <opencv2/highgui.hpp>
+#include "opencv2/imgproc/imgproc.hpp"
+#include <opencv2/highgui.hpp>
 
 int main(void)
     {
@@ -17,6 +17,8 @@ int main(void)
     // Make sure this path points to the data folder
     //std::string filenameIn = "/Users/beyzatugcebilgic/Desktop/TUM-IN2354-KinectFusion/KinectFusion/data/rgbd_dataset_freiburg1_xyz/";
     std::string filenameIn = "/media/eralpkocas/hdd/TUM/3D_Scanning/data/rgbd_dataset_freiburg1_xyz/";
+
+//  std::string filenameIn = "/home/ilteber/data/rgbd_dataset_freiburg1_xyz/";
     // load video
     std::cout << "Initialize virtual sensor..." << std::endl;
     bool isFirstFrame = true;
