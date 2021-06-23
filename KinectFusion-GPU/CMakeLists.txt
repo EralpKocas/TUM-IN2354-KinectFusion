@@ -9,6 +9,7 @@ set(CMAKE_CXX_STANDARD 14)
 find_package(Eigen3 REQUIRED)
 find_package(CUDA 6.5 REQUIRED)
 
+find_package(OpenCV REQUIRED COMPONENTS core imgproc highgui)
 set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS};-std=c++11")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_FORCE_INLINES -Wall")
 
@@ -31,6 +32,7 @@ SET(CUDA_PROPAGATE_HOST_FLAGS OFF)
 set(FreeImage_INCLUDE_DIR /usr/include/)
 set(FreeImage_LIBRARY_DIR /usr/lib/x86_64-linux-gnu/)
 
+message(${OpenCV_INCLUDE_DIRS})
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Weffc++")
 set(SOURCE_FILES
         main.cu
