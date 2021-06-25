@@ -58,9 +58,10 @@ int main(void)
         cv::Mat result;
         img_data.m_depthMap.download(result);
         cv::imshow("result", result);
+        cv::waitKey(30);
         //std::cout << "line 50: "  << result << std::endl;
         //std::cout << "line 51: "  << img_data.m_colorMap << std::endl;
-        break;
+
         // step 1: Surface Measurement
         // step 2: Pose Estimation, for frame == 0, don't perform
         if(!isFirstFrame){
