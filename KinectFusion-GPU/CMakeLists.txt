@@ -41,7 +41,10 @@ set(SOURCE_FILES
         common_functions.h
         FreeImageHelper.h
         FreeImageHelper.cpp
-        VirtualSensor_freiburg.h)
+        VirtualSensor_freiburg.h
+        #surface_measurement.cpp
+        surface_measurement.cu
+        surface_measurement.h)
 
 #add_executable(KinectFusion-GPU main.cu ${SOURCE_FILES})
 file(GLOB KinectFusion_SRCS "./*.cu" "./*.cpp" "./*.h")

@@ -9,6 +9,7 @@
 #include <opencv2/core/mat.hpp>
 #include "opencv2/imgproc/imgproc.hpp"
 #include <opencv2/highgui.hpp>
+#include "surface_measurement.h"
 
 int main(void)
     {
@@ -55,14 +56,27 @@ int main(void)
         };
         // TODO: inverse trajectory is nan for all indices. check!
 
-        cv::Mat result;
-        img_data.m_depthMap.download(result);
-        cv::imshow("result", result);
-        cv::waitKey(30);
+        SurfaceLevelData surf_data = {
+                3,
+                img_constants.m_colorImageWidth,
+                img_constants.m_colorImageHeight,
+                img_constants.fX,
+                img_constants.fY,
+                img_constants.cX,
+                img_constants.cY,
+        };
+
+//        cv::Mat result;
+//        img_data.m_depthMap.download(result);
+//        cv::imshow("result", result);
+//        cv::waitKey(30);
+
         //std::cout << "line 50: "  << result << std::endl;
         //std::cout << "line 51: "  << img_data.m_colorMap << std::endl;
 
         // step 1: Surface Measurement
+        surface_measurement_pipeline(&surf_data, img_data);
+
         // step 2: Pose Estimation, for frame == 0, don't perform
         if(!isFirstFrame){
 
