@@ -6,7 +6,7 @@ set(CMAKE_CUDA_STANDARD 14)
 
 find_package(Eigen3 REQUIRED)
 find_package(CUDA 6.5 REQUIRED)
-find_package(OpenCV REQUIRED COMPONENTS core imgproc highgui)
+find_package(OpenCV REQUIRED COMPONENTS core imgproc highgui cudaimgproc cudawarping)
 
 IF ((CUDA_VERSION VERSION_GREATER "10.0") OR (CUDA_VERSION VERSION_EQUAL "10.0"))
     set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -gencode arch=compute_61,code=sm_61")
@@ -31,14 +31,14 @@ set(SOURCES
         FreeImageHelper.cpp
         surface_measurement.cu)
 
-add_executable(run-kf-gu ${SOURCES} ${HEADERS})
+add_executable(kf-gpu ${SOURCES} ${HEADERS})
 message("OpenCV_INCLUDE_DIRS" ${OpenCV_INCLUDE_DIRS})
 message("OpenCV_LIBRARY_DIRS" "ASDASD" ${OpenCV_LIBS})
 link_directories(${FreeImage_LIBRARY_DIR})
-target_link_libraries(run-kf-gu Eigen3::Eigen freeimage ${OpenCV_LIBS})
-target_include_directories(run-kf-gu PUBLIC ${OpenCV_INCLUDE_DIRS})
+target_link_libraries(kf-gpu Eigen3::Eigen freeimage ${OpenCV_LIBS})
+target_include_directories(kf-gpu PUBLIC ${OpenCV_INCLUDE_DIRS})
 
 set_target_properties(
-        run-kf-gu
+        kf-gpu
         PROPERTIES
         CUDA_SEPARABLE_COMPILATION ON)

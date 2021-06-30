@@ -90,13 +90,17 @@ bool init_multiscale(SurfaceLevelData* surf_data, ImageData img_data)
     for(int i=0; i < surf_data->level; i++)
     {
         if(i==0){
-            surf_data->curr_level_data[i].upload(img_data.m_depthMap);
-            cv::bilateralFilter(surf_data->curr_level_data[i], surf_data->curr_smoothed_data[i],
-                                depth_diameter, bilateral_color_sigma, bilateral_spatial_sigma, cv::BORDER_DEFAULT);
+            cv::Mat result;
+            img_data.m_depthMap.download(result);
+            surf_data->curr_level_data[i].upload(result);
+            cv::cuda::bilateralFilter(surf_data->curr_level_data[i], surf_data->curr_smoothed_data[i],
+                                      depth_diameter, bilateral_color_sigma, bilateral_spatial_sigma, cv::BORDER_DEFAULT);
+//            cv::bilateralFilter(surf_data->curr_level_data[i], surf_data->curr_smoothed_data[i],
+//                                depth_diameter, bilateral_color_sigma, bilateral_spatial_sigma, cv::BORDER_DEFAULT);
         }
         else{
-            cv::pyrDown(surf_data->curr_smoothed_data[i-1],
-                        surf_data->curr_smoothed_data[i]);
+            cv::cuda::pyrDown(surf_data->curr_smoothed_data[i-1],
+                              surf_data->curr_smoothed_data[i]);
         }
     }
     return true;

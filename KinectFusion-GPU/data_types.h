@@ -9,6 +9,7 @@
 #include <cuda_runtime.h>
 #include <opencv2/core/cuda.hpp>
 #include "opencv2/core/mat.hpp"
+#include <opencv2/cudaimgproc.hpp>
 
 
 struct ImageConstants
@@ -52,12 +53,12 @@ struct ImageData
     cv::cuda::GpuMat m_colorMap;
 
     ImageData(unsigned int _level_img_width, unsigned int _level_img_height,
-              cv::Mat _m_depthMap, cv::Mat _m_colorMap){
-        //cv::cuda::createContinuous(_level_img_width, _level_img_height, CV_32F, m_depthMap);
-        //cv::cuda::createContinuous(_level_img_width, _level_img_height, CV_8U, m_colorMap);
+              cv::cuda::GpuMat _m_depthMap, cv::cuda::GpuMat _m_colorMap){
+        cv::cuda::createContinuous(_level_img_width, _level_img_height, CV_32F, m_depthMap);
+        cv::cuda::createContinuous(_level_img_width, _level_img_height, CV_8U, m_colorMap);
 
-        m_depthMap.upload(_m_depthMap);
-        m_colorMap.upload(_m_colorMap);
+        m_depthMap = _m_depthMap;
+        m_colorMap = _m_colorMap;
     };
 };
 
@@ -77,26 +78,27 @@ struct SurfaceLevelData
     std::vector<cv::cuda::GpuMat> vertex_map_predicted;
     std::vector<cv::cuda::GpuMat> normal_map_predicted;
 
-    SurfaceLevelData(int _level, float _level_img_width, float _level_img_height,
+    SurfaceLevelData(int _level, unsigned int _level_img_width, unsigned int _level_img_height,
                      float _level_fX, float _level_fY, float _level_cX, float _level_cY){
         level = _level;
 
         for(int i=0; i < level; i++){
             auto scale = (float) cv::pow(2, i);
 
-            level_img_width[i] = _level_img_width / (unsigned int) scale;
-            level_img_height[i] = _level_img_height / (unsigned int) scale;
-            level_fX[i] = _level_fX / scale;
-            level_fY[i] = _level_fY / scale;
-            level_cX[i] = _level_cX / scale;
-            level_cY[i] = _level_cY / scale;
+            level_img_width.push_back(_level_img_width / (unsigned int) scale);
+            level_img_height.push_back(_level_img_height / (unsigned int) scale);
+            level_fX.push_back(_level_fX / scale);
+            level_fY.push_back(_level_fY / scale);
+            level_cX.push_back(_level_cX / scale);
+            level_cY.push_back(_level_cY / scale);
 
-            cv::cuda::createContinuous(_level_img_width / scale, _level_img_height / scale, CV_32F, curr_level_data[i]);
-            cv::cuda::createContinuous(_level_img_width / scale, _level_img_height / scale, CV_32F, curr_smoothed_data[i]);
-            cv::cuda::createContinuous(_level_img_width / scale, _level_img_height / scale, CV_32FC3, vertex_map[i]);
-            cv::cuda::createContinuous(_level_img_width / scale, _level_img_height / scale, CV_32FC3, normal_map[i]);
-            cv::cuda::createContinuous(_level_img_width / scale, _level_img_height / scale, CV_32FC3, vertex_map_predicted[i]);
-            cv::cuda::createContinuous(_level_img_width / scale, _level_img_height / scale, CV_32FC3, normal_map_predicted[i]);
+
+            curr_level_data.push_back(cv::cuda::createContinuous(_level_img_width / scale, _level_img_height / scale, CV_32F));
+            curr_smoothed_data.push_back(cv::cuda::createContinuous(_level_img_width / scale, _level_img_height / scale, CV_32F));
+            vertex_map.push_back(cv::cuda::createContinuous(_level_img_width / scale, _level_img_height / scale, CV_32FC3));
+            normal_map.push_back(cv::cuda::createContinuous(_level_img_width / scale, _level_img_height / scale, CV_32FC3));
+            vertex_map_predicted.push_back(cv::cuda::createContinuous(_level_img_width / scale, _level_img_height / scale, CV_32FC3));
+            normal_map_predicted.push_back(cv::cuda::createContinuous(_level_img_width / scale, _level_img_height / scale, CV_32FC3));
         }
     }
 

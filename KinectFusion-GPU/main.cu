@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iostream>
 #include <fstream>
 #include <string>
 
@@ -6,20 +7,14 @@
 #include "common_functions.h"
 #include "data_types.h"
 #include "VirtualSensor_freiburg.h"
-#include <opencv2/core/mat.hpp>
-#include "opencv2/imgproc/imgproc.hpp"
-#include <opencv2/highgui.hpp>
+//#include <opencv2/core/mat.hpp>
+//#include "opencv2/imgproc/imgproc.hpp"
+//#include <opencv2/highgui.hpp>
 #include "surface_measurement.h"
 
-int main(void)
-    {
+int main() {
+    std::cout << "Hello, World!" << std::endl; std::string filenameIn = "/home/ilteber/data/rgbd_dataset_freiburg1_xyz/";
 
-
-    // Make sure this path points to the data folder
-    //std::string filenameIn = "/Users/beyzatugcebilgic/Desktop/TUM-IN2354-KinectFusion/KinectFusion/data/rgbd_dataset_freiburg1_xyz/";
-    std::string filenameIn = "/media/eralpkocas/hdd/TUM/3D_Scanning/data/rgbd_dataset_freiburg1_xyz/";
-
-//  std::string filenameIn = "/home/ilteber/data/rgbd_dataset_freiburg1_xyz/";
     // load video
     std::cout << "Initialize virtual sensor..." << std::endl;
     bool isFirstFrame = true;
@@ -29,7 +24,6 @@ int main(void)
         std::cout << "Failed to initialize the sensor!\nCheck file path!" << std::endl;
         return -1;
     }
-
     ImageConstants img_constants = {
             sensor.getDepthIntrinsics().coeffRef(0, 0),
             sensor.getDepthIntrinsics().coeffRef(1,1),
@@ -44,13 +38,12 @@ int main(void)
             sensor.getDepthImageWidth(),
             sensor.getDepthImageHeight(),
     };
-
     while (sensor.processNextFrame()) {
         ImageData img_data = {
                 sensor.getDepthImageWidth(),
                 sensor.getDepthImageHeight(),
-                cv::Mat(sensor.getDepthImageWidth(), sensor.getDepthImageHeight(), CV_32F, sensor.getDepth()),
-                cv::Mat(sensor.getColorImageWidth(), sensor.getColorImageHeight(), CV_8U, sensor.getColorRGBX()),
+                cv::cuda::GpuMat(sensor.getDepthImageWidth(), sensor.getDepthImageHeight(), CV_32F, sensor.getDepth()),
+                cv::cuda::GpuMat(sensor.getColorImageWidth(), sensor.getColorImageHeight(), CV_8U, sensor.getColorRGBX()),
                 //cv::cuda::GpuMat(640, 480, CV_32F, sensor.getDepth()),
                 //cv::cuda::GpuMat(640, 480, CV_8U, sensor.getColorRGBX()),
         };
@@ -86,6 +79,5 @@ int main(void)
         // step 3: Surface Reconstruction Update
         // step 4: Raycast Prediction
     }
-
     return 0;
-    }
+}
