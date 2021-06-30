@@ -42,8 +42,10 @@ int main() {
         ImageData img_data = {
                 sensor.getDepthImageWidth(),
                 sensor.getDepthImageHeight(),
-                cv::cuda::GpuMat(sensor.getDepthImageWidth(), sensor.getDepthImageHeight(), CV_32F, sensor.getDepth()),
-                cv::cuda::GpuMat(sensor.getColorImageWidth(), sensor.getColorImageHeight(), CV_8U, sensor.getColorRGBX()),
+//                sensor.getDepth(),
+//                sensor.getColorRGBX(),
+                cv::Mat(sensor.getDepthImageWidth(), sensor.getDepthImageHeight(), CV_32F, sensor.getDepth()),
+                cv::Mat(sensor.getColorImageWidth(), sensor.getColorImageHeight(), CV_8U, sensor.getColorRGBX()),
                 //cv::cuda::GpuMat(640, 480, CV_32F, sensor.getDepth()),
                 //cv::cuda::GpuMat(640, 480, CV_8U, sensor.getColorRGBX()),
         };

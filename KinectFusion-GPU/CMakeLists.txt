@@ -3,13 +3,13 @@ project(KinectFusion-GPU CUDA C CXX)
 
 set(CMAKE_CUDA_STANDARD 14)
 
-
 find_package(Eigen3 REQUIRED)
 find_package(CUDA 6.5 REQUIRED)
 find_package(OpenCV REQUIRED COMPONENTS core imgproc highgui cudaimgproc cudawarping)
 
+#message("CUDA ARCH NEyY" ${CUDA_ARCH_BIN})
 IF ((CUDA_VERSION VERSION_GREATER "10.0") OR (CUDA_VERSION VERSION_EQUAL "10.0"))
-    set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -gencode arch=compute_61,code=sm_61")
+    set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -gencode arch=compute_30,code=sm_30")
 ENDIF()
 
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -D_DEBUG")
