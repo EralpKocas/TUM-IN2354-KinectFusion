@@ -23,6 +23,7 @@ struct ImageConstants
     Matrix4f m_trajectoryInv;
     Matrix3f m_depthIntrinsics;
     Matrix4f m_depthExtrinsics;
+    Matrix4f m_depthExtrinsicsInv;
     unsigned int m_colorImageWidth;
     unsigned int m_colorImageHeight;
     unsigned int m_depthImageWidth;
@@ -30,7 +31,7 @@ struct ImageConstants
     float truncation_distance;
 
     ImageConstants(float _fX, float _fY, float _cX, float _cY, Matrix4f _m_trajectory, Matrix4f _m_trajectoryInv,
-                   Matrix3f _m_depthIntrinsics, Matrix4f _m_depthExtrinsics, unsigned int _m_colorImageWidth,
+                   Matrix3f _m_depthIntrinsics, Matrix4f _m_depthExtrinsics, Matrix4f _m_depthExtrinsicsInv, unsigned int _m_colorImageWidth,
                    unsigned int _m_colorImageHeight, unsigned int _m_depthImageWidth, unsigned int _m_depthImageHeight){
         fX = _fX;
         fY = _fY;
@@ -40,6 +41,7 @@ struct ImageConstants
         m_trajectoryInv = _m_trajectoryInv;
         m_depthIntrinsics = _m_depthIntrinsics;
         m_depthExtrinsics = _m_depthExtrinsics;
+        m_depthExtrinsicsInv = _m_depthExtrinsicsInv;
         m_colorImageWidth = _m_colorImageWidth;
         m_colorImageHeight = _m_colorImageHeight;
         m_depthImageWidth = _m_depthImageWidth;
@@ -54,8 +56,8 @@ struct ImageData
 
     ImageData(unsigned int _level_img_width, unsigned int _level_img_height,
               cv::Mat _m_depthMap, cv::Mat _m_colorMap){
-        cv::cuda::createContinuous(_level_img_width, _level_img_height, CV_32F, m_depthMap);
-        cv::cuda::createContinuous(_level_img_width, _level_img_height, CV_8UC4, m_colorMap);
+        cv::cuda::createContinuous(_level_img_height, _level_img_width, CV_32F, m_depthMap);
+        cv::cuda::createContinuous(_level_img_height, _level_img_width, CV_8UC4, m_colorMap);
 
         m_depthMap.upload(_m_depthMap);
         m_colorMap.upload(_m_colorMap);
@@ -93,12 +95,12 @@ struct SurfaceLevelData
             level_cY.push_back(_level_cY / scale);
 
 
-            curr_level_data.push_back(cv::cuda::createContinuous(_level_img_width / scale, _level_img_height / scale, CV_32F));
-            curr_smoothed_data.push_back(cv::cuda::createContinuous(_level_img_width / scale, _level_img_height / scale, CV_32F));
-            vertex_map.push_back(cv::cuda::createContinuous(_level_img_width / scale, _level_img_height / scale, CV_32FC3));
-            normal_map.push_back(cv::cuda::createContinuous(_level_img_width / scale, _level_img_height / scale, CV_32FC3));
-            vertex_map_predicted.push_back(cv::cuda::createContinuous(_level_img_width / scale, _level_img_height / scale, CV_32FC3));
-            normal_map_predicted.push_back(cv::cuda::createContinuous(_level_img_width / scale, _level_img_height / scale, CV_32FC3));
+            curr_level_data.push_back(cv::cuda::createContinuous(_level_img_height / scale, _level_img_width / scale, CV_32F));
+            curr_smoothed_data.push_back(cv::cuda::createContinuous(_level_img_height / scale, _level_img_width / scale, CV_32F));
+            vertex_map.push_back(cv::cuda::createContinuous(_level_img_height / scale, _level_img_width / scale, CV_32FC3));
+            normal_map.push_back(cv::cuda::createContinuous(_level_img_height / scale, _level_img_width / scale, CV_32FC3));
+            vertex_map_predicted.push_back(cv::cuda::createContinuous(_level_img_height / scale, _level_img_width / scale, CV_32FC3));
+            normal_map_predicted.push_back(cv::cuda::createContinuous(_level_img_height / scale, _level_img_width / scale, CV_32FC3));
         }
     }
 

@@ -35,6 +35,7 @@ int main() {
             sensor.getTrajectory().inverse(),
             sensor.getDepthIntrinsics(),
             sensor.getDepthExtrinsics(),
+            sensor.getDepthExtrinsics().inverse(),
             sensor.getColorImageWidth(),
             sensor.getColorImageHeight(),
             sensor.getDepthImageWidth(),
@@ -47,8 +48,8 @@ int main() {
                 sensor.getDepthImageHeight(),
 //                sensor.getDepth(),
 //                sensor.getColorRGBX(),
-                cv::Mat(sensor.getDepthImageWidth(), sensor.getDepthImageHeight(), CV_32F, sensor.getDepth()),
-                cv::Mat(sensor.getColorImageWidth(), sensor.getColorImageHeight(), CV_8U, sensor.getColorRGBX()),
+                cv::Mat(sensor.getDepthImageHeight(), sensor.getDepthImageWidth(), CV_32F, sensor.getDepth()),
+                cv::Mat(sensor.getDepthImageHeight(), sensor.getDepthImageWidth(), CV_8UC4, sensor.getColorRGBX()),
                 //cv::cuda::GpuMat(640, 480, CV_32F, sensor.getDepth()),
                 //cv::cuda::GpuMat(640, 480, CV_8U, sensor.getColorRGBX()),
         };
@@ -73,7 +74,7 @@ int main() {
         //std::cout << "line 51: "  << img_data.m_colorMap << std::endl;
 
         // step 1: Surface Measurement
-        surface_measurement_pipeline(&surf_data, img_data);
+        surface_measurement_pipeline(&surf_data, img_data, img_constants);
 
         // step 2: Pose Estimation, for frame == 0, don't perform
         if(!isFirstFrame){

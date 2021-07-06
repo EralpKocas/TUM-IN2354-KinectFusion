@@ -4,11 +4,12 @@
 #include "data_types.h"
 #include "surface_measurement.h"
 
-__global__ void helper_compute_vertex_map(SurfaceLevelData* surf_data, cv::cuda::PtrStepSz<float> depth_map,
+__global__ void helper_compute_vertex_map(SurfaceLevelData* surf_data, ImageConstants img_constants,
+                                          cv::cuda::PtrStepSz<float> depth_map,
                                           cv::cuda::PtrStep<Vector3f> vertex_map, float fX, float fY,
                                           float cX, float cY, int width, int height, int level)
 {
-    float depth_threshold = 100.f;
+    float depth_threshold = 1000.f;
 
     int threadX = threadIdx.x + blockDim.x * blockIdx.x;
     if (threadX >= width or threadX < 0)
@@ -20,14 +21,18 @@ __global__ void helper_compute_vertex_map(SurfaceLevelData* surf_data, cv::cuda:
 
     float currDepthValue =  depth_map.ptr(threadY)[threadX];
 
-    if(currDepthValue > depth_threshold | currDepthValue < 0){
-        currDepthValue = 0.f;
+    if(currDepthValue > depth_threshold || currDepthValue < 0){
+        currDepthValue = -1.f;
     }
     int pixel_x = threadX;
     int pixel_y = threadY;
     float camera_x = currDepthValue * ((float) pixel_x - cX) / fX;
     float camera_y = currDepthValue * ((float) pixel_y - cY) / fY;
-
+    //Vector4f temp = img_constants.m_trajectoryInv * img_constants.m_depthExtrinsicsInv
+     //      * Vector4f(camera_x, camera_y, currDepthValue, 1.f);
+    //vertex_map.ptr(threadY)[threadX] = img_constants.m_trajectoryInv * img_constants.m_depthExtrinsicsInv
+     //       * Vector3f(camera_x, camera_y, currDepthValue);
+     //vertex_map.ptr(threadY)[threadX] = Vector3f(temp.x(), temp.y(), temp.z());
     vertex_map.ptr(threadY)[threadX] = Vector3f(camera_x, camera_y, currDepthValue);
     //TODO: add color if necessary
 
@@ -104,15 +109,15 @@ bool init_multiscale(SurfaceLevelData* surf_data, ImageData img_data)
     return true;
 }
 
-void compute_vertex_map(SurfaceLevelData* surf_data){
+void compute_vertex_map(SurfaceLevelData* surf_data, ImageConstants img_constants){
     for(int i=0; i < surf_data->level; i++){
         dim3 block(8, 8);
-        float rows = surf_data->level_img_width[i];
-        float cols = surf_data->level_img_height[i];
+        float cols = surf_data->level_img_width[i];
+        float rows = surf_data->level_img_height[i];
         cv::cuda::GpuMat& depth_map = surf_data->curr_level_data[i];
         cv::cuda::GpuMat& vertex_map = surf_data->vertex_map[i];
         dim3 grid((cols + block.x - 1) / block.x, (rows + block.y - 1) / block.y);
-        helper_compute_vertex_map<<<grid, block>>>(surf_data, depth_map, vertex_map, surf_data->level_fX[i],
+        helper_compute_vertex_map<<<grid, block>>>(surf_data, img_constants, depth_map, vertex_map, surf_data->level_fX[i],
                                                    surf_data->level_fY[i], surf_data->level_cX[i], surf_data->level_cY[i],
                                                    surf_data->level_img_width[i], surf_data->level_img_height[i], i);
         assert(cudaSuccess == cudaDeviceSynchronize());
@@ -122,8 +127,8 @@ void compute_vertex_map(SurfaceLevelData* surf_data){
 void compute_normal_map(SurfaceLevelData* surf_data){
     for(int i=0; i < surf_data->level; i++){
         dim3 block(8, 8);
-        float rows = surf_data->level_img_width[i];
-        float cols = surf_data->level_img_height[i];
+        float cols = surf_data->level_img_width[i];
+        float rows = surf_data->level_img_height[i];
         cv::cuda::GpuMat& vertex_map = surf_data->vertex_map[i];
         cv::cuda::GpuMat& normal_map = surf_data->normal_map[i];
         dim3 grid((cols + block.x - 1) / block.x, (rows + block.y - 1) / block.y);
@@ -133,8 +138,8 @@ void compute_normal_map(SurfaceLevelData* surf_data){
     }
 }
 
-void surface_measurement_pipeline(SurfaceLevelData* surf_data, ImageData img_data){
+void surface_measurement_pipeline(SurfaceLevelData* surf_data, ImageData img_data, ImageConstants img_constants){
     init_multiscale(surf_data, img_data);
-    compute_vertex_map(surf_data);
+    compute_vertex_map(surf_data, img_constants);
     compute_normal_map(surf_data);
 }

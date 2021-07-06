@@ -29,7 +29,7 @@ set(HEADERS
 set(SOURCES
         main.cu
         FreeImageHelper.cpp
-        surface_measurement.cu)
+        surface_measurement.cu SimpleMesh.h)
 
 add_executable(kf-gpu ${SOURCES} ${HEADERS})
 message("OpenCV_INCLUDE_DIRS" ${OpenCV_INCLUDE_DIRS})

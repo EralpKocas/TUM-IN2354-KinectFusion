@@ -135,8 +135,8 @@ public:
         // TODO: Determine number of valid faces
         unsigned nFaces = 0;
 
-        for(int i=0; i < width; i++){
-            for(int j=0; j < height; j++){
+        for(int j=0; j < height; j++){
+            for(int i=0; i < width; i++){
                 if (vertices.at<Vector3f>(j, i).z() != -1.f){
                     if (i == width-1 or j >= height - 1) continue;
 
@@ -171,8 +171,8 @@ public:
 
         // TODO: save valid faces
 
-        for(int i=0; i < width; i++){
-            for(int j=0; j < height; j++) {
+        for(int j=0; j < height; j++) {
+            for(int i=0; i < width; i++){
                 if (vertices.at<Vector3f>(j, i).z() == -1.f) {
                     Vector4f temp_vertices = Vector4f(0, 0, 0, 1);
                     //temp_vertices->color = vertices[i].color;
