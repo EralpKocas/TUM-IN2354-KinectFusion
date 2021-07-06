@@ -11,10 +11,12 @@
 //#include "opencv2/imgproc/imgproc.hpp"
 //#include <opencv2/highgui.hpp>
 #include "surface_measurement.h"
+#include "SimpleMesh.h"
+
 
 int main() {
-    std::cout << "Hello, World!" << std::endl; std::string filenameIn = "/home/ilteber/data/rgbd_dataset_freiburg1_xyz/";
-
+    //std::cout << "Hello, World!" << std::endl; std::string filenameIn = "/home/ilteber/data/rgbd_dataset_freiburg1_xyz/";
+    std::string filenameIn = "/media/eralpkocas/hdd/TUM/3D_Scanning/data/rgbd_dataset_freiburg1_xyz/";
     // load video
     std::cout << "Initialize virtual sensor..." << std::endl;
     bool isFirstFrame = true;
@@ -38,6 +40,7 @@ int main() {
             sensor.getDepthImageWidth(),
             sensor.getDepthImageHeight(),
     };
+    int i = 0;
     while (sensor.processNextFrame()) {
         ImageData img_data = {
                 sensor.getDepthImageWidth(),
@@ -80,6 +83,22 @@ int main() {
         }
         // step 3: Surface Reconstruction Update
         // step 4: Raycast Prediction
+
+        SimpleMesh mesh;
+        std::stringstream ss;
+
+        ss << "result_" << i++ << ".off";
+        cv::Mat result;
+        surf_data.vertex_map[0].download(result);
+
+        cv::Mat color_map;
+        img_data.m_colorMap.download(color_map);
+        if (!mesh.WriteMesh2(result, color_map, surf_data.level_img_width[0],
+                             surf_data.level_img_height[0], ss.str()))
+        {
+            std::cout << "ERROR: unable to write output file!" << std::endl;
+            return -1;
+        }
     }
     return 0;
 }

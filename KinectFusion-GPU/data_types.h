@@ -55,7 +55,7 @@ struct ImageData
     ImageData(unsigned int _level_img_width, unsigned int _level_img_height,
               cv::Mat _m_depthMap, cv::Mat _m_colorMap){
         cv::cuda::createContinuous(_level_img_width, _level_img_height, CV_32F, m_depthMap);
-        cv::cuda::createContinuous(_level_img_width, _level_img_height, CV_8U, m_colorMap);
+        cv::cuda::createContinuous(_level_img_width, _level_img_height, CV_8UC4, m_colorMap);
 
         m_depthMap.upload(_m_depthMap);
         m_colorMap.upload(_m_colorMap);
