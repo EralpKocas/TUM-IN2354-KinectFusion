@@ -79,8 +79,6 @@ __global__ void helper_compute_normal_map(SurfaceLevelData* surf_data, cv::cuda:
     }
 }
 
-#include "surface_measurement.h"
-
 bool init_multiscale(SurfaceLevelData* surf_data, ImageData img_data)
 {
     float bilateral_color_sigma = 1.;
