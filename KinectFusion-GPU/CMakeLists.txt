@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.19)
+#set(CMAKE_CUDA_COMPILER /usr/local/cuda-11.3/bin/nvcc)
 project(KinectFusion-GPU CUDA C CXX)
 
 set(CMAKE_CUDA_STANDARD 14)
@@ -14,7 +15,6 @@ ENDIF()
 
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -D_DEBUG")
 SET(CUDA_PROPAGATE_HOST_FLAGS OFF)
-
 set(FreeImage_INCLUDE_DIR /usr/include/)
 set(FreeImage_LIBRARY_DIR /usr/lib/x86_64-linux-gnu/)
 
@@ -24,12 +24,15 @@ set(HEADERS
         common_functions.h
         FreeImageHelper.h
         VirtualSensor_freiburg.h
-        surface_measurement.h)
+        surface_measurement.h
+        pose_estimation.h)
 
 set(SOURCES
-        main.cu
-        FreeImageHelper.cpp
-        surface_measurement.cu SimpleMesh.h)
+    main.cu
+    FreeImageHelper.cpp
+    surface_measurement.cu
+    pose_estimation.cu
+        SimpleMesh.h)
 
 add_executable(kf-gpu ${SOURCES} ${HEADERS})
 message("OpenCV_INCLUDE_DIRS" ${OpenCV_INCLUDE_DIRS})

@@ -2,15 +2,24 @@
 // Created by Beyza Tugce Bilgic on 06.07.21.
 //
 
-#include "data_types.h"
+#include "pose_estimation.h"
 
-__global__ void pose_estimate(std::vector<int> iterations, ImageConstants*& imageConstants, ImageData* imageData, SurfaceLevelData* surf_data){
+//std::vector<cv::cuda::GpuMat> global_vertex_map;
+//std::vector<cv::cuda::GpuMat> global_normal_map;
+
+// The distance threshold in mm
+float distance_threshold { 10.f };
+// The angle threshold in degrees
+float angle_threshold { 20.f };
+
+__global__ void pose_estimate(const std::vector<int>&  iterations, ImageConstants*& imageConstants, ImageData* imageData, SurfaceLevelData* surf_data){
 
     int level = surf_data->level - 1;
 
     for ( int i = level; i >= 0; i--) {
 
         dim3 block(8, 8);
+
         float rows = surf_data->level_img_width[i];
         float cols = surf_data->level_img_height[i];
 
@@ -24,8 +33,8 @@ __global__ void pose_estimate(std::vector<int> iterations, ImageConstants*& imag
         int width = surf_data->level_img_width[i];
         int height = surf_data->level_img_height[i];
 
-        Matrix3f &rotation = imageConstants->m_trajectory.block<3, 3>(0, 0);
-        Vector3f &translation = imageConstants->m_trajectory.block<3, 1>(0, 3);
+        Matrix3f& rotation = imageConstants->m_trajectory.block<3, 3>(0, 0);
+        Vector3f& translation = imageConstants->m_trajectory.block<3, 1>(0, 3);
 
         init_global_map(imageData->depth_map, vertex_map, normal_map, rotation, translation, width, height);
 
@@ -36,8 +45,8 @@ __global__ void pose_estimate(std::vector<int> iterations, ImageConstants*& imag
 
 __global__ void pose_estimate_helper(std::vector<int> iterations, int level,
                                      cv::cuda::PtrStepSz<float> depth_map,
-                                     cv::cuda::PtrStepSz<Vector3f>> vertex_map,
-                                     cv::cuda::PtrStepSz<Vector3f>> vertex_map_predicted,
+                                     cv::cuda::PtrStepSz<Vector3f> vertex_map,
+                                     cv::cuda::PtrStepSz<Vector3f> vertex_map_predicted,
                                      cv::cuda::PtrStepSz<Vector3f> normal_map_predicted,
                                      Matrix3f &rotation, Vector3f &translation){
 
@@ -185,8 +194,8 @@ void init_global_map(cv::cuda::PtrStepSz<float> depth_map, cv::cuda::PtrStep<Vec
                      Matrix3f rotation, Vector3f translation, int width, int height) {
 
     dim3 block(8, 8);
-    float rows = surf_data->level_img_width[i];
-    float cols = surf_data->level_img_height[i];
+    float rows = width;
+    float cols = height;
     dim3 grid((cols + block.x - 1) / block.x, (rows + block.y - 1) / block.y);
 
     global_vertex_map.push_back(cv::cuda::createContinuous(width, height, CV_32FC3));
@@ -196,16 +205,3 @@ void init_global_map(cv::cuda::PtrStepSz<float> depth_map, cv::cuda::PtrStep<Vec
     get_global_normal_map<<grid, block>>( depth_map, normal_map, global_normal_map, rotation, translation, width, height);
 
 }
-
-
-
-
-private:
-    std::vector<cv::cuda::GpuMat> global_vertex_map;
-    std::vector<cv::cuda::GpuMat> global_normal_map;
-
-    // The distance threshold in mm
-    float distance_threshold { 10.f };
-    // The angle threshold in degrees
-    float angle_threshold { 20.f };
-};
