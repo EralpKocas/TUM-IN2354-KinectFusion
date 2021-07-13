@@ -9,7 +9,7 @@
 #include <opencv2/cudaimgproc.hpp>
 #include <opencv2/cudawarping.hpp>
 #include "opencv2/core/cuda_types.hpp"
-__global__ void pose_estimate(const std::vector<int>& iterations, ImageConstants*& imageConstants, ImageData* imageData, SurfaceLevelData* surf_data);
+void pose_estimate(const std::vector<int>& iterations, ImageConstants*& imageConstants, ImageData* imageData, SurfaceLevelData* surf_data);
 
 __global__ void pose_estimate_helper(std::vector<int> iterations, int level,
                                      cv::cuda::PtrStepSz<float> depth_map,

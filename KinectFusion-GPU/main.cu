@@ -12,7 +12,7 @@
 //#include <opencv2/highgui.hpp>
 #include "surface_measurement.h"
 #include "SimpleMesh.h"
-
+#include "pose_estimation.h"
 
 int main() {
     //std::cout << "Hello, World!" << std::endl; std::string filenameIn = "/home/ilteber/data/rgbd_dataset_freiburg1_xyz/";
@@ -26,6 +26,7 @@ int main() {
         std::cout << "Failed to initialize the sensor!\nCheck file path!" << std::endl;
         return -1;
     }
+    std::vector<int> iterations = {4, 5, 10};
     ImageConstants img_constants = {
             sensor.getDepthIntrinsics().coeffRef(0, 0),
             sensor.getDepthIntrinsics().coeffRef(1,1),
@@ -78,7 +79,7 @@ int main() {
 
         // step 2: Pose Estimation, for frame == 0, don't perform
         if(!isFirstFrame){
-
+            pose_estimate(iterations, img_constants, &img_data, &surf_data);
         }else{
             isFirstFrame = false;
         }
@@ -89,17 +90,17 @@ int main() {
         std::stringstream ss;
 
         ss << "result_" << i++ << ".off";
-        cv::Mat result;
-        surf_data.vertex_map[0].download(result);
+        //cv::Mat result;
+        //surf_data.vertex_map[0].download(result);
 
-        cv::Mat color_map;
-        img_data.m_colorMap.download(color_map);
-        if (!mesh.WriteMesh2(result, color_map, surf_data.level_img_width[0],
-                             surf_data.level_img_height[0], ss.str()))
-        {
-            std::cout << "ERROR: unable to write output file!" << std::endl;
-            return -1;
-        }
+        //cv::Mat color_map;
+        //img_data.m_colorMap.download(color_map);
+//        if (!mesh.WriteMesh2(result, color_map, surf_data.level_img_width[0],
+//                             surf_data.level_img_height[0], ss.str()))
+//        {
+//            std::cout << "ERROR: unable to write output file!" << std::endl;
+//            return -1;
+//        }
     }
     return 0;
 }

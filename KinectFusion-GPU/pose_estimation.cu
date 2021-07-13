@@ -12,7 +12,7 @@ float distance_threshold { 10.f };
 // The angle threshold in degrees
 float angle_threshold { 20.f };
 
-__global__ void pose_estimate(const std::vector<int>&  iterations, ImageConstants*& imageConstants, ImageData* imageData, SurfaceLevelData* surf_data){
+void pose_estimate(const std::vector<int>&  iterations, ImageConstants*& imageConstants, ImageData* imageData, SurfaceLevelData* surf_data){
 
     int level = surf_data->level - 1;
 
@@ -33,12 +33,12 @@ __global__ void pose_estimate(const std::vector<int>&  iterations, ImageConstant
         int width = surf_data->level_img_width[i];
         int height = surf_data->level_img_height[i];
 
-        Matrix3f& rotation = imageConstants->m_trajectory.block<3, 3>(0, 0);
-        Vector3f& translation = imageConstants->m_trajectory.block<3, 1>(0, 3);
+        Matrix3f rotation = imageConstants->m_trajectory.block<3, 3>(0, 0);
+        Vector3f translation = imageConstants->m_trajectory.block<3, 1>(0, 3);
 
-        init_global_map(imageData->depth_map, vertex_map, normal_map, rotation, translation, width, height);
+        init_global_map(imageData->m_depthMap, vertex_map, normal_map, rotation, translation, width, height);
 
-        pose_estimate_helper<<<grid, block>>>(iterations, i, imageData->depth_map, vertex_map, vertex_map_predicted, normal_map_predicted, rotation, translation);
+        pose_estimate_helper<<<grid, block>>>(iterations, i, imageData->m_depthMap, vertex_map, vertex_map_predicted, normal_map_predicted, rotation, translation);
 
     }
 }
