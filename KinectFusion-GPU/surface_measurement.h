@@ -10,8 +10,9 @@
 #include <opencv2/cudawarping.hpp>
 #include "opencv2/core/cuda_types.hpp"
 
-__global__ void helper_compute_vertex_map(SurfaceLevelData* surf_data, cv::cuda::PtrStepSz<float> depth_map,
+__global__ void helper_compute_vertex_map(SurfaceLevelData* surf_data,
                                           ImageConstants img_constants,
+                                          cv::cuda::PtrStepSz<float> depth_map,
                                           cv::cuda::PtrStep<Vector3f> vertex_map, float fX, float fY,
                                           float cX, float cY, int width, int height, int level);
 

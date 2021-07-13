@@ -12,48 +12,65 @@ float distance_threshold { 10.f };
 // The angle threshold in degrees
 float angle_threshold { 20.f };
 
-void pose_estimate(const std::vector<int>&  iterations, ImageConstants*& imageConstants, ImageData* imageData, SurfaceLevelData* surf_data){
+void pose_estimate(const std::vector<int>&  iterations,
+                   ImageConstants*& imageConstants,
+                   ImageData* imageData, SurfaceLevelData* surf_data){
 
     int level = surf_data->level - 1;
 
+    std::vector<cv::cuda::GpuMat> global_vertex_maps;
+
+    std::vector<cv::cuda::GpuMat> global_normal_maps;
+
     for ( int i = level; i >= 0; i--) {
 
-        dim3 block(8, 8);
+        int width = surf_data->level_img_width[i];
+        int height = surf_data->level_img_height[i];
 
         float rows = surf_data->level_img_width[i];
         float cols = surf_data->level_img_height[i];
+
+        global_vertex_maps.push_back(cv::cuda::createContinuous(width, height, CV_32FC3));
+        global_normal_maps.push_back(cv::cuda::createContinuous(width, height, CV_32FC3));
+
+        dim3 block(8, 8);
+
 
         cv::cuda::GpuMat& vertex_map = surf_data->vertex_map[i];
         cv::cuda::GpuMat& normal_map = surf_data->normal_map[i];
         cv::cuda::GpuMat& vertex_map_predicted = surf_data->vertex_map_predicted[i];
         cv::cuda::GpuMat& normal_map_predicted = surf_data->normal_map_predicted[i];
+        cv::cuda::GpuMat& global_vertex_map = global_vertex_maps[i];
+        cv::cuda::GpuMat& global_normal_map = global_normal_maps[i];
 
         dim3 grid((cols + block.x - 1) / block.x, (rows + block.y - 1) / block.y);
-
-        int width = surf_data->level_img_width[i];
-        int height = surf_data->level_img_height[i];
 
         Matrix3f rotation = imageConstants->m_trajectory.block<3, 3>(0, 0);
         Vector3f translation = imageConstants->m_trajectory.block<3, 1>(0, 3);
 
-        init_global_map(imageData->m_depthMap, vertex_map, normal_map, rotation, translation, width, height);
+        init_global_map(imageData->m_depthMap, vertex_map, normal_map,global_vertex_map,global_normal_map,
+                        rotation, translation, width, height, level);
 
-        pose_estimate_helper<<<grid, block>>>(iterations, i, imageData->m_depthMap, vertex_map, vertex_map_predicted, normal_map_predicted, rotation, translation);
+        pose_estimate_helper(iterations, i, imageData->m_depthMap, vertex_map, vertex_map_predicted,
+                             normal_map_predicted, surf_data,
+                             rotation, translation);
 
     }
 }
 
-__global__ void pose_estimate_helper(std::vector<int> iterations, int level,
+void pose_estimate_helper(std::vector<int> iterations, int level,
                                      cv::cuda::PtrStepSz<float> depth_map,
                                      cv::cuda::PtrStepSz<Vector3f> vertex_map,
                                      cv::cuda::PtrStepSz<Vector3f> vertex_map_predicted,
                                      cv::cuda::PtrStepSz<Vector3f> normal_map_predicted,
+                                     cv::cuda::PtrStepSz<Vector3f> global_vertex_map,
+                                     SurfaceLevelData* surf_data,
                                      Matrix3f &rotation, Vector3f &translation){
 
     Isometry3f T;
 
     for ( int j = 0; j < iterations[level]; j++) {
-            T = point_to_plane( global_vertex_map, vertex_map_predicted, normal_map_predicted, level, T);
+            point_to_plane( surf_data, global_vertex_map, vertex_map_predicted, normal_map_predicted, level, T);
             // Return the new pose
             rotation = T.rotation();
             translation = T.translation();
@@ -63,29 +80,40 @@ __global__ void pose_estimate_helper(std::vector<int> iterations, int level,
 
 //https://www.cs.princeton.edu/~smr/papers/icpstability.pdf
 //https://www.comp.nus.edu.sg/~lowkl/publications/lowk_point-to-plane_icp_techrep.pdf
-__global__ void point_to_plane( std::vector<Vector3f> source, std::vector<Vector3f> dest, std::vector<Vector3f> normal, int level, Isometry3f& T){
+void point_to_plane(SurfaceLevelData* surf_data, cv::cuda::PtrStepSz<Vector3f> source, cv::cuda::PtrStepSz<Vector3f> dest, std::vector<Vector3f> normal, int level, Isometry3f& T){
 
     bool validity_check = false;
     Eigen::Matrix<float, 6, 6, Eigen::RowMajor> A {};
     Eigen::Matrix<float, 6, 1> b {};
 
-    for ( int i = 0; i < source.size(); i++){
-        dim3 block(8, 8);
-        float rows = surf_data->level_img_width[i];
-        float cols = surf_data->level_img_height[i];
-        dim3 grid((cols + block.x - 1) / block.x, (rows + block.y - 1) / block.y);
-        check_correspondence_validity<<grid, block>>(level, i, vertex_map_predicted, normal_map_predicted, validity_check);
-        if (validity_check){
-            Vector3f pointToNormal = source[i].cross(normal[i]);
-            A.block<3,3>(0,0) += pointToNormal * pointToNormal.transpose();
-            A.block<3,3>(0,3) += normal[i] * pointToNormal.transpose();
-            A.block<3,3>(3,3) += normal[i] * normal[i].transpose();
-            A.block<3,3>(3,0) = A.block<3,3>(0,3);
+    float rows = surf_data->level_img_width[level];
+    float cols = surf_data->level_img_height[level];
 
-            float sum = (source[i] - dest[i]).dot(normal[i]);
-            b.head(3) -= pointToNormal * sum;
-            b.tail(3) -= normal[i] * sum;
-        }
+    int threadX = threadIdx.x + blockDim.x * blockIdx.x;
+    if (threadX >= rows or threadX < 0)
+        return;
+
+    int threadY = threadIdx.y + blockDim.y * blockIdx.y;
+    if (threadY >= cols or threadY < 0)
+        return;
+
+    dim3 block(8, 8);
+    dim3 grid((cols + block.x - 1) / block.x, (rows + block.y - 1) / block.y);
+    check_correspondence_validity<<grid, block>>(level, i, vertex_map_predicted, normal_map_predicted, validity_check);
+    if (validity_check){
+        Vector3f pointToNormal = source[i].cross(normal[i]);
+        A.block<3,3>(0,0) += pointToNormal * pointToNormal.transpose();
+        A.block<3,3>(0,3) += normal[i] * pointToNormal.transpose();
+        A.block<3,3>(3,3) += normal[i] * normal[i].transpose();
+        A.block<3,3>(3,0) = A.block<3,3>(0,3);
+
+        float sum = (source[i] - dest[i]).dot(normal[i]);
+        b.head(3) -= pointToNormal * sum;
+        b.tail(3) -= normal[i] * sum;
+    }
+
+    for ( int i = 0; i < source.cols*source.rows; i++){
+
     }
 
     Matrix<float,6,1> x = A.ldlt().solve(b);
@@ -101,7 +129,15 @@ __global__ void point_to_plane( std::vector<Vector3f> source, std::vector<Vector
 
 
 //Check correspondences on the distance of vertices and difference in normal values
-__global__ void check_correspondence_validity(int level, int point, cv::cuda::PtrStepSz<Vector3f> vertex_map_predicted, cv::cuda::PtrStepSz<Vector3f> normal_map_predicted, bool& validity){
+__global__ void check_correspondence_validity(int level, int point,
+                                              int width, int height,
+                                              cv::cuda::PtrStepSz<Vector3f> vertex_map_predicted,
+                                              cv::cuda::PtrStepSz<Vector3f> normal_map_predicted,
+                                              cv::cuda::PtrStep<cv::cuda::GpuMat> global_vertex_map,
+                                              cv::cuda::PtrStep<cv::cuda::GpuMat> global_normal_map,
+                                              cv::cuda::PtrStep<cv::cuda::GpuMat> depth_map,
+
+                                              bool& validity){
     /*if ( global_vertex_map.size() == 0){
         global_vertex_map.push_back(cv::cuda::createContinuous(width, height, CV_32FC3));
         get_global_vertex_map( depth_map, vertex_map, global_vertex_map, rotation, translation, width, height);
@@ -143,8 +179,11 @@ __global__ void check_correspondence_validity(int level, int point, cv::cuda::Pt
 
 
 //Get current global vertex map from surface measurement
-__global__ void get_global_vertex_map( cv::cuda::PtrStepSz<float> depth_map, cv::cuda::PtrStep<Vector3f> vertex_map,
-                                       Matrix3f rotation, Vector3f translation, int width, int height) {
+__global__ void get_global_vertex_map( cv::cuda::PtrStepSz<float> depth_map,
+                                       cv::cuda::PtrStep<Vector3f> vertex_map,
+                                       Matrix3f rotation, Vector3f translation,
+                                       int width, int height,
+                                       cv::cuda::PtrStep<Vector3f>& global_vertex_map) {
 
     float depth_threshold = 100.f;
 
@@ -167,8 +206,11 @@ __global__ void get_global_vertex_map( cv::cuda::PtrStepSz<float> depth_map, cv:
 }
 
 //Get current global normal map from surface measurement
-__global__ void get_global_normal_map( cv::cuda::PtrStepSz<float> depth_map, cv::cuda::PtrStep<Vector3f> normal_map, cv::cuda::PtrStep<Vector3f> &global_normal_map,
-                                      Matrix3f rotation, Vector3f translation, int width, int height, int level){
+__global__ void get_global_normal_map( cv::cuda::PtrStepSz<float> depth_map,
+                                       cv::cuda::PtrStep<Vector3f> normal_map,
+                                       Matrix3f rotation, Vector3f translation,
+                                       int width, int height,
+                                       cv::cuda::PtrStep<Vector3f> &global_normal_map){
 
     float depth_threshold = 100.f;
 
@@ -190,18 +232,35 @@ __global__ void get_global_normal_map( cv::cuda::PtrStepSz<float> depth_map, cv:
     }
 }
 
-void init_global_map(cv::cuda::PtrStepSz<float> depth_map, cv::cuda::PtrStep<Vector3f> vertex_map, cv::cuda::PtrStep<Vector3f> normal_map,
-                     Matrix3f rotation, Vector3f translation, int width, int height) {
+void init_global_map(cv::cuda::PtrStepSz<float> depth_map,
+                     cv::cuda::PtrStep<Vector3f> vertex_map,
+                     cv::cuda::PtrStep<Vector3f> normal_map,
+                     cv::cuda::PtrStep<Vector3f>& global_vertex_map,
+                     cv::cuda::PtrStep<Vector3f>& global_normal_map,
+                     Matrix3f rotation, Vector3f translation,
+                     int width, int height, int level) {
 
     dim3 block(8, 8);
     float rows = width;
     float cols = height;
+
     dim3 grid((cols + block.x - 1) / block.x, (rows + block.y - 1) / block.y);
 
-    global_vertex_map.push_back(cv::cuda::createContinuous(width, height, CV_32FC3));
-    get_global_vertex_map<<grid, block>>( depth_map, vertex_map, global_vertex_map, rotation, translation, width, height);
+    int threadX = threadIdx.x + blockDim.x * blockIdx.x;
+    if (threadX >= width or threadX < 0)
+        return;
 
-    global_normal_map.push_back(cv::cuda::createContinuous(width, height, CV_32FC3));
-    get_global_normal_map<<grid, block>>( depth_map, normal_map, global_normal_map, rotation, translation, width, height);
+    int threadY = threadIdx.y + blockDim.y * blockIdx.y;
+    if (threadY >= height or threadY < 0)
+        return;
+
+//    global_vertex_map.ptr(threadY)[threadX] = Vector3f(0.f, 0.f, 0.f);
+//    global_vertex_map.push_back(cv::cuda::createContinuous(width, height, CV_32FC3));
+    get_global_vertex_map<<<grid, block>>>( depth_map, vertex_map, rotation,
+            translation, width, height,global_vertex_map);
+
+//    global_normal_map.ptr(threadY)[threadX] = Vector3f(0.f, 0.f, 0.f);
+    get_global_normal_map<<<grid, block>>>( depth_map, normal_map, rotation,
+                                            translation, width, height,global_normal_map);
 
 }

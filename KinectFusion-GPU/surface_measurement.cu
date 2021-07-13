@@ -6,7 +6,8 @@
 
 __global__ void helper_compute_vertex_map(SurfaceLevelData* surf_data, ImageConstants img_constants,
                                           cv::cuda::PtrStepSz<float> depth_map,
-                                          cv::cuda::PtrStep<Vector3f> vertex_map, float fX, float fY,
+                                          cv::cuda::PtrStep<Vector3f> vertex_map,
+                                          float fX, float fY,
                                           float cX, float cY, int width, int height, int level)
 {
     float depth_threshold = 1000.f;
@@ -104,6 +105,8 @@ bool init_multiscale(SurfaceLevelData* surf_data, ImageData img_data)
         else{
             cv::cuda::pyrDown(surf_data->curr_smoothed_data[i-1],
                               surf_data->curr_smoothed_data[i]);
+//            cv::pyrDown(surf_data->curr_smoothed_data[i-1],
+//                              surf_data->curr_smoothed_data[i]);
         }
     }
     return true;
