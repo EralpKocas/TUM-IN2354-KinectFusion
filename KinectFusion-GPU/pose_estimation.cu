@@ -7,10 +7,7 @@
 //std::vector<cv::cuda::GpuMat> global_vertex_map;
 //std::vector<cv::cuda::GpuMat> global_normal_map;
 
-// The distance threshold in mm
-float distance_threshold { 10.f };
-// The angle threshold in degrees
-float angle_threshold { 20.f };
+
 
 void pose_estimate(const std::vector<int>&  iterations,
                    ImageConstants*& imageConstants,
@@ -51,7 +48,7 @@ void pose_estimate(const std::vector<int>&  iterations,
                         rotation, translation, width, height, level);
 
         pose_estimate_helper(iterations[i], imageData->m_depthMap, vertex_map, vertex_map_predicted,
-                             normal_map_predicted, width, height,
+                             normal_map_predicted, global_vertex_map, global_normal_map, width, height,
                              rotation, translation);
 
     }
@@ -63,13 +60,16 @@ void pose_estimate_helper( int iteration,
                            cv::cuda::PtrStepSz<Vector3f> vertex_map_predicted,
                            cv::cuda::PtrStepSz<Vector3f> normal_map_predicted,
                            cv::cuda::PtrStepSz<Vector3f> global_vertex_map,
+                           cv::cuda::PtrStepSz<Vector3f> global_normal_map,
                            int width, int height,
                            Matrix3f &rotation, Vector3f &translation){
 
     Isometry3f T;
 
     for ( int j = 0; j < iteration; j++) {
-            point_to_plane( global_vertex_map, vertex_map_predicted, normal_map_predicted, width, height, level, T);
+            point_to_plane( global_vertex_map, vertex_map_predicted, normal_map_predicted,
+                            global_normal_map,depth_map,
+                            width, height, T);
             // Return the new pose
             rotation = T.rotation();
             translation = T.translation();
@@ -82,8 +82,10 @@ void pose_estimate_helper( int iteration,
 void point_to_plane( cv::cuda::PtrStepSz<Vector3f> source,
                      cv::cuda::PtrStepSz<Vector3f> dest,
                      cv::cuda::PtrStepSz<Vector3f> normal,
+                     cv::cuda::PtrStepSz<Vector3f> global_normal_map,
+                     cv::cuda::PtrStepSz<float> depth_map,
                      int width, int height,
-                     int level, Isometry3f& T){
+                     Isometry3f& T){
 
     bool validity_check = false;
     Eigen::Matrix<float, 6, 6, Eigen::RowMajor> A {};
@@ -104,7 +106,8 @@ void point_to_plane( cv::cuda::PtrStepSz<Vector3f> source,
     dim3 grid((cols + block.x - 1) / block.x, (rows + block.y - 1) / block.y);
 
     //Vector3f point = source.ptr(threadY)[threadX];
-    check_correspondence_validity<<grid, block>>(vertex_map_predicted, normal_map_predicted, validity_check);
+    check_correspondence_validity<<<grid, block>>>(width,height,
+                                                   dest, normal, source, global_normal_map, depth_map, validity_check);
     if (validity_check){
         Vector3f pointToNormal = source.ptr(threadY)[threadX].cross(normal.ptr(threadY)[threadX]);
         A.block<3,3>(0,0) += pointToNormal * pointToNormal.transpose();
@@ -114,7 +117,7 @@ void point_to_plane( cv::cuda::PtrStepSz<Vector3f> source,
 
         float sum = (source.ptr(threadY)[threadX] - dest.ptr(threadY)[threadX]).dot(normal.ptr(threadY)[threadX]);
         b.head(3) -= pointToNormal * sum;
-        b.tail(3) -= normal[i] * sum;
+        b.tail(3) -= normal.ptr(threadY)[threadX] * sum;
     }
 
     Matrix<float,6,1> x = A.ldlt().solve(b);
@@ -133,9 +136,9 @@ void point_to_plane( cv::cuda::PtrStepSz<Vector3f> source,
 __global__ void check_correspondence_validity(int width, int height,
                                               cv::cuda::PtrStepSz<Vector3f> vertex_map_predicted,
                                               cv::cuda::PtrStepSz<Vector3f> normal_map_predicted,
-                                              cv::cuda::PtrStep<cv::cuda::GpuMat> global_vertex_map,
-                                              cv::cuda::PtrStep<cv::cuda::GpuMat> global_normal_map,
-                                              cv::cuda::PtrStep<cv::cuda::GpuMat> depth_map,
+                                              cv::cuda::PtrStepSz<Vector3f> global_vertex_map,
+                                              cv::cuda::PtrStepSz<Vector3f> global_normal_map,
+                                              cv::cuda::PtrStepSz<float> depth_map,
                                               bool& validity){
     /*if ( global_vertex_map.size() == 0){
         global_vertex_map.push_back(cv::cuda::createContinuous(width, height, CV_32FC3));
@@ -148,6 +151,8 @@ __global__ void check_correspondence_validity(int width, int height,
 
     //TODO: How to take the depth value of a specific point ??
     float depth_threshold = 100.f;
+    float distance_threshold = 10.f;
+    float angle_threshold = 20.f;
 
     int threadX = threadIdx.x + blockDim.x * blockIdx.x;
     if (threadX >= width or threadX < 0)
@@ -167,8 +172,7 @@ __global__ void check_correspondence_validity(int width, int height,
     float distance = (vertex_map_predicted.ptr(threadY)[threadX] - global_vertex_map.ptr(threadY)[threadX]).norm();
 
     //const float sine = normal_current_global.cross(normal_previous_global).norm();
-    float angle = global_normal_map.ptr.(threadY)[threadX]
-            cross(normal_map_predicted.ptr(threadY)[threadX]).norm();
+    float angle = global_normal_map.ptr(threadY)[threadX].cross(normal_map_predicted.ptr(threadY)[threadX]).norm();
 
     if ( currDepthValue != MINF && !isnan(currDepthValue) && distance <= distance_threshold && angle <= angle_threshold ){
         validity = true;

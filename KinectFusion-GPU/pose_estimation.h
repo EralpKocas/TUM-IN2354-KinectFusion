@@ -11,11 +11,28 @@
 #include "opencv2/core/cuda_types.hpp"
 
 
-void point_to_plane( cv::cuda::PtrStepSz<Vector3f> source, cv::cuda::PtrStepSz<Vector3f> dest, cv::cuda::PtrStepSz<Vector3f>, int width, int height, int level, Isometry3f& T);
-__global__ void check_correspondence_validity( cv::cuda::PtrStepSz<Vector3f> vertex_map_predicted, cv::cuda::PtrStepSz<Vector3f> normal_map_predicted, bool& validity);
+__global__ void get_global_vertex_map( cv::cuda::PtrStepSz<float> depth_map,
+                                       cv::cuda::PtrStep<Vector3f> vertex_map,
+                                       Matrix3f rotation, Vector3f translation,
+                                       int width, int height,
+                                       cv::cuda::PtrStep<Vector3f>& global_vertex_map) ;
 __global__ void get_global_vertex_map( cv::cuda::PtrStepSz<float> depth_map, cv::cuda::PtrStep<Vector3f> vertex_map);
 __global__ void get_global_normal_map( cv::cuda::PtrStepSz<float> depth_map, cv::cuda::PtrStep<Vector3f> normal_map, cv::cuda::PtrStep<Vector3f> &global_normal_map,
                                        Matrix3f rotation, Vector3f translation, int width, int height, int level);
+__global__ void check_correspondence_validity(int width, int height,
+                                              cv::cuda::PtrStepSz<Vector3f> vertex_map_predicted,
+                                              cv::cuda::PtrStepSz<Vector3f> normal_map_predicted,
+                                              cv::cuda::PtrStepSz<Vector3f> global_vertex_map,
+                                              cv::cuda::PtrStepSz<Vector3f> global_normal_map,
+                                              cv::cuda::PtrStepSz<float> depth_map,
+                                              bool& validity);
+
+void point_to_plane( cv::cuda::PtrStepSz<Vector3f> source,
+                     cv::cuda::PtrStepSz<Vector3f> dest,
+                     cv::cuda::PtrStepSz<Vector3f> normal,
+                     cv::cuda::PtrStepSz<Vector3f> global_normal_map,
+                     cv::cuda::PtrStepSz<float> depth_map,
+                     int width, int height, Isometry3f& T);
 
 void pose_estimate(const std::vector<int>& iterations, ImageConstants*& imageConstants, ImageData* imageData, SurfaceLevelData* surf_data);
 
@@ -33,6 +50,7 @@ void pose_estimate_helper(int iteration,
                           cv::cuda::PtrStepSz<Vector3f> vertex_map_predicted,
                           cv::cuda::PtrStepSz<Vector3f> normal_map_predicted,
                           cv::cuda::PtrStepSz<Vector3f> global_vertex_map,
+                          cv::cuda::PtrStepSz<Vector3f> global_normal_map,
                           int width, int height,
                           Matrix3f &rotation, Vector3f &translation);
 
