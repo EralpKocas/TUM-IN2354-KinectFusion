@@ -27,35 +27,43 @@ int main() {
         return -1;
     }
     std::vector<int> iterations = {4, 5, 10};
-    ImageConstants img_constants = {
-            sensor.getDepthIntrinsics().coeffRef(0, 0),
-            sensor.getDepthIntrinsics().coeffRef(1,1),
-            sensor.getDepthIntrinsics().coeffRef(0,2),
-            sensor.getDepthIntrinsics().coeffRef(1,2),
-            sensor.getTrajectory(),
-            sensor.getTrajectory().inverse(),
-            sensor.getDepthIntrinsics(),
-            sensor.getDepthExtrinsics(),
-            sensor.getDepthExtrinsics().inverse(),
-            sensor.getColorImageWidth(),
-            sensor.getColorImageHeight(),
-            sensor.getDepthImageWidth(),
-            sensor.getDepthImageHeight(),
+
+    Pose pose_struct = {
+            Matrix4f::Zero(4, 4),
+            Matrix4f::Zero(4, 4),
     };
+
     int i = 0;
     while (sensor.processNextFrame()) {
+
+        ImageConstants img_constants = {
+                sensor.getDepthIntrinsics().coeffRef(0, 0),
+                sensor.getDepthIntrinsics().coeffRef(1,1),
+                sensor.getDepthIntrinsics().coeffRef(0,2),
+                sensor.getDepthIntrinsics().coeffRef(1,2),
+                sensor.getTrajectory(),
+                sensor.getTrajectory().inverse(),
+                sensor.getDepthIntrinsics(),
+                sensor.getDepthExtrinsics(),
+                sensor.getDepthExtrinsics().inverse(),
+                sensor.getColorImageWidth(),
+                sensor.getColorImageHeight(),
+                sensor.getDepthImageWidth(),
+                sensor.getDepthImageHeight(),
+        };
+
         ImageData img_data = {
                 sensor.getDepthImageWidth(),
                 sensor.getDepthImageHeight(),
-//                sensor.getDepth(),
-//                sensor.getColorRGBX(),
                 cv::Mat(sensor.getDepthImageHeight(), sensor.getDepthImageWidth(), CV_32F, sensor.getDepth()),
                 cv::Mat(sensor.getDepthImageHeight(), sensor.getDepthImageWidth(), CV_8UC4, sensor.getColorRGBX()),
-                //cv::cuda::GpuMat(640, 480, CV_32F, sensor.getDepth()),
-                //cv::cuda::GpuMat(640, 480, CV_8U, sensor.getColorRGBX()),
         };
-        // TODO: inverse trajectory is nan for all indices. check!
 
+        if(i==0){
+            pose_struct.m_trajectory = img_constants.m_trajectory;
+            pose_struct.m_trajectoryInv = img_constants.m_trajectoryInv;
+        }
+        // TODO: inverse trajectory is nan for all indices. check!
         SurfaceLevelData surf_data = {
                 3,
                 img_constants.m_colorImageWidth,
@@ -65,7 +73,6 @@ int main() {
                 img_constants.cX,
                 img_constants.cY,
         };
-
 //        cv::Mat result;
 //        img_data.m_depthMap.download(result);
 //        cv::imshow("result", result);
@@ -79,7 +86,10 @@ int main() {
 
         // step 2: Pose Estimation, for frame == 0, don't perform
         if(!isFirstFrame){
-            pose_estimate(iterations, img_constants, &img_data, &surf_data);
+            pose_estimate(iterations, &img_constants, &img_data, &surf_data, &pose_struct);
+            std::cout << "frame: " << i << std::endl;
+            std::cout << "rotation: " << img_constants.m_trajectory.block<3, 3>(0, 0) << std::endl;
+            std::cout << "translation: " << img_constants.m_trajectory.block<3, 1>(0, 3) << std::endl;
         }else{
             isFirstFrame = false;
         }
@@ -88,8 +98,8 @@ int main() {
 
         SimpleMesh mesh;
         std::stringstream ss;
-
-        ss << "result_" << i++ << ".off";
+        i++;
+        //ss << "result_" << i++ << ".off";
         //cv::Mat result;
         //surf_data.vertex_map[0].download(result);
 

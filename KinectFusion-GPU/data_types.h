@@ -10,7 +10,19 @@
 #include <opencv2/core/cuda.hpp>
 #include "opencv2/core/mat.hpp"
 #include <opencv2/cudaimgproc.hpp>
+#include <iostream>
 
+
+struct Pose
+{
+    Matrix4f m_trajectory;
+    Matrix4f m_trajectoryInv;
+    Pose(const Matrix4f& _m_trajectory, const Matrix4f& _m_trajectoryInv)
+    {
+        m_trajectory = _m_trajectory;
+        m_trajectoryInv = _m_trajectoryInv;
+    };
+};
 
 struct ImageConstants
 {
@@ -28,20 +40,21 @@ struct ImageConstants
     unsigned int m_colorImageHeight;
     unsigned int m_depthImageWidth;
     unsigned int m_depthImageHeight;
-    float truncation_distance;
+    //float truncation_distance;
 
-    ImageConstants(float _fX, float _fY, float _cX, float _cY, Matrix4f _m_trajectory, Matrix4f _m_trajectoryInv,
-                   Matrix3f _m_depthIntrinsics, Matrix4f _m_depthExtrinsics, Matrix4f _m_depthExtrinsicsInv, unsigned int _m_colorImageWidth,
+    ImageConstants(float _fX, float _fY, float _cX, float _cY, const Matrix4f& _m_trajectory, const Matrix4f& _m_trajectoryInv,
+                   const Matrix3f& _m_depthIntrinsics, const Matrix4f& _m_depthExtrinsics,
+                   const Matrix4f& _m_depthExtrinsicsInv, unsigned int _m_colorImageWidth,
                    unsigned int _m_colorImageHeight, unsigned int _m_depthImageWidth, unsigned int _m_depthImageHeight){
         fX = _fX;
         fY = _fY;
         cX = _cX;
         cY = _cY;
-        m_trajectory = _m_trajectory;
-        m_trajectoryInv = _m_trajectoryInv;
-        m_depthIntrinsics = _m_depthIntrinsics;
-        m_depthExtrinsics = _m_depthExtrinsics;
-        m_depthExtrinsicsInv = _m_depthExtrinsicsInv;
+        m_trajectory << _m_trajectory;
+        m_trajectoryInv << _m_trajectoryInv;
+        m_depthIntrinsics << _m_depthIntrinsics;
+        m_depthExtrinsics << _m_depthExtrinsics;
+        m_depthExtrinsicsInv << _m_depthExtrinsicsInv;
         m_colorImageWidth = _m_colorImageWidth;
         m_colorImageHeight = _m_colorImageHeight;
         m_depthImageWidth = _m_depthImageWidth;
