@@ -18,7 +18,10 @@ void pose_estimate(const std::vector<int>&  iterations,
 
     std::vector<cv::cuda::GpuMat> global_vertex_maps;
     std::vector<cv::cuda::GpuMat> global_normal_maps;
-
+    Pose prev_pose = {
+            pose_struct->m_trajectory,
+            pose_struct->m_trajectoryInv,
+    };
     for ( int i = level; i >= 0; i--) {
         int j = 2 - i;
         unsigned int width = surf_data->level_img_width[i];
@@ -33,12 +36,12 @@ void pose_estimate(const std::vector<int>&  iterations,
         //dim3 block(8, 8);
 
 
-        cv::cuda::GpuMat& vertex_map = surf_data->vertex_map[j];
-        cv::cuda::GpuMat& normal_map = surf_data->normal_map[j];
-        cv::cuda::GpuMat& vertex_map_predicted = surf_data->vertex_map_predicted[j];
-        cv::cuda::GpuMat& normal_map_predicted = surf_data->normal_map_predicted[j];
-        cv::cuda::GpuMat& global_vertex_map = global_vertex_maps[j];
-        cv::cuda::GpuMat& global_normal_map = global_normal_maps[j];
+        cv::cuda::GpuMat& vertex_map = surf_data->vertex_map[i];  // in frame coordinate system
+        cv::cuda::GpuMat& normal_map = surf_data->normal_map[i];  // in frame coordinate system
+        cv::cuda::GpuMat& vertex_map_predicted = surf_data->vertex_map_predicted[i];  // in global coordinate system, from previous frame
+        cv::cuda::GpuMat& normal_map_predicted = surf_data->normal_map_predicted[i];  // in global coordinate system, from previous frame
+        cv::cuda::GpuMat& global_vertex_map = global_vertex_maps[j];  // will be filled in global coordinate sytem in following functions
+        cv::cuda::GpuMat& global_normal_map = global_normal_maps[j];  // will be filled in global coordinate sytem in following functions
 
         //dim3 grid((cols + block.x - 1) / block.x, (rows + block.y - 1) / block.y);
 
@@ -143,6 +146,7 @@ void point_to_plane( cv::cuda::GpuMat source,
     //Vector3f point = source.ptr(threadY)[threadX];
     check_correspondence_validity<<<grid, block>>>(width, height, dest, normal,
                                                    source, global_normal_map, depth_map, validity_check);
+
     //assert(cudaSuccess == cudaDeviceSynchronize());
     if (validity_check){
         form_linear_eq<<<grid, block>>>(width, height, source, normal, dest, A, b);
@@ -204,7 +208,7 @@ __global__ void check_correspondence_validity(int width, int height,
 
     //if ( currDepthValue != MINF && !isnan(currDepthValue) && distance <= distance_threshold && angle <= angle_threshold ){
     //if ( currDepthValue < 0.f && !isnan(currDepthValue) && distance <= distance_threshold && angle <= angle_threshold ){
-    if ( currDepthValue < 0.f && distance <= distance_threshold && angle <= angle_threshold ){
+    if ( currDepthValue > 0.f && !isnan(currDepthValue) && distance <= distance_threshold && angle <= angle_threshold ){
         validity = true;
     }
     validity = false;
@@ -238,6 +242,7 @@ __global__ void form_linear_eq(int width, int height,
 //Get current global vertex map from surface measurement
 __global__ void get_global_vertex_map( cv::cuda::PtrStepSz<float> depth_map,
                                        cv::cuda::PtrStep<Vector3f> vertex_map,
+                                       cv::cuda::PtrStep<Vector3f> normal_map,
                                        Matrix3f rotation, Vector3f translation,
                                        int width, int height,
                                        cv::cuda::PtrStep<Vector3f> global_vertex_map) {
@@ -252,15 +257,17 @@ __global__ void get_global_vertex_map( cv::cuda::PtrStepSz<float> depth_map,
     if (threadY >= height or threadY < 0)
         return;
 
-    float currDepthValue =  depth_map.ptr(threadY)[threadX];
+//    float currDepthValue =  depth_map.ptr(threadY)[threadX];
 
-    if(currDepthValue > depth_threshold | currDepthValue < 0){
-        //TODO: if error comes up, should check this -> before it was MINF.
-        global_vertex_map.ptr(threadY)[threadX] = Vector3f(-1.f, -1.f, -1.f);
-    }
-    else {
+//    if(currDepthValue > depth_threshold | currDepthValue < 0){
+//        //TODO: if error comes up, should check this -> before it was MINF.
+//        global_vertex_map.ptr(threadY)[threadX] = Vector3f(-1.f, -1.f, -1.f);
+//    }
+//    else {
+//        global_vertex_map.ptr(threadY)[threadX] = rotation * vertex_map.ptr(threadY)[threadX] + translation;
+//    }
+    if(!isnan(normal_map.ptr(threadY)[threadX].x()))
         global_vertex_map.ptr(threadY)[threadX] = rotation * vertex_map.ptr(threadY)[threadX] + translation;
-    }
 }
 
 //Get current global normal map from surface measurement
@@ -280,15 +287,18 @@ __global__ void get_global_normal_map( cv::cuda::PtrStepSz<float> depth_map,
     if (threadY >= height or threadY < 0)
         return;
 
-    float currDepthValue =  depth_map.ptr(threadY)[threadX];
+//    float currDepthValue =  depth_map.ptr(threadY)[threadX];
 
     //TODO: if error comes up, should check this -> before it was MINF.
-    if(currDepthValue > depth_threshold | currDepthValue < 0 ){
-        global_normal_map.ptr(threadY)[threadX] = Vector3f(-1.f, -1.f, -1.f);
-    }
-    else {
-        global_normal_map.ptr(threadY)[threadX] = rotation * normal_map.ptr(threadY)[threadX] + translation;
-    }
+//    if(currDepthValue > depth_threshold | currDepthValue < 0 ){
+//        global_normal_map.ptr(threadY)[threadX] = Vector3f(-1.f, -1.f, -1.f);
+//    }
+//    else {
+//        global_normal_map.ptr(threadY)[threadX] = rotation * normal_map.ptr(threadY)[threadX] + translation;
+//    }
+    //global_normal_map.ptr(threadY)[threadX] = rotation * normal_map.ptr(threadY)[threadX] + translation;
+    if(!isnan(normal_map.ptr(threadY)[threadX].x()))
+        global_normal_map.ptr(threadY)[threadX] = rotation * normal_map.ptr(threadY)[threadX];
 }
 
 //void init_global_map(cv::cuda::PtrStepSz<float> depth_map,
@@ -322,11 +332,11 @@ void init_global_map(cv::cuda::GpuMat depth_map,
 
 //    global_vertex_map.ptr(threadY)[threadX] = Vector3f(0.f, 0.f, 0.f);
 //    global_vertex_map.push_back(cv::cuda::createContinuous(width, height, CV_32FC3));
-    get_global_vertex_map<<<grid, block>>>( depth_map, vertex_map, rotation,
+    get_global_vertex_map<<<grid, block>>>( depth_map, vertex_map, normal_map, rotation,
             translation, width, height, global_vertex_map);
 
 //    global_normal_map.ptr(threadY)[threadX] = Vector3f(0.f, 0.f, 0.f);
     get_global_normal_map<<<grid, block>>>( depth_map, normal_map, rotation,
                                             translation, width, height, global_normal_map);
-
+    assert(cudaSuccess == cudaDeviceSynchronize());
 }

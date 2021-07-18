@@ -18,6 +18,7 @@ __global__ void get_global_vertex_map( cv::cuda::PtrStepSz<float> depth_map,
                                        cv::cuda::PtrStep<Vector3f>& global_vertex_map) ;
 __global__ void get_global_vertex_map( cv::cuda::PtrStepSz<float> depth_map,
                                        cv::cuda::PtrStep<Vector3f> vertex_map,
+                                       cv::cuda::PtrStep<Vector3f> normal_map,
                                        Matrix3f rotation, Vector3f translation,
                                        int width, int height,
                                        cv::cuda::PtrStep<Vector3f> global_vertex_map);

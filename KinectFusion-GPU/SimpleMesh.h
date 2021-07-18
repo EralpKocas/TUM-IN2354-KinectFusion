@@ -137,7 +137,7 @@ public:
 
         for(int j=0; j < height; j++){
             for(int i=0; i < width; i++){
-                if (vertices.at<Vector3f>(j, i).z() != -1.f){
+                if (vertices.at<Vector3f>(j, i).z() > 0.f && !isnan(vertices.at<Vector3f>(j, i).x())){
                     if (i == width-1 or j >= height - 1) continue;
 
                     int corner_2 = i + 1;
@@ -145,8 +145,8 @@ public:
                     bool distTrue = isDistValid(vertices.at<Vector3f>(j, i),
                                                 vertices.at<Vector3f>(j + 1, i),
                                                 vertices.at<Vector3f>(j, i + 1), edgeThreshold);
-                    if (vertices.at<Vector3f>(j + 1, i).z() != -1.f and
-                        vertices.at<Vector3f>(j, i + 1).z() != -1.f and distTrue){
+                    if (vertices.at<Vector3f>(j + 1, i).z() > 0.f and
+                        vertices.at<Vector3f>(j, i + 1).z() > 0.f and distTrue){
                         nFaces++;
                     } else continue;
 
@@ -154,7 +154,7 @@ public:
                     distTrue = isDistValid(vertices.at<Vector3f>(j + 1, i),
                                            vertices.at<Vector3f>(j, i + 1),
                                            vertices.at<Vector3f>(j + 1, i + 1), edgeThreshold);
-                    if (vertices.at<Vector3f>(j + 1, i + 1).z() != -1.f and distTrue)
+                    if (vertices.at<Vector3f>(j + 1, i + 1).z() > 0.f and distTrue)
                         nFaces++;
                 }
             }
@@ -173,7 +173,7 @@ public:
 
         for(int j=0; j < height; j++) {
             for(int i=0; i < width; i++){
-                if (vertices.at<Vector3f>(j, i).z() == -1.f) {
+                if (vertices.at<Vector3f>(j, i).z() <= 0.f && isnan(vertices.at<Vector3f>(j, i).x())) {
                     Vector4f temp_vertices = Vector4f(0, 0, 0, 1);
                     //temp_vertices->color = vertices[i].color;
 
@@ -199,7 +199,8 @@ public:
         for(int i=0; i < nVertices; i++){
             int curr_height = i / width;
             int curr_width = i - curr_height * width;
-            if (i != nVertices - 1 and (vertices.at<Vector3f>(curr_height, curr_width).z() != -1.f)){
+            if (i != nVertices - 1 and (vertices.at<Vector3f>(curr_height, curr_width).z() > 0.f)
+                and !isnan(vertices.at<Vector3f>(curr_height, curr_width).x())){
                 if (curr_width == width-1 or i >= nVertices - width) continue;
 
                 int corner_2 = i + width;
@@ -207,9 +208,9 @@ public:
                 bool distTrue = isDistValid(vertices.at<Vector3f>(curr_height, curr_width),
                                             vertices.at<Vector3f>(curr_height + 1, curr_width),
                                             vertices.at<Vector3f>(curr_height, curr_width + 1), edgeThreshold);
-                if ((vertices.at<Vector3f>(curr_height + 1, curr_width).z() != -1.f
+                if ((vertices.at<Vector3f>(curr_height + 1, curr_width).z() > 0.f
                     && !isnan(vertices.at<Vector3f>(curr_height, curr_width).x()))
-                    and (vertices.at<Vector3f>(curr_height, curr_width + 1).z() != -1.f
+                    and (vertices.at<Vector3f>(curr_height, curr_width + 1).z() > 0.f
                         && !isnan(vertices.at<Vector3f>(curr_height, curr_width).x())) and distTrue){
                     outFile << "3 " << i << " " << corner_2 << " " << corner_3 << std::endl;
                 } else continue;
@@ -218,7 +219,7 @@ public:
                 distTrue = isDistValid(vertices.at<Vector3f>(curr_height + 1, curr_width),
                                        vertices.at<Vector3f>(curr_height, curr_width + 1),
                                        vertices.at<Vector3f>(curr_height + 1, curr_width + 1), edgeThreshold);
-                if ((vertices.at<Vector3f>(curr_height + 1, curr_width + 1).z() != -1.f
+                if ((vertices.at<Vector3f>(curr_height + 1, curr_width + 1).z() > 0.f
                     && !isnan(vertices.at<Vector3f>(curr_height, curr_width).x())) and distTrue)
                     outFile << "3 " << corner_2 << " " << corner_4 << " " << corner_3 << std::endl;
             }

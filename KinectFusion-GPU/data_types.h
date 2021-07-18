@@ -108,8 +108,8 @@ struct SurfaceLevelData
             level_cY.push_back(_level_cY / scale);
 
 
-            curr_level_data.push_back(cv::cuda::createContinuous(_level_img_height / scale, _level_img_width / scale, CV_32F));
-            curr_smoothed_data.push_back(cv::cuda::createContinuous(_level_img_height / scale, _level_img_width / scale, CV_32F));
+            curr_level_data.push_back(cv::cuda::createContinuous(_level_img_height / scale, _level_img_width / scale, CV_32FC1));
+            curr_smoothed_data.push_back(cv::cuda::createContinuous(_level_img_height / scale, _level_img_width / scale, CV_32FC1));
             vertex_map.push_back(cv::cuda::createContinuous(_level_img_height / scale, _level_img_width / scale, CV_32FC3));
             normal_map.push_back(cv::cuda::createContinuous(_level_img_height / scale, _level_img_width / scale, CV_32FC3));
             vertex_map_predicted.push_back(cv::cuda::createContinuous(_level_img_height / scale, _level_img_width / scale, CV_32FC3));
