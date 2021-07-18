@@ -113,6 +113,8 @@ struct GlobalVolume
     cv::cuda::GpuMat TSDF_weight;
     // color stored as 4 unsigned char
     cv::cuda::GpuMat TSDF_color;
+    int3 volume_size;
+    float voxel_scale;
 
     GlobalVolume(const int3 _volume_size){
         cv::cuda::createContinuous(_volume_size.x * _volume_size.y, _volume_size.z, CV_32F, TSDF_values);
