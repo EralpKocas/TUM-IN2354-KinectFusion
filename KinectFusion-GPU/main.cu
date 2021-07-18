@@ -13,6 +13,8 @@
 #include "surface_measurement.h"
 #include "SimpleMesh.h"
 #include "pose_estimation.h"
+#include "surface_prediction.h"
+
 
 int main() {
     //std::cout << "Hello, World!" << std::endl; std::string filenameIn = "/home/ilteber/data/rgbd_dataset_freiburg1_xyz/";
@@ -64,6 +66,7 @@ int main() {
             pose_struct.m_trajectoryInv = img_constants.m_trajectoryInv;
         }
         // TODO: inverse trajectory is nan for all indices. check!
+        // TODO: should we initialize color_map in each frame or should we keep it all runtime?
         SurfaceLevelData surf_data = {
                 3,
                 img_constants.m_colorImageWidth,
@@ -72,6 +75,7 @@ int main() {
                 img_constants.fY,
                 img_constants.cX,
                 img_constants.cY,
+                cv::cuda::GpuMat(sensor.getDepthImageHeight(), sensor.getDepthImageWidth(), CV_8UC4, sensor.getColorRGBX()),
         };
 //        cv::Mat result;
 //        img_data.m_depthMap.download(result);
@@ -93,8 +97,12 @@ int main() {
         }else{
             isFirstFrame = false;
         }
+        int3 temp_a = {512, 512, 512};
+        GlobalVolume global_volume = {temp_a};
         // step 3: Surface Reconstruction Update
+
         // step 4: Raycast Prediction
+        surface_prediction(&surf_data, global_volume, pose_struct);
 
         SimpleMesh mesh;
         std::stringstream ss;
