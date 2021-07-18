@@ -47,22 +47,22 @@ void pose_estimate(const std::vector<int>&  iterations,
 
         Matrix3f rotation = pose_struct->m_trajectory.block<3, 3>(0, 0);
         Vector3f translation = pose_struct->m_trajectory.block<3, 1>(0, 3);
-        cv::Mat result;
-        imageData->m_depthMap.download(result);
-        std::cout << result<<std::endl;
-        vertex_map.download(result);
-        std::cout << result <<std::endl;
-        normal_map.download(result);
-        std::cout << result <<std::endl;
-        global_vertex_map.download(result);
-        std::cout << result <<std::endl;
-        global_normal_map.download(result);
-        std::cout << result <<std::endl;
-        std::cout << rotation <<std::endl;
-        std::cout << translation <<std::endl;
-        std::cout << width <<std::endl;
-        std::cout << height <<std::endl;
-        std::cout << level <<std::endl;
+//        cv::Mat result;
+//        imageData->m_depthMap.download(result);
+//        std::cout << result<<std::endl;
+//        vertex_map.download(result);
+//        std::cout << result <<std::endl;
+//        normal_map.download(result);
+//        std::cout << result <<std::endl;
+//        global_vertex_map.download(result);
+//        std::cout << result <<std::endl;
+//        global_normal_map.download(result);
+//        std::cout << result <<std::endl;
+//        std::cout << rotation <<std::endl;
+//        std::cout << translation <<std::endl;
+//        std::cout << width <<std::endl;
+//        std::cout << height <<std::endl;
+//        std::cout << level <<std::endl;
         init_global_map(imageData->m_depthMap, vertex_map, normal_map, global_vertex_map, global_normal_map,
                         rotation, translation, width, height, level);
 
@@ -132,7 +132,7 @@ void point_to_plane( cv::cuda::GpuMat source,
     float rows = height;
     float cols = width;
 
-//    int threadX = threadIdx.x + blockDim.x * blockIdx.x;
+    //    int threadX = threadIdx.x + blockDim.x * blockIdx.x;
 //    if (threadX >= rows or threadX < 0)
 //        return;
 //
@@ -226,6 +226,8 @@ __global__ void form_linear_eq(int width, int height,
 
     int threadY = threadIdx.y + blockDim.y * blockIdx.y;
     if (threadY >= height or threadY < 0)
+        return;
+    if(source.ptr(threadY)[threadX].x() > 0.f || normal.ptr(threadY)[threadX].x() > 0.f)
         return;
     Vector3f pointToNormal = source.ptr(threadY)[threadX].cross(normal.ptr(threadY)[threadX]);
     A.block<3,3>(0,0) += pointToNormal * pointToNormal.transpose();
