@@ -67,9 +67,9 @@ __device__ Vector4uc calculateWeightedColorUpdate(int current_weight, Vector4uc 
 }
 
 __global__ void updateSurfaceReconstructionGlobal(Pose* pose,ImageConstants*& imageConstants,
-                                 ImageData* imageData, SurfaceLevelData* surf_data,GlobalVolume* global_volume,
-                                 cv::cuda::PtrStepSz<int> tsdf_values,cv::cuda::PtrStepSz<int> tsdf_weight,cv::cuda::PtrStepSz<unsigned int > tsdf_color,
-                                 cv::cuda::PtrStepSz<float> depth_map, int width, int height){
+                                 ImageData* imageData, SurfaceLevelData* surf_data,GlobalVolume*& global_volume,
+                                 cv::cuda::PtrStepSz<int> tsdf_values,cv::cuda::PtrStepSz<int> tsdf_weight,cv::cuda::PtrStepSz<Vector4uc> tsdf_color,
+                                 cv::cuda::PtrStep<Vector4uc> color_map, cv::cuda::PtrStepSz<float> depth_map, int width, int height){
 
     int threadX = blockIdx.x + blockDim.x * blockIdx.x;
     if (threadX >= width or threadX < 0)
@@ -138,7 +138,8 @@ __global__ void updateSurfaceReconstructionGlobal(Pose* pose,ImageConstants*& im
                 if (F_rk <= global_volume->truncation_distance / 2 &&
                     F_rk >= -global_volume->truncation_distance / 2) {
                     // TODO: check here!!
-                    Vector4uc prev_color = global_volume->get(i, j, k).color;
+                    Vector4uc prev_color = tsdf_color.ptr(k * global_volume->volume_size.y + threadY)[threadX];
+
                     curr_color = Vector4uc(imageData->m_colorMap[index],
                                            imageData->m_colorMap[index + 1],
                                            imageData->m_colorMap[index + 2],
@@ -162,7 +163,7 @@ void updateSurfaceReconstruction(Pose* pose,ImageConstants*& imageConstants,
     updateSurfaceReconstructionGlobal<<<blocks,threads>>>(pose,imageConstants,
                                      imageData,surf_data,global_volume,
                                      global_volume->TSDF_values,global_volume->TSDF_weight,global_volume->TSDF_color,
-                                     surf_data->curr_level_data[0],surf_data->level_img_width[0],surf_data->level_img_height[0]);
+                                    surf_data->color_map,surf_data->curr_level_data[0],surf_data->level_img_width[0],surf_data->level_img_height[0]);
 
     assert(cudaSuccess == cudaDeviceSynchronize());
 
