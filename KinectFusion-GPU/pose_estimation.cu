@@ -71,6 +71,7 @@ void pose_estimate(const std::vector<int>&  iterations,
                              rotation, translation);
         pose_struct->m_trajectory.block<3, 3>(0, 0) = rotation;
         pose_struct->m_trajectory.block<3, 1>(0, 3) = translation;
+        pose_struct->m_trajectoryInv = pose_struct->m_trajectory.inverse();
     }
 }
 

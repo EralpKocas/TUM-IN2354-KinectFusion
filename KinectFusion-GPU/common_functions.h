@@ -9,12 +9,12 @@
 #include <string>
 #include "Eigen.h"
 
-Vector3f get_translation()
+__device__ Vector3f get_translation()
 {
     return Vector3f(0, 0 ,0);
 }
 
-Matrix3f get_rotation()
+__device__ Matrix3f get_rotation()
 {
     Matrix3f a;
     a = a.setZero();

@@ -46,6 +46,7 @@ int main() {
                 sensor.getTrajectory(),
                 sensor.getTrajectory().inverse(),
                 sensor.getDepthIntrinsics(),
+                sensor.getDepthIntrinsics().inverse(),
                 sensor.getDepthExtrinsics(),
                 sensor.getDepthExtrinsics().inverse(),
                 sensor.getColorImageWidth(),
