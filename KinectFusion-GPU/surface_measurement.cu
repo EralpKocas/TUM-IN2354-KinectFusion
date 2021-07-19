@@ -111,7 +111,6 @@ bool init_multiscale(SurfaceLevelData* surf_data, ImageData img_data)
     }
     return true;
 }
-
 void compute_vertex_map(SurfaceLevelData* surf_data, ImageConstants img_constants){
     for(int i=0; i < surf_data->level; i++){
         dim3 block(8, 8);
