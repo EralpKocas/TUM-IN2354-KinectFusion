@@ -86,7 +86,8 @@ int main() {
 
         // step 2: Pose Estimation, for frame == 0, don't perform
         if(!isFirstFrame){
-            pose_estimate(iterations, &img_constants, &img_data, &surf_data, &pose_struct);
+            //pose_estimate(iterations, &img_constants, &img_data, &surf_data, &pose_struct);
+            pose_estimate_new(iterations, &surf_data, &pose_struct);
             std::cout << "frame: " << i << std::endl;
             std::cout << "rotation: " << img_constants.m_trajectory.block<3, 3>(0, 0) << std::endl;
             std::cout << "translation: " << img_constants.m_trajectory.block<3, 1>(0, 3) << std::endl;
