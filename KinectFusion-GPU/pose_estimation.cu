@@ -3,9 +3,13 @@
 //
 
 #include "pose_estimation.h"
-
-//std::vector<cv::cuda::GpuMat> global_vertex_map;
-//std::vector<cv::cuda::GpuMat> global_normal_map;
+#define gpuErrchk(ans) { gpuAssert((ans), __FILE__, __LINE__); }
+inline void gpuAssert(cudaError_t code, const char* file, int line, bool abort = true) {
+    if (code != cudaSuccess) {
+        fprintf(stderr, "GPUassert: %s %s %d\n", cudaGetErrorString(code), file, line);
+        if (abort) exit(code);
+    }
+}
 
 __device__ Vector2i backproject_vertex(const Vector3f& curr_global_vertex,
                                               const Matrix3f& prev_rotation_inv,
@@ -69,12 +73,9 @@ __global__ void form_linear_eq_new(int width, int height,
                                cv::cuda::PtrStepSz<Vector3f> prev_global_vertex,
                                cv::cuda::PtrStepSz<Vector3f> prev_global_normal,
                                MatrixXf& A, VectorXf& b,
-                               Matrix3f &curr_rotation, Vector3f &curr_translation,
-                               Matrix3f &prev_rotation_inv, Vector3f &prev_translation,
+                               Matrix3f curr_rotation, Vector3f curr_translation,
+                               Matrix3f prev_rotation_inv, Vector3f prev_translation,
                                float fX, float fY){
-
-    float distance_threshold = 10.f;
-    float angle_threshold = 20.f;
 
     int threadX = threadIdx.x + blockDim.x * blockIdx.x;
     if (threadX >= width or threadX < 0)
@@ -84,6 +85,8 @@ __global__ void form_linear_eq_new(int width, int height,
     if (threadY >= height or threadY < 0)
         return;
 
+    float distance_threshold = 10.f;
+    float angle_threshold = 20.f;
     bool fill_zero=false;
     int img_idx = threadX + threadY * width;
 
@@ -161,8 +164,9 @@ void point_to_plane_new( cv::cuda::GpuMat& curr_frame_vertex,
                                         curr_rotation, curr_translation,
                                         prev_rotation_inv, prev_translation,
                                         fX, fY);
-
-    assert(cudaSuccess == cudaDeviceSynchronize());
+    gpuErrchk(cudaPeekAtLastError());
+    gpuErrchk(cudaDeviceSynchronize());
+    //assert(cudaSuccess == cudaDeviceSynchronize());
     Matrix<float,6,1> x = A.ldlt().solve(b);
     T = Isometry3f::Identity();
     T.linear() = ( AngleAxisf(x(0), Vector3f::UnitX())
@@ -203,7 +207,7 @@ void pose_estimate_helper_new(cv::cuda::GpuMat& curr_frame_vertex,
 void pose_estimate_new(const std::vector<int>&  iterations,
                        SurfaceLevelData* surf_data,
                        Pose* pose_struct)
-{
+                       {
     int level = surf_data->level - 1;
 
     Pose prev_pose = {
@@ -254,10 +258,10 @@ void pose_estimate_new(const std::vector<int>&  iterations,
                                      current_rotation, current_translation,
                                      prev_rotation_inv, prev_translation,
                                      fX, fY);
+
         }
 
     }
-
     pose_struct->m_trajectory.block<3, 3>(0, 0) = current_rotation;
     pose_struct->m_trajectory.block<3, 1>(0, 3) = current_translation;
 }

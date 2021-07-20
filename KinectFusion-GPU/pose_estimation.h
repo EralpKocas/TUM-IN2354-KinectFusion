@@ -34,8 +34,8 @@ __global__ void form_linear_eq_new(int width, int height,
                                    cv::cuda::PtrStepSz<Vector3f> prev_global_vertex,
                                    cv::cuda::PtrStepSz<Vector3f> prev_global_normal,
                                    MatrixXf& A, VectorXf& b,
-                                   Matrix3f &curr_rotation, Vector3f &curr_translation,
-                                   Matrix3f &prev_rotation_inv, Vector3f &prev_translation,
+                                   Matrix3f curr_rotation, Vector3f curr_translation,
+                                   Matrix3f prev_rotation_inv, Vector3f prev_translation,
                                    float fX, float fY);
 
 void point_to_plane_new( cv::cuda::GpuMat& curr_frame_vertex,
