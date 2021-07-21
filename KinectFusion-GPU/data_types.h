@@ -139,6 +139,10 @@ struct GlobalVolume
         cv::cuda::createContinuous(_volume_size.x * _volume_size.y, _volume_size.z, CV_32F, TSDF_values);
         cv::cuda::createContinuous(_volume_size.x * _volume_size.y, _volume_size.z, CV_32F, TSDF_weight);
         cv::cuda::createContinuous(_volume_size.x * _volume_size.y, _volume_size.z, CV_8UC4, TSDF_color);
+        TSDF_values.setTo(0);
+        TSDF_weight.setTo(0);
+        TSDF_color.setTo(0);
+
         volume_size = _volume_size;
         voxel_scale = _voxel_scale;
         truncation_distance = _truncation_distance;

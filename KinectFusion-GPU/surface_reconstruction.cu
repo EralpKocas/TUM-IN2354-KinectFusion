@@ -168,7 +168,8 @@ void updateSurfaceReconstruction(Pose* pose,ImageConstants* imageConstants,
                                      imageData,surf_data,global_volume,
                                      global_volume->TSDF_values,global_volume->TSDF_weight,global_volume->TSDF_color,
                                     imageData->m_colorMap,imageData->m_depthMap,imageConstants->m_colorImageWidth,imageConstants->m_colorImageHeight);
-//    std::cout << "3131" << std::endl;
+
+    //    std::cout << "3131" << std::endl;
     assert(cudaSuccess == cudaDeviceSynchronize());
 
 }

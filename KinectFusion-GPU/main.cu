@@ -105,6 +105,10 @@ int main() {
         GlobalVolume* global_volume = &_global_volume;
         // step 3: Surface Reconstruction Update
         updateSurfaceReconstruction(&pose_struct,&img_constants, &img_data,&surf_data,global_volume);
+        cv::Mat result;
+        global_volume->TSDF_values.download(result);
+        std::cout << result;
+        return 1;
         // step 4: Raycast Prediction
 //        surface_prediction(&surf_data, global_volume, pose_struct);
 //        SimpleMesh mesh;
