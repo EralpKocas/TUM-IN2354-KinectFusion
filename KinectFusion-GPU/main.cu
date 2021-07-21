@@ -13,13 +13,15 @@
 #include "surface_measurement.h"
 #include "SimpleMesh.h"
 #include "pose_estimation.h"
-#include "surface_prediction.h"
+//#include "surface_prediction.h"
+#include "surface_reconstruction.h"
 
 
 int main() {
     //std::cout << "Hello, World!" << std::endl; std::string filenameIn = "/home/ilteber/data/rgbd_dataset_freiburg1_xyz/";
-    std::string filenameIn = "/media/eralpkocas/hdd/TUM/3D_Scanning/data/rgbd_dataset_freiburg1_xyz/";
-    // load video
+//    std::string filenameIn = "/media/eralpkocas/hdd/TUM/3D_Scanning/data/rgbd_dataset_freiburg1_xyz/";
+    std::string filenameIn = "/home/ilteber/data/rgbd_dataset_freiburg1_xyz/";
+// load video
     std::cout << "Initialize virtual sensor..." << std::endl;
     bool isFirstFrame = true;
     VirtualSensor_freiburg sensor;
@@ -87,27 +89,27 @@ int main() {
         //std::cout << "line 51: "  << img_data.m_colorMap << std::endl;
 
         // step 1: Surface Measurement
-        surface_measurement_pipeline(&surf_data, img_data, img_constants);
+//        surface_measurement_pipeline(&surf_data, img_data, img_constants);
 
         // step 2: Pose Estimation, for frame == 0, don't perform
-        if(!isFirstFrame){
-            pose_estimate(iterations, &img_constants, &img_data, &surf_data, &pose_struct);
-            std::cout << "frame: " << i << std::endl;
-            std::cout << "rotation: " << img_constants.m_trajectory.block<3, 3>(0, 0) << std::endl;
-            std::cout << "translation: " << img_constants.m_trajectory.block<3, 1>(0, 3) << std::endl;
-        }else{
-            isFirstFrame = false;
-        }
+//        if(!isFirstFrame){
+//            pose_estimate(iterations, &img_constants, &img_data, &surf_data, &pose_struct);
+//            std::cout << "frame: " << i << std::endl;
+//            std::cout << "rotation: " << img_constants.m_trajectory.block<3, 3>(0, 0) << std::endl;
+//            std::cout << "translation: " << img_constants.m_trajectory.block<3, 1>(0, 3) << std::endl;
+//        }else{
+//            isFirstFrame = false;
+//        }
         int3 temp_a = {512, 512, 512};
-        GlobalVolume global_volume = {temp_a};
+        GlobalVolume _global_volume = {temp_a,2.f,25.f};
+        GlobalVolume* global_volume = &_global_volume;
         // step 3: Surface Reconstruction Update
-
+        updateSurfaceReconstruction(&pose_struct,&img_constants, &img_data,&surf_data,global_volume);
         // step 4: Raycast Prediction
-        surface_prediction(&surf_data, global_volume, pose_struct);
-
-        SimpleMesh mesh;
-        std::stringstream ss;
-        i++;
+//        surface_prediction(&surf_data, global_volume, pose_struct);
+//        SimpleMesh mesh;
+//        std::stringstream ss;
+//        i++;
         //ss << "result_" << i++ << ".off";
         //cv::Mat result;
         //surf_data.vertex_map[0].download(result);

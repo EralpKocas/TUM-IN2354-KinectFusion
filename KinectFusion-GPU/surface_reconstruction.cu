@@ -31,8 +31,8 @@ __device__ float calculateSDF_truncation(float truncation_distance, float sdf){
 }
 
 //λ = ||K^-1*x||2
-__device__ float calculateCurrentTSDF(ImageConstants*& imageConstants, float depth, Matrix3f intrinsics, Vector3f p, float truncation_distance){
-    float current_tsdf = (1.f / calculateLambda(imageConstants,intrinsics, p)) * (get_translation(imageConstants) - p).norm() - depth;
+__device__ float calculateCurrentTSDF(Pose* pose,ImageConstants*& imageConstants, float depth, Matrix3f intrinsics, Vector3f p, float truncation_distance){
+    float current_tsdf = (1.f / calculateLambda(imageConstants,intrinsics, p)) * (pose->m_trajectory.block<3, 1>(0, 3) - p).norm() - depth;
     return calculateSDF_truncation(truncation_distance, current_tsdf);
 }
 
@@ -51,7 +51,10 @@ __device__ int calculateWeightedAvgWeight(int current_weight, int new_weight){
 
 // truncate updated weight
 __device__ int calculateTruncatedWeight(int weighted_avg, int some_value){
-    return std::min(weighted_avg, some_value);
+    if(weighted_avg < some_value)
+        return weighted_avg;
+    return some_value;
+//    return std::min(weighted_avg, some_value);
 }
 
 __device__ Vector4uc calculateWeightedColorUpdate(int current_weight, Vector4uc curr_color, int new_weight, Vector4uc new_color)
@@ -68,9 +71,10 @@ __device__ Vector4uc calculateWeightedColorUpdate(int current_weight, Vector4uc 
 
 __global__ void updateSurfaceReconstructionGlobal(Pose* pose,ImageConstants*& imageConstants,
                                  ImageData* imageData, SurfaceLevelData* surf_data,GlobalVolume*& global_volume,
-                                 cv::cuda::PtrStepSz<int> tsdf_values,cv::cuda::PtrStepSz<int> tsdf_weight,cv::cuda::PtrStepSz<Vector4uc> tsdf_color,
-                                 cv::cuda::PtrStep<Vector4uc> color_map, cv::cuda::PtrStepSz<float> depth_map, int width, int height){
+                                 cv::cuda::PtrStepSz<float> tsdf_values,cv::cuda::PtrStepSz<float> tsdf_weight,cv::cuda::PtrStepSz<Vector4uc> tsdf_color,
+                                 cv::cuda::PtrStepSz<Vector4uc> color_map, cv::cuda::PtrStepSz<float> depth_map, int width, int height){
 
+    printf("1111");
     int threadX = blockIdx.x + blockDim.x * blockIdx.x;
     if (threadX >= width or threadX < 0)
         return;
@@ -78,7 +82,6 @@ __global__ void updateSurfaceReconstructionGlobal(Pose* pose,ImageConstants*& im
     int threadY = blockIdx.y + blockDim.y * blockIdx.y;
     if (threadY >= height or threadY < 0)
         return;
-
     int truncate_updated_weight = 128; // check the intuition!
 //    this->imageProperties = image_properties;
             for(int k=0; k < global_volume->volume_size.z; k++) {
@@ -103,9 +106,9 @@ __global__ void updateSurfaceReconstructionGlobal(Pose* pose,ImageConstants*& im
                 float depth = depth_map.ptr((int) image_coord.y())[image_coord.x()];
 //                float depth = _curr_lvl_data((int) image_coord.y())[(int) image_coord.x()];
 
-                if (depth == MINF || depth <= 0) continue;
+                if (depth == -1.0f || depth <= 0) continue;
 
-                float F_rk = calculateCurrentTSDF(imageConstants, depth, imageConstants->m_depthIntrinsicsInv,
+                float F_rk = calculateCurrentTSDF(pose,imageConstants, depth, imageConstants->m_depthIntrinsicsInv,
                                                   global_coord, global_volume->truncation_distance);
 
                 if (F_rk == -1.f) continue;
@@ -120,12 +123,15 @@ __global__ void updateSurfaceReconstructionGlobal(Pose* pose,ImageConstants*& im
                                                                         (tsdf_weight.ptr(k * global_volume->volume_size.y + threadY)[threadX], W_k),
                                                                 truncate_updated_weight);
 
-                /*std::cout << "i: " << i << ", j: " << j << ", k: " << k << std::endl;
-                std::cout << "depth: " << depth << std::endl;
-                std::cout << "F_rk: " << F_rk << std::endl;
-                std::cout << "updated_tsdf: " << updated_tsdf << std::endl;
-                std::cout << "truncated_weight: " << truncated_weight << std::endl << std::endl;*/
-
+//                std::cout << "i: " << i << ", j: " << j << ", k: " << k << std::endl;
+//                std::cout << "depth: " << depth << std::endl;
+//                std::cout << "F_rk: " << F_rk << std::endl;
+//                std::cout << "updated_tsdf: " << updated_tsdf << std::endl;
+//                std::cout << "truncated_weight: " << truncated_weight << std::endl << std::endl;
+                printf("depth: %f" , depth);
+                printf("F_rk: %f" , F_rk);
+                printf("updated_tsdf: %f" , updated_tsdf);
+                printf("truncated_weight: %f" , truncated_weight);
 
                 tsdf_values.ptr(k * global_volume->volume_size.y + threadY)[threadX] = (int) updated_tsdf;
                 tsdf_weight.ptr(k * global_volume->volume_size.y + threadY)[threadX] = (int) truncated_weight;
@@ -139,13 +145,11 @@ __global__ void updateSurfaceReconstructionGlobal(Pose* pose,ImageConstants*& im
                     F_rk >= -global_volume->truncation_distance / 2) {
                     // TODO: check here!!
                     Vector4uc prev_color = tsdf_color.ptr(k * global_volume->volume_size.y + threadY)[threadX];
+                    Vector4uc image_color = color_map.ptr(image_coord.y())[image_coord.x()];
+                    curr_color = calculateWeightedColorUpdate(prev_weight, prev_color, W_k, image_color);
+//                    cur_color.block<3, 1>(0,0) = {0,1,2,3};
+                    tsdf_color.ptr(k * global_volume->volume_size.y + threadY)[threadX] = curr_color;
 
-                    curr_color = Vector4uc(imageData->m_colorMap[index],
-                                           imageData->m_colorMap[index + 1],
-                                           imageData->m_colorMap[index + 2],
-                                           imageData->m_colorMap[index + 3]);
-                    curr_color = calculateWeightedColorUpdate(prev_weight, prev_color, W_k, curr_color);
-                    curr_voxel.color = curr_color;
                 }
 
 //                global_volume->set(i, j, k, curr_voxel);  // check whether assign is successful
@@ -153,7 +157,7 @@ __global__ void updateSurfaceReconstructionGlobal(Pose* pose,ImageConstants*& im
 
 //    image_properties = this->imageProperties;
 }
-void updateSurfaceReconstruction(Pose* pose,ImageConstants*& imageConstants,
+void updateSurfaceReconstruction(Pose* pose,ImageConstants* imageConstants,
                                                   ImageData* imageData, SurfaceLevelData* surf_data, GlobalVolume* global_volume)
 {
     const dim3 threads(32, 32);
@@ -163,8 +167,8 @@ void updateSurfaceReconstruction(Pose* pose,ImageConstants*& imageConstants,
     updateSurfaceReconstructionGlobal<<<blocks,threads>>>(pose,imageConstants,
                                      imageData,surf_data,global_volume,
                                      global_volume->TSDF_values,global_volume->TSDF_weight,global_volume->TSDF_color,
-                                    surf_data->color_map,surf_data->curr_level_data[0],surf_data->level_img_width[0],surf_data->level_img_height[0]);
-
+                                    imageData->m_colorMap,imageData->m_depthMap,imageConstants->m_colorImageWidth,imageConstants->m_colorImageHeight);
+//    std::cout << "3131" << std::endl;
     assert(cudaSuccess == cudaDeviceSynchronize());
 
 }
