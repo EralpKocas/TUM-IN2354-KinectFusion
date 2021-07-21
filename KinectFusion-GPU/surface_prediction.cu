@@ -42,7 +42,7 @@ __device__ bool gridInVolume(GlobalVolume* global_volume, Vector3f curr_grid) {
 __device__ float calculate_trilinear_interpolation(GlobalVolume* global_volume, Vector3f p) {
     Vector3i p_int = Vector3i((int) p.x(), (int) p.y(), (int) p.z());
 
-    //couldn't find a way to do this one
+    //TODO: Change this to the new struct
     float c000 = global_volume->get(p_int.x(), p_int.y(), p_int.z()).tsdf_distance_value;
     float c001 = global_volume->get(p_int.x(), p_int.y(), p_int.z() + 1).tsdf_distance_value;
     float c010 = global_volume->get(p_int.x(), p_int.y() + 1, p_int.z()).tsdf_distance_value;
@@ -69,6 +69,7 @@ __device__ float calculate_trilinear_interpolation(GlobalVolume* global_volume, 
     return c;
 }
 
+/*
 __global__ void helper_compute_normal_map(int width, int height) {
     int threadX = threadIdx.x + blockDim.x * blockIdx.x;
     if (threadX >= width or threadX < 0)
@@ -102,6 +103,7 @@ __global__ void helper_compute_normal_map(int width, int height) {
         normal_map_predicted.ptr(threadY)[threadX] = cross_prod;
     }
 }
+*/
 
 __global__ void predict_surface(GlobalVolume global_volume, Pose pose,
                                 cv::cuda::PtrStep<Vector3f> vertex_map,
@@ -109,13 +111,6 @@ __global__ void predict_surface(GlobalVolume global_volume, Pose pose,
                                 cv::cuda::PtrStep<Vector4uc> color_map,
                                 float fX, float fY, float cX, float cY,
                                 int width, int height, int level) {
-
-    //simple ray skipping (speedup):
-    //near F(p)=0, the fused volume holds a good approx to true sdf from p to the nearest surf interface.
-    //so using known trunc dist, march along the ray in staps size < mu while F(p) vals have +ve trunc vals
-
-    //higher quality intersections by ray/trilin cell intersection (simple approx):
-    //find param t* at which the intersect more precise: t*=t-(deltat Ft+)/(F(t+deltat)+ - Ft+)
 
     //predicted vertex and normal maps are computed at the interpolated location in the global frame.
 
@@ -145,7 +140,7 @@ __global__ void predict_surface(GlobalVolume global_volume, Pose pose,
     //then scale the deriv in each dimension.
     //min and max rendering range [0.4,8] => bounded time per pixel computation for any size or complexity
     //of scene with a fixed vol resolution
-    //abimiz burda get_min get_max time fonksiyonlari kullanmis bizde yok bu
+    //
     //float t = calculate_search_length(translation, pixel_ray, ray_dir);  // t
     float max_ray_length = Vector3i(global_volume->getDimX(),
                                     global_volume->getDimY(),
@@ -167,6 +162,10 @@ __global__ void predict_surface(GlobalVolume global_volume, Pose pose,
     if(!init_pos.allFinite() || init_pos.x() == 0.f ||
     init_pos.y() == 0.f || init_pos.z() == 0.f) continue;
 
+    //simple ray skipping (speedup):
+    //near F(p)=0, the fused volume holds a good approx to true sdf from p to the nearest surf interface.
+    //so using known trunc dist, march along the ray in steps size < mu while F(p) vals have +ve trunc vals
+    //TODO: rewrite this with the new GlobalVolume struct
     Vector3f eye_grid = global_volume->compute_grid(init_pos);
     float tsdf = global_volume->
             get((int) eye_grid.x(), (int) eye_grid.y(), (int) eye_grid.z()).tsdf_distance_value;
@@ -188,6 +187,7 @@ __global__ void predict_surface(GlobalVolume global_volume, Pose pose,
 
         if (prev_tsdf > 0.f && curr_tsdf < 0.f)  // zero-crossing is found
             {
+            //higher quality intersections by ray/trilin cell intersection (simple approx):
             float prev_tri_interpolated_sdf = calculate_trilinear_interpolation(global_volume,
                                                                                 prev_grid);
             float curr_tri_interpolated_sdf = calculate_trilinear_interpolation(global_volume,
@@ -201,21 +201,28 @@ __global__ void predict_surface(GlobalVolume global_volume, Pose pose,
             //float t_star = step - ((step_size * 0.5f * prev_tsdf)/ (curr_tsdf - prev_tsdf));
             // t_star = t - ((step_size * prev_tsdf) / (curr_tsdf - prev_tsdf))
 
+            //find param t* at which the intersect more precise: t*=t-(deltat Ft+)/(F(t+deltat)+ - Ft+)
             float t_star = step - ((step_size * 0.5f * prev_tri_interpolated_sdf)
                     / (curr_tri_interpolated_sdf - prev_tri_interpolated_sdf));
 
+            //no idea if the vector subtraction works like this but,
+            //do the normal calculation
+            Vector3f normal = curr_tri_interpolated_sdf-prev_tri_interpolated_sdf;
+            if (normal.norm() == 0) break;
+            normal.normalize();
+
             Vector3f grid_location = translation + t_star * ray_dir;
-
             if (!gridInVolume(global_volume, grid_location)) break;
-
             Vector3f vertex = translation + t_star * ray_dir;
 
             vertex_map_predicted.ptr(threadY)[threadX] = vertex;
+            normal_map_predicted.ptr(threadY)[threadX] = normal;
             }
         prev_tsdf = curr_tsdf;
         prev_grid = curr_grid;
     }
-    helper_compute_normal_map(width, height);
+    //not sure if this is needed?
+    //helper_compute_normal_map(width, height);
 
 }
 
@@ -228,8 +235,6 @@ void surface_prediction(SurfaceLevelData* surf_data, GlobalVolume global_volume,
         float cols = surf_data->level_img_width[i];
         float rows = surf_data->level_img_height[i];
 
-        //Define zero level set for models Fk=tsdf val=0
-        //Question: we never set these to 0?
         cv::cuda::GpuMat& vertex_map = surf_data->vertex_map_predicted[i];
         cv::cuda::GpuMat& normal_map = surf_data->normal_map_predicted[i];
         cv::cuda::GpuMat& color_map = surf_data->color_map[i];
