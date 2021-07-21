@@ -17,10 +17,6 @@ __device__ Vector3f calculate_pixel_ray_cast(Matrix3f rotation, Vector3f transla
     return ray_cast;
 }
 
-__device__ Vector3f calculate_ray_cast_dir(Vector3f eye, Vector3f current_ray) {
-    return (current_ray - eye).normalized();
-}
-
 // P = O + t * R where R is normalized ray direction and O is eye, translation vector in our case.
 // Then, t = (P - O) / R
 __device__ float calculate_search_length(Vector3f eye, Vector3f ray_dir) {
@@ -114,6 +110,15 @@ __global__ void predict_surface(GlobalVolume global_volume, Pose pose,
                                 float fX, float fY, float cX, float cY,
                                 int width, int height, int level) {
 
+    //simple ray skipping (speedup):
+    //near F(p)=0, the fused volume holds a good approx to true sdf from p to the nearest surf interface.
+    //so using known trunc dist, march along the ray in staps size < mu while F(p) vals have +ve trunc vals
+
+    //higher quality intersections by ray/trilin cell intersection (simple approx):
+    //find param t* at which the intersect more precise: t*=t-(deltat Ft+)/(F(t+deltat)+ - Ft+)
+
+    //predicted vertex and normal maps are computed at the interpolated location in the global frame.
+
     int threadX = threadIdx.x + blockDim.x * blockIdx.x;
     if (threadX >= width or threadX < 0)
         return;
@@ -124,15 +129,23 @@ __global__ void predict_surface(GlobalVolume global_volume, Pose pose,
 
     float step_size = global_volume.truncation_distance;
 
+    //per pixel raycast. march start from the min depth, stop with zero crossing or back face
     // +0.5 for reaching pixel centers
     Vector3f pixel_ray = calculate_pixel_raycast(rotation, translation, image_constants);
     float camera_x = ((float) (threadX + 0.5) - surf_data.level_cX) / surf_data.level_fX;  // image to camera
     float camera_y = ((float) (threadY + 0.5) - surf_data.level_cY) / surf_data.level_fY;  // image to camera
-
     Vector3f pixel = Vector3f(camera_x, camera_y, 1.f);
-    Vector3f ray_dir_2 = (rotation * pixel).normalized();
-    Vector3f ray_dir = calculate_raycast_dir(translation, pixel_ray);
 
+    //for point on or close to surf. interface Fk(p)=0, gradient(Fk(p))=orthogonal to zero level set.
+    //so the surface normal of pixel u along which p was found deriv of SDF: v[grad(F(p))].
+    //Question: Why do we calculate two of them?
+    Vector3f ray_dir_2 = (rotation * pixel).normalized();
+    Vector3f ray_dir = (pixel_ray - translation).normalized();
+
+    //then scale the deriv in each dimension.
+    //min and max rendering range [0.4,8] => bounded time per pixel computation for any size or complexity
+    //of scene with a fixed vol resolution
+    //abimiz burda get_min get_max time fonksiyonlari kullanmis bizde yok bu
     //float t = calculate_search_length(translation, pixel_ray, ray_dir);  // t
     float max_ray_length = Vector3i(global_volume->getDimX(),
                                     global_volume->getDimY(),
@@ -207,17 +220,25 @@ __global__ void predict_surface(GlobalVolume global_volume, Pose pose,
 }
 
 void surface_prediction(SurfaceLevelData* surf_data, GlobalVolume global_volume, Pose pose){
-    for (int i = 0; i < surf_data->level; i++) {
-        dim3 block(8, 8);
+    //for (int i = 0; i < surf_data->level; i++) {
+        //did not change the name convention. Commented out the for loop.
+        //changed this from (8,8)
+        dim3 block(32, 32);
+
         float cols = surf_data->level_img_width[i];
         float rows = surf_data->level_img_height[i];
+
+        //Define zero level set for models Fk=tsdf val=0
+        //Question: we never set these to 0?
         cv::cuda::GpuMat& vertex_map = surf_data->vertex_map_predicted[i];
         cv::cuda::GpuMat& normal_map = surf_data->normal_map_predicted[i];
         cv::cuda::GpuMat& color_map = surf_data->color_map[i];
+
         float fX = surf_data->level_fX[i];
         float fY = surf_data->level_fY[i];
         float cX = surf_data->level_cX[i];
         float cY = surf_data->level_cY[i];
+
         dim3 grid((cols + block.x - 1) / block.x, (rows + block.y - 1) / block.y);
         predict_surface<<<grid, block>>>(global_volume, pose,
                                          vertex_map,
@@ -225,5 +246,7 @@ void surface_prediction(SurfaceLevelData* surf_data, GlobalVolume global_volume,
                                          color_map,
                                          fX, fY, cX, cY,
                                          cols, rows, i);
-    }
+
+        cudaThreadSynchronize();
+    //}
 }
