@@ -80,7 +80,9 @@ int main() {
                 img_constants.cY,
                 cv::cuda::GpuMat(sensor.getDepthImageHeight(), sensor.getDepthImageWidth(), CV_8UC4, sensor.getColorRGBX()),
         };
-//        cv::Mat result;
+//        std::cout << "Trajectory " << pose_struct.m_trajectory << std::endl;
+//        return 3;
+    //        cv::Mat result;
 //        img_data.m_depthMap.download(result);
 //        cv::imshow("result", result);
 //        cv::waitKey(30);
@@ -102,13 +104,13 @@ int main() {
 //        }
         int3 temp_a = {512, 512, 512};
         GlobalVolume _global_volume = {temp_a,2.f,25.f};
-        GlobalVolume* global_volume = &_global_volume;
+//        GlobalVolume* global_volume = &_global_volume;
         // step 3: Surface Reconstruction Update
-        updateSurfaceReconstruction(&pose_struct,&img_constants, &img_data,&surf_data,global_volume);
-        cv::Mat result;
-        global_volume->TSDF_values.download(result);
-        std::cout << result;
-        return 1;
+        updateSurfaceReconstruction(&pose_struct,&img_constants, &img_data,&surf_data,&_global_volume);
+//        cv::Mat result;
+//        _global_volume.TSDF_values.download(result);
+//        std::cout << result;
+//        return 1;
         // step 4: Raycast Prediction
 //        surface_prediction(&surf_data, global_volume, pose_struct);
 //        SimpleMesh mesh;
