@@ -36,7 +36,8 @@ int main() {
             Matrix4f::Zero(4, 4),
             Matrix4f::Zero(4, 4),
     };
-
+    int3 temp_a = {64, 64, 64};
+    GlobalVolume _global_volume = {temp_a,2.f,25.f};
     int i = 0;
     while (sensor.processNextFrame()) {
 
@@ -68,6 +69,7 @@ int main() {
             pose_struct.m_trajectory = img_constants.m_trajectory;
             pose_struct.m_trajectoryInv = img_constants.m_trajectoryInv;
         }
+
         // TODO: inverse trajectory is nan for all indices. check!
         // TODO: should we initialize color_map in each frame or should we keep it all runtime?
         SurfaceLevelData surf_data = {
@@ -80,7 +82,8 @@ int main() {
                 img_constants.cY,
                 cv::cuda::GpuMat(sensor.getDepthImageHeight(), sensor.getDepthImageWidth(), CV_8UC4, sensor.getColorRGBX()),
         };
-//        std::cout << "Trajectory " << pose_struct.m_trajectory << std::endl;
+
+        //        std::cout << "Trajectory " << pose_struct.m_trajectory << std::endl;
 //        return 3;
     //        cv::Mat result;
 //        img_data.m_depthMap.download(result);
@@ -102,8 +105,7 @@ int main() {
 //        }else{
 //            isFirstFrame = false;
 //        }
-        int3 temp_a = {512, 512, 512};
-        GlobalVolume _global_volume = {temp_a,2.f,25.f};
+
 //        GlobalVolume* global_volume = &_global_volume;
         // step 3: Surface Reconstruction Update
         updateSurfaceReconstruction(&pose_struct,&img_constants, &img_data,&surf_data,&_global_volume);
