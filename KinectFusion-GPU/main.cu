@@ -19,8 +19,8 @@
 
 int main() {
     //std::cout << "Hello, World!" << std::endl; std::string filenameIn = "/home/ilteber/data/rgbd_dataset_freiburg1_xyz/";
-//    std::string filenameIn = "/media/eralpkocas/hdd/TUM/3D_Scanning/data/rgbd_dataset_freiburg1_xyz/";
-    std::string filenameIn = "/home/ilteber/data/rgbd_dataset_freiburg1_xyz/";
+    std::string filenameIn = "/media/eralpkocas/hdd/TUM/3D_Scanning/data/rgbd_dataset_freiburg1_xyz/";
+    //std::string filenameIn = "/home/ilteber/data/rgbd_dataset_freiburg1_xyz/";
 // load video
     std::cout << "Initialize virtual sensor..." << std::endl;
     bool isFirstFrame = true;
@@ -113,8 +113,18 @@ int main() {
             std::cout << "frame: " << i << std::endl;
             std::cout << "rotation: " << img_constants.m_trajectory.block<3, 3>(0, 0) << std::endl;
             std::cout << "translation: " << img_constants.m_trajectory.block<3, 1>(0, 3) << std::endl;
+            // TODO: for debugging, remove in normal functioning code
+            surf_data.vertex_map_predicted = surf_data.vertex_map;
+            surf_data.normal_map_predicted = surf_data.normal_map;
         }else{
             isFirstFrame = false;
+            // TODO: for debugging, remove in normal functioning code
+            surf_data.vertex_map_predicted[0] = surf_data.vertex_map[0];
+            surf_data.normal_map_predicted[0] = surf_data.normal_map[0];
+            surf_data.vertex_map_predicted[1] = surf_data.vertex_map[1];
+            surf_data.normal_map_predicted[1] = surf_data.normal_map[1];
+            surf_data.vertex_map_predicted[2] = surf_data.vertex_map[2];
+            surf_data.normal_map_predicted[2] = surf_data.normal_map[2];
         }
         // step 3: Surface Reconstruction Update
         updateSurfaceReconstruction(&pose_struct,&img_constants, &img_data,&surf_data,&_global_volume);
