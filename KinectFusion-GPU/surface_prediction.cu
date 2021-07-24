@@ -34,7 +34,7 @@ __device__ float calculate_search_length(Vector3f eye, Vector3f ray_dir) {
     return fmax(fmax(fabs(t_x), fabs(t_y)), fabs(t_z));
 }
 
-__device__ bool gridInVolume(Volume* global_volume, Vector3f curr_grid) {
+__device__ bool gridInVolume(GlobalVolume* global_volume, Vector3f curr_grid) {
     int dx = global_volume->getDimX();
     int dy = global_volume->getDimY();
     int dz = global_volume->getDimZ();
@@ -107,99 +107,123 @@ __global__ void helper_compute_normal_map(int width, int height) {
     }
 }
 
-__global__ void predict_surface(ImageConstants image_constants, SurfaceLevelData* surf_data, GlobalVolume* global_volume,
-                                Matrix3f rotation, Vector3f translation, int width, int height, int level) {
-    for (int level = 0; level < image_constants->num_levels; level++) {
+__global__ void predict_surface(GlobalVolume global_volume, Pose pose,
+                                cv::cuda::PtrStep<Vector3f> vertex_map,
+                                cv::cuda::PtrStep<Vector3f> normal_map,
+                                cv::cuda::PtrStep<Vector4uc> color_map,
+                                float fX, float fY, float cX, float cY,
+                                int width, int height, int level) {
 
-        int threadX = threadIdx.x + blockDim.x * blockIdx.x;
-        if (threadX >= width or threadX < 0)
-            return;
+    int threadX = threadIdx.x + blockDim.x * blockIdx.x;
+    if (threadX >= width or threadX < 0)
+        return;
 
-        int threadY = threadIdx.y + blockDim.y * blockIdx.y;
-        if (threadY >= height or threadY < 0)
-            return;
+    int threadY = threadIdx.y + blockDim.y * blockIdx.y;
+    if (threadY >= height or threadY < 0)
+        return;
 
-        float step_size = image_constants->truncation_distance;
+    float step_size = global_volume.truncation_distance;
 
-        // +0.5 for reaching pixel centers
-        Vector3f pixel_ray = calculate_pixel_raycast(rotation, translation, image_constants);
-                float camera_x = ((float) (threadX + 0.5) - surf_data.level_cX) / surf_data.level_fX;  // image to camera
-                float camera_y = ((float) (threadY + 0.5) - surf_data.level_cY) / surf_data.level_fY;  // image to camera
+    // +0.5 for reaching pixel centers
+    Vector3f pixel_ray = calculate_pixel_raycast(rotation, translation, image_constants);
+    float camera_x = ((float) (threadX + 0.5) - surf_data.level_cX) / surf_data.level_fX;  // image to camera
+    float camera_y = ((float) (threadY + 0.5) - surf_data.level_cY) / surf_data.level_fY;  // image to camera
 
-                Vector3f pixel = Vector3f(camera_x, camera_y, 1.f);
-                Vector3f ray_dir_2 = (rotation * pixel).normalized();
-                Vector3f ray_dir = calculate_raycast_dir(translation, pixel_ray);
+    Vector3f pixel = Vector3f(camera_x, camera_y, 1.f);
+    Vector3f ray_dir_2 = (rotation * pixel).normalized();
+    Vector3f ray_dir = calculate_raycast_dir(translation, pixel_ray);
 
-                //float t = calculate_search_length(translation, pixel_ray, ray_dir);  // t
-                float max_ray_length = Vector3i(global_volume->getDimX(),
-                                                global_volume->getDimY(),
-                                                global_volume->getDimZ()).norm();
+    //float t = calculate_search_length(translation, pixel_ray, ray_dir);  // t
+    float max_ray_length = Vector3i(global_volume->getDimX(),
+                                    global_volume->getDimY(),
+                                    global_volume->getDimZ()).norm();
 
-                //Vector3f pixel_grid = global_volume->compute_grid(pixel_ray);
-                //Vector3f ray_dir_grid = global_volume->compute_grid(ray_dir);
+    //Vector3f pixel_grid = global_volume->compute_grid(pixel_ray);
+    //Vector3f ray_dir_grid = global_volume->compute_grid(ray_dir);
 
-                Vector3f init_pos = Vector3f(0.f, 0.f, 0.f);
-                for (float step = 0; step < max_ray_length; step += step_size * 0.5) {
-                    Vector3f curr_pos = translation + (float) step * ray_dir;
-                    Vector3f curr_grid = global_volume->compute_grid(curr_pos);
+    Vector3f init_pos = Vector3f(0.f, 0.f, 0.f);
+    for (float step = 0; step < max_ray_length; step += step_size * 0.5) {
+        Vector3f curr_pos = translation + (float) step * ray_dir;
+        Vector3f curr_grid = global_volume->compute_grid(curr_pos);
 
-                    if (!gridInVolume(global_volume, curr_grid)) continue;
-                    init_pos = curr_pos;
-                    break;
-                }
-
-                if(!init_pos.allFinite() || init_pos.x() == 0.f ||
-                init_pos.y() == 0.f || init_pos.z() == 0.f) continue;
-
-                Vector3f eye_grid = global_volume->compute_grid(init_pos);
-                float tsdf = global_volume->
-                        get((int) eye_grid.x(), (int) eye_grid.y(), (int) eye_grid.z()).tsdf_distance_value;
-
-                float prev_tsdf = tsdf;
-                Vector3f prev_grid = eye_grid; // TODO: check this, something is seem bad!
-
-                for (float step = 0; step < max_ray_length; step += step_size * 0.5) {
-                    //Vector3f curr_grid = eye_grid + (float) step * ray_dir_grid;
-                    Vector3f curr_pos = init_pos + (float) step * ray_dir;
-                    Vector3f curr_grid = global_volume->compute_grid(curr_pos);
-
-                    if (!gridInVolume(image_properties, global_volume, curr_grid)) continue;
-
-                    float curr_tsdf = global_volume->
-                            get((int) curr_grid.x(), (int) curr_grid.y(), (int) curr_grid.z()).tsdf_distance_value;
-
-                    if (prev_tsdf < 0.f && curr_tsdf > 0.f) break;  // zero-crossing from behind
-
-                    if (prev_tsdf > 0.f && curr_tsdf < 0.f)  // zero-crossing is found
-                        {
-                        float prev_tri_interpolated_sdf = calculate_trilinear_interpolation(global_volume,
-                                                                                            prev_grid);
-                        float curr_tri_interpolated_sdf = calculate_trilinear_interpolation(global_volume,
-                                                                                            curr_grid);
-
-                        Voxel before = global_volume->get(curr_grid.x(), curr_grid.y(), curr_grid.z());
-                        global_volume->set(translation.x(), translation.y(), translation.z(),
-                                           global_volume->set_occupied(curr_grid));
-                        Voxel after = global_volume->get(curr_grid.x(), curr_grid.y(), curr_grid.z());
-
-                        //float t_star = step - ((step_size * 0.5f * prev_tsdf)/ (curr_tsdf - prev_tsdf));
-                        // t_star = t - ((step_size * prev_tsdf) / (curr_tsdf - prev_tsdf))
-
-                        float t_star = step - ((step_size * 0.5f * prev_tri_interpolated_sdf)
-                                / (curr_tri_interpolated_sdf - prev_tri_interpolated_sdf));
-
-                        Vector3f grid_location = translation + t_star * ray_dir;
-
-                        if (!gridInVolume(global_volume, grid_location)) break;
-
-                        Vector3f vertex = translation + t_star * ray_dir;
-
-                        vertex_map_predicted.ptr(threadY)[threadX] = vertex;
-                        }
-                    prev_tsdf = curr_tsdf;
-                    prev_grid = curr_grid;
-                }
-        helper_compute_normal_map(width, height);
+        if (!gridInVolume(global_volume, curr_grid)) continue;
+        init_pos = curr_pos;
+        break;
     }
+
+    if(!init_pos.allFinite() || init_pos.x() == 0.f ||
+    init_pos.y() == 0.f || init_pos.z() == 0.f) continue;
+
+    Vector3f eye_grid = global_volume->compute_grid(init_pos);
+    float tsdf = global_volume->
+            get((int) eye_grid.x(), (int) eye_grid.y(), (int) eye_grid.z()).tsdf_distance_value;
+
+    float prev_tsdf = tsdf;
+    Vector3f prev_grid = eye_grid; // TODO: check this, something is seem bad!
+
+    for (float step = 0; step < max_ray_length; step += step_size * 0.5) {
+        //Vector3f curr_grid = eye_grid + (float) step * ray_dir_grid;
+        Vector3f curr_pos = init_pos + (float) step * ray_dir;
+        Vector3f curr_grid = global_volume->compute_grid(curr_pos);
+
+        if (!gridInVolume(image_properties, global_volume, curr_grid)) continue;
+
+        float curr_tsdf = global_volume->
+                get((int) curr_grid.x(), (int) curr_grid.y(), (int) curr_grid.z()).tsdf_distance_value;
+
+        if (prev_tsdf < 0.f && curr_tsdf > 0.f) break;  // zero-crossing from behind
+
+        if (prev_tsdf > 0.f && curr_tsdf < 0.f)  // zero-crossing is found
+            {
+            float prev_tri_interpolated_sdf = calculate_trilinear_interpolation(global_volume,
+                                                                                prev_grid);
+            float curr_tri_interpolated_sdf = calculate_trilinear_interpolation(global_volume,
+                                                                                curr_grid);
+
+            Voxel before = global_volume->get(curr_grid.x(), curr_grid.y(), curr_grid.z());
+            global_volume->set(translation.x(), translation.y(), translation.z(),
+                               global_volume->set_occupied(curr_grid));
+            Voxel after = global_volume->get(curr_grid.x(), curr_grid.y(), curr_grid.z());
+
+            //float t_star = step - ((step_size * 0.5f * prev_tsdf)/ (curr_tsdf - prev_tsdf));
+            // t_star = t - ((step_size * prev_tsdf) / (curr_tsdf - prev_tsdf))
+
+            float t_star = step - ((step_size * 0.5f * prev_tri_interpolated_sdf)
+                    / (curr_tri_interpolated_sdf - prev_tri_interpolated_sdf));
+
+            Vector3f grid_location = translation + t_star * ray_dir;
+
+            if (!gridInVolume(global_volume, grid_location)) break;
+
+            Vector3f vertex = translation + t_star * ray_dir;
+
+            vertex_map_predicted.ptr(threadY)[threadX] = vertex;
+            }
+        prev_tsdf = curr_tsdf;
+        prev_grid = curr_grid;
+    }
+    helper_compute_normal_map(width, height);
+
 }
+
+void surface_prediction(SurfaceLevelData* surf_data, GlobalVolume global_volume, Pose pose){
+    for (int i = 0; i < surf_data->level; i++) {
+        dim3 block(8, 8);
+        float cols = surf_data->level_img_width[i];
+        float rows = surf_data->level_img_height[i];
+        cv::cuda::GpuMat& vertex_map = surf_data->vertex_map_predicted[i];
+        cv::cuda::GpuMat& normal_map = surf_data->normal_map_predicted[i];
+        cv::cuda::GpuMat& color_map = surf_data->color_map[i];
+        float fX = surf_data->level_fX[i];
+        float fY = surf_data->level_fY[i];
+        float cX = surf_data->level_cX[i];
+        float cY = surf_data->level_cY[i];
+        dim3 grid((cols + block.x - 1) / block.x, (rows + block.y - 1) / block.y);
+        predict_surface<<<grid, block>>>(global_volume, pose,
+                                         vertex_map,
+                                         normal_map,
+                                         color_map,
+                                         fX, fY, cX, cY,
+                                         cols, rows, i);
+    }
 }
