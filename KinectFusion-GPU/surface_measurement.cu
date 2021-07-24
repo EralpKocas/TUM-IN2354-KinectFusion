@@ -23,7 +23,7 @@ __global__ void helper_compute_vertex_map(SurfaceLevelData* surf_data, ImageCons
     float currDepthValue =  depth_map.ptr(threadY)[threadX];
 
     if(currDepthValue > depth_threshold || currDepthValue < 0){
-        currDepthValue = -1.f;
+        currDepthValue = 0.f;
     }
     int pixel_x = threadX;
     int pixel_y = threadY;
@@ -117,7 +117,10 @@ void compute_vertex_map(SurfaceLevelData* surf_data, ImageConstants img_constant
         dim3 block(8, 8);
         float cols = surf_data->level_img_width[i];
         float rows = surf_data->level_img_height[i];
+        // TODO: switch to smoothed_level_data!! tried on my local, nan values returned for smooth_data. Check computation.
+        // TODO: possible problem: wrong parameters for depth diameter, etc.
         cv::cuda::GpuMat& depth_map = surf_data->curr_level_data[i];
+        //cv::cuda::GpuMat& depth_map = surf_data->curr_smoothed_data[i];
         cv::cuda::GpuMat& vertex_map = surf_data->vertex_map[i];
         dim3 grid((cols + block.x - 1) / block.x, (rows + block.y - 1) / block.y);
         helper_compute_vertex_map<<<grid, block>>>(surf_data, img_constants, depth_map, vertex_map, surf_data->level_fX[i],
