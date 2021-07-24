@@ -126,25 +126,29 @@ __global__ void predict_surface(GlobalVolume global_volume, Pose pose,
 
     //per pixel raycast. march start from the min depth, stop with zero crossing or back face
     // +0.5 for reaching pixel centers
-    Vector3f pixel_ray = calculate_pixel_raycast(rotation, translation, image_constants);
-    float camera_x = ((float) (threadX + 0.5) - surf_data.level_cX) / surf_data.level_fX;  // image to camera
-    float camera_y = ((float) (threadY + 0.5) - surf_data.level_cY) / surf_data.level_fY;  // image to camera
-    Vector3f pixel = Vector3f(camera_x, camera_y, 1.f);
+    //Vector3f pixel_ray = calculate_pixel_raycast(rotation, translation, image_constants);
+    float camera_x = ((float) (threadX + 0.5) - cX) / fX;  // image to camera
+    float camera_y = ((float) (threadY + 0.5) - cY) / fY;  // image to camera
+
+    Matrix3f rotation = pose.m_trajectory.block<3, 3>(0, 0);
+    Vector3f translation = pose.m_trajectory.block<3, 1>(0, 3);
+
+    Vector3f pixel_ray = rotation * Vector3f(camera_x, camera_y, 1.f) + translation;
 
     //for point on or close to surf. interface Fk(p)=0, gradient(Fk(p))=orthogonal to zero level set.
     //so the surface normal of pixel u along which p was found deriv of SDF: v[grad(F(p))].
     //Question: Why do we calculate two of them?
-    Vector3f ray_dir_2 = (rotation * pixel).normalized();
-    Vector3f ray_dir = (pixel_ray - translation).normalized();
+    Vector3f ray_dir = (rotation * pixel_ray).normalized();
+    //Vector3f ray_dir = (pixel_ray - translation).normalized();
 
     //then scale the deriv in each dimension.
     //min and max rendering range [0.4,8] => bounded time per pixel computation for any size or complexity
     //of scene with a fixed vol resolution
     //
     //float t = calculate_search_length(translation, pixel_ray, ray_dir);  // t
-    float max_ray_length = Vector3i(global_volume->getDimX(),
-                                    global_volume->getDimY(),
-                                    global_volume->getDimZ()).norm();
+    float max_ray_length = Vector3i(global_volume.getDimX(),
+                                    global_volume.getDimY(),
+                                    global_volume.getDimZ()).norm();
 
     //Vector3f pixel_grid = global_volume->compute_grid(pixel_ray);
     //Vector3f ray_dir_grid = global_volume->compute_grid(ray_dir);
@@ -152,7 +156,7 @@ __global__ void predict_surface(GlobalVolume global_volume, Pose pose,
     Vector3f init_pos = Vector3f(0.f, 0.f, 0.f);
     for (float step = 0; step < max_ray_length; step += step_size * 0.5) {
         Vector3f curr_pos = translation + (float) step * ray_dir;
-        Vector3f curr_grid = global_volume->compute_grid(curr_pos);
+        Vector3f curr_grid = global_volume.compute_grid(curr_pos);
 
         if (!gridInVolume(global_volume, curr_grid)) continue;
         init_pos = curr_pos;
