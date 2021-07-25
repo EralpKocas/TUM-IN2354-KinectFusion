@@ -34,6 +34,7 @@ struct ImageConstants
     Matrix4f m_trajectory;
     Matrix4f m_trajectoryInv;
     Matrix3f m_depthIntrinsics;
+    Matrix3f m_depthIntrinsicsInv;
     Matrix4f m_depthExtrinsics;
     Matrix4f m_depthExtrinsicsInv;
     unsigned int m_colorImageWidth;
@@ -42,7 +43,7 @@ struct ImageConstants
     unsigned int m_depthImageHeight;
 
     ImageConstants(float _fX, float _fY, float _cX, float _cY, const Matrix4f& _m_trajectory, const Matrix4f& _m_trajectoryInv,
-                   const Matrix3f& _m_depthIntrinsics, const Matrix4f& _m_depthExtrinsics,
+                   const Matrix3f& _m_depthIntrinsics, const Matrix3f& _m_depthIntrinsicsInv, const Matrix4f& _m_depthExtrinsics,
                    const Matrix4f& _m_depthExtrinsicsInv, unsigned int _m_colorImageWidth,
                    unsigned int _m_colorImageHeight, unsigned int _m_depthImageWidth, unsigned int _m_depthImageHeight){
         fX = _fX;
@@ -52,6 +53,7 @@ struct ImageConstants
         m_trajectory << _m_trajectory;
         m_trajectoryInv << _m_trajectoryInv;
         m_depthIntrinsics << _m_depthIntrinsics;
+        m_depthIntrinsicsInv << _m_depthIntrinsicsInv;
         m_depthExtrinsics << _m_depthExtrinsics;
         m_depthExtrinsicsInv << _m_depthExtrinsicsInv;
         m_colorImageWidth = _m_colorImageWidth;
@@ -116,7 +118,6 @@ struct SurfaceLevelData
             normal_map.push_back(cv::cuda::createContinuous(_level_img_height / scale, _level_img_width / scale, CV_32FC3));
             vertex_map_predicted.push_back(cv::cuda::createContinuous(_level_img_height / scale, _level_img_width / scale, CV_32FC3));
             normal_map_predicted.push_back(cv::cuda::createContinuous(_level_img_height / scale, _level_img_width / scale, CV_32FC3));
-            color_map.push_back(_color_map);
         }
     }
 
@@ -133,11 +134,17 @@ struct GlobalVolume
     int3 volume_size;
     float truncation_distance;
 
-    GlobalVolume(const int3 _volume_size){
+    GlobalVolume(const int3 _volume_size, const float _voxel_scale, float _truncation_distance){
         cv::cuda::createContinuous(_volume_size.x * _volume_size.y, _volume_size.z, CV_32F, TSDF_values);
         cv::cuda::createContinuous(_volume_size.x * _volume_size.y, _volume_size.z, CV_32F, TSDF_weight);
         cv::cuda::createContinuous(_volume_size.x * _volume_size.y, _volume_size.z, CV_8UC4, TSDF_color);
+        TSDF_values.setTo(0);
+        TSDF_weight.setTo(0);
+        TSDF_color.setTo(0);
+
         volume_size = _volume_size;
+        voxel_scale = _voxel_scale;
+        truncation_distance = _truncation_distance;
     }
 
     int getDimX(){
