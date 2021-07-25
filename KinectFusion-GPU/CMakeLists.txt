@@ -25,12 +25,16 @@ set(HEADERS
         FreeImageHelper.h
         VirtualSensor_freiburg.h
         surface_measurement.h
+        surface_reconstruction.h
+#        surface_prediction.h
         pose_estimation.h)
 
 set(SOURCES
     main.cu
     FreeImageHelper.cpp
     surface_measurement.cu
+#        surface_prediction.cu
+        surface_reconstruction.cu
     pose_estimation.cu
         SimpleMesh.h)
 
