@@ -118,7 +118,6 @@ struct SurfaceLevelData
             normal_map.push_back(cv::cuda::createContinuous(_level_img_height / scale, _level_img_width / scale, CV_32FC3));
             vertex_map_predicted.push_back(cv::cuda::createContinuous(_level_img_height / scale, _level_img_width / scale, CV_32FC3));
             normal_map_predicted.push_back(cv::cuda::createContinuous(_level_img_height / scale, _level_img_width / scale, CV_32FC3));
-            color_map.push_back(_color_map);
         }
     }
 
@@ -146,6 +145,25 @@ struct GlobalVolume
         volume_size = _volume_size;
         voxel_scale = _voxel_scale;
         truncation_distance = _truncation_distance;
+    }
+
+    int getDimX(){
+        return volume_size.x;
+    }
+    int getDimY(){
+        return volume_size.y;
+    }
+    int getDimZ(){
+        return volume_size.z;
+    }
+
+    //! Returns the corresponding node of given cartesian coordinates.
+    inline Vector3f compute_grid(Vector3f p)
+    {
+        return Vector3f(((p[0] - min[0]) / (max[0] - min[0])) / volume_size.x,
+                        ((p[1] - min[1]) / (max[1] - min[1])) / volume_size.y,
+                        ((p[2] - min[2]) / (max[2] - min[2])) / volume_size.z
+        );
     }
 };
 
