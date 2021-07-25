@@ -5,18 +5,21 @@
 #ifndef KINECTFUSION_GPU_SURFACE_PREDICTION_H
 #define KINECTFUSION_GPU_SURFACE_PREDICTION_H
 
-void surface_prediction(SurfaceLevelData* surf_data, GlobalVolume global_volume, Pose pose);
+void surface_prediction(SurfaceLevelData* surf_data, GlobalVolume* global_volume, Pose pose);
 
-__global__ void predict_surface(GlobalVolume global_volume, Pose pose,
+__global__ void predict_surface(cv::cuda::PtrStepSz<float> tsdf_values,
+                                cv::cuda::PtrStepSz<float> tsdf_weights,
                                 cv::cuda::PtrStep<Vector3f> vertex_map,
                                 cv::cuda::PtrStep<Vector3f> normal_map,
                                 cv::cuda::PtrStep<Vector4uc> color_map,
                                 float fX, float fY, float cX, float cY,
-                                int width, int height, int level);
+                                int width, int height, int level,
+                                float truncation_distance,Matrix4f pose_traj,
+                                int volume_size);
 
 __global__ void helper_compute_normal_map(int width, int height);
 
-__device__ float calculate_trilinear_interpolation(GlobalVolume* global_volume, Vector3f p);
+__device__ float calculate_trilinear_interpolation(cv::cuda::PtrStepSz<float> tsdf_values, int volume_size,Vector3f p);
 
 __device__ bool gridInVolume(GlobalVolume* global_volume, Vector3f curr_grid);
 

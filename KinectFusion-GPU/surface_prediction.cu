@@ -39,18 +39,28 @@ __device__ bool gridInVolume(GlobalVolume* global_volume, Vector3f curr_grid) {
              curr_grid.z() < 1 || curr_grid.z() >= dz - 1);
 }
 
-__device__ float calculate_trilinear_interpolation(GlobalVolume* global_volume, Vector3f p) {
-    Vector3i p_int = Vector3i((int) p.x(), (int) p.y(), (int) p.z());
+__device__ float calculate_trilinear_interpolation(cv::cuda::PtrStepSz<float> tsdf_values,
+                                                   int volume_size,Vector3f p) {
+                                                   Vector3i p_int = Vector3i((int) p.x(), (int) p.y(), (int) p.z());
 
     //TODO: Change this to the new struct
-    float c000 = global_volume->get(p_int.x(), p_int.y(), p_int.z()).tsdf_distance_value;
-    float c001 = global_volume->get(p_int.x(), p_int.y(), p_int.z() + 1).tsdf_distance_value;
-    float c010 = global_volume->get(p_int.x(), p_int.y() + 1, p_int.z()).tsdf_distance_value;
-    float c011 = global_volume->get(p_int.x(), p_int.y() + 1, p_int.z() + 1).tsdf_distance_value;
-    float c100 = global_volume->get(p_int.x() + 1, p_int.y(), p_int.z()).tsdf_distance_value;
-    float c101 = global_volume->get(p_int.x() + 1, p_int.y(), p_int.z() + 1).tsdf_distance_value;
-    float c110 = global_volume->get(p_int.x() + 1, p_int.y() + 1, p_int.z()).tsdf_distance_value;
-    float c111 = global_volume->get(p_int.x() + 1, p_int.y() + 1, p_int.z() + 1).tsdf_distance_value;
+    float c000 = tsdf_values.ptr(p_int.z()*volume_size+p_int.y())[p_int.x()];
+    float c001 = tsdf_values.ptr((p_int.z()+1)*volume_size+p_int.y())[p_int.x()];
+    float c010 = tsdf_values.ptr(p_int.z()*volume_size+p_int.y()+1)[p_int.x()];
+    float c011 = tsdf_values.ptr((p_int.z()+1)*volume_size+p_int.y()+1)[p_int.x()];
+    float c100 = tsdf_values.ptr(p_int.z()*volume_size+p_int.y())[p_int.x() +1];
+    float c101 = tsdf_values.ptr((p_int.z()+1)*volume_size+p_int.y())[p_int.x() +1];
+    float c110 = tsdf_values.ptr(p_int.z()*volume_size+p_int.y()+1)[p_int.x() +1];
+    float c111 = tsdf_values.ptr((p_int.z()+1)*volume_size+p_int.y()+1)[p_int.x() +1];
+
+//float c000 = global_volume->get(p_int.x(), p_int.y(), p_int.z()).tsdf_distance_value;
+//    float c001 = global_volume->get(p_int.x(), p_int.y(), p_int.z() + 1).tsdf_distance_value;
+//    float c010 = global_volume->get(p_int.x(), p_int.y() + 1, p_int.z()).tsdf_distance_value;
+//    float c011 = global_volume->get(p_int.x(), p_int.y() + 1, p_int.z() + 1).tsdf_distance_value;
+//    float c100 = global_volume->get(p_int.x() + 1, p_int.y(), p_int.z()).tsdf_distance_value;
+//    float c101 = global_volume->get(p_int.x() + 1, p_int.y(), p_int.z() + 1).tsdf_distance_value;
+//    float c110 = global_volume->get(p_int.x() + 1, p_int.y() + 1, p_int.z()).tsdf_distance_value;
+//    float c111 = global_volume->get(p_int.x() + 1, p_int.y() + 1, p_int.z() + 1).tsdf_distance_value;
 
     float xd = p.x() - p_int.x();
     float yd = p.y() - p_int.y();
@@ -105,12 +115,16 @@ __global__ void helper_compute_normal_map(int width, int height) {
 }
 */
 
-__global__ void predict_surface(GlobalVolume global_volume, Pose pose,
+__global__ void predict_surface(
+                                cv::cuda::PtrStepSz<float> tsdf_values,
+                                cv::cuda::PtrStepSz<float> tsdf_weights,
                                 cv::cuda::PtrStep<Vector3f> vertex_map,
                                 cv::cuda::PtrStep<Vector3f> normal_map,
                                 cv::cuda::PtrStep<Vector4uc> color_map,
                                 float fX, float fY, float cX, float cY,
-                                int width, int height, int level) {
+                                int width, int height, int level,
+                                float truncation_distance,Matrix4f pose_traj,
+                                int volume_size) {
 
     //predicted vertex and normal maps are computed at the interpolated location in the global frame.
 
@@ -122,16 +136,19 @@ __global__ void predict_surface(GlobalVolume global_volume, Pose pose,
     if (threadY >= height or threadY < 0)
         return;
 
-    float step_size = global_volume.truncation_distance;
-
+    //TODO::
+//    float step_size = global_volume.truncation_distance;
+    float step_size = truncation_distance;
     //per pixel raycast. march start from the min depth, stop with zero crossing or back face
     // +0.5 for reaching pixel centers
     //Vector3f pixel_ray = calculate_pixel_raycast(rotation, translation, image_constants);
     float camera_x = ((float) (threadX + 0.5) - cX) / fX;  // image to camera
     float camera_y = ((float) (threadY + 0.5) - cY) / fY;  // image to camera
 
-    Matrix3f rotation = pose.m_trajectory.block<3, 3>(0, 0);
-    Vector3f translation = pose.m_trajectory.block<3, 1>(0, 3);
+//    Matrix3f rotation = pose.m_trajectory.block<3, 3>(0, 0);
+//    Vector3f translation = pose.m_trajectory.block<3, 1>(0, 3);
+    Matrix3f rotation = pose_traj.block<3, 3>(0, 0);
+    Vector3f translation = pose_traj.block<3, 1>(0, 3);
 
     Vector3f pixel_ray = rotation * Vector3f(camera_x, camera_y, 1.f) + translation;
 
@@ -163,8 +180,7 @@ __global__ void predict_surface(GlobalVolume global_volume, Pose pose,
         break;
     }
 
-    if(!init_pos.allFinite() || init_pos.x() == 0.f ||
-    init_pos.y() == 0.f || init_pos.z() == 0.f) continue;
+    if((init_pos.x()<=0 && init_pos.y()>=0 && init_pos.z()<=0)) continue;
 
     //simple ray skipping (speedup):
     //near F(p)=0, the fused volume holds a good approx to true sdf from p to the nearest surf interface.
@@ -192,9 +208,9 @@ __global__ void predict_surface(GlobalVolume global_volume, Pose pose,
         if (prev_tsdf > 0.f && curr_tsdf < 0.f)  // zero-crossing is found
             {
             //higher quality intersections by ray/trilin cell intersection (simple approx):
-            float prev_tri_interpolated_sdf = calculate_trilinear_interpolation(global_volume,
+            float prev_tri_interpolated_sdf = calculate_trilinear_interpolation(tsdf_values, volume_size,
                                                                                 prev_grid);
-            float curr_tri_interpolated_sdf = calculate_trilinear_interpolation(global_volume,
+            float curr_tri_interpolated_sdf = calculate_trilinear_interpolation(tsdf_values, volume_size,
                                                                                 curr_grid);
 
             Voxel before = global_volume->get(curr_grid.x(), curr_grid.y(), curr_grid.z());
@@ -219,8 +235,8 @@ __global__ void predict_surface(GlobalVolume global_volume, Pose pose,
             if (!gridInVolume(global_volume, grid_location)) break;
             Vector3f vertex = translation + t_star * ray_dir;
 
-            vertex_map_predicted.ptr(threadY)[threadX] = vertex;
-            normal_map_predicted.ptr(threadY)[threadX] = normal;
+            vertex_map.ptr(threadY)[threadX] = vertex;
+            normal_map.ptr(threadY)[threadX] = normal;
             }
         prev_tsdf = curr_tsdf;
         prev_grid = curr_grid;
@@ -230,11 +246,16 @@ __global__ void predict_surface(GlobalVolume global_volume, Pose pose,
 
 }
 
-void surface_prediction(SurfaceLevelData* surf_data, GlobalVolume global_volume, Pose pose){
-    //for (int i = 0; i < surf_data->level; i++) {
+void surface_prediction(SurfaceLevelData* surf_data, GlobalVolume* global_volume, Pose pose){
+    for (int i = 0; i < surf_data->level; i++) {
         //did not change the name convention. Commented out the for loop.
         //changed this from (8,8)
         dim3 block(32, 32);
+        cv::cuda::GpuMat& tsdf_vals = global_volume->TSDF_values;
+        cv::cuda::GpuMat& tsdf_weights = global_volume->TSDF_weight;
+        cv::cuda::GpuMat& tsdf_color = global_volume->TSDF_color;
+//        cv::cuda::GpuMat& color_map = imageData->m_colorMap;
+//        cv::cuda::GpuMat& depth_map = imageData->m_depthMap;
 
         float cols = surf_data->level_img_width[i];
         float rows = surf_data->level_img_height[i];
@@ -249,13 +270,15 @@ void surface_prediction(SurfaceLevelData* surf_data, GlobalVolume global_volume,
         float cY = surf_data->level_cY[i];
 
         dim3 grid((cols + block.x - 1) / block.x, (rows + block.y - 1) / block.y);
-        predict_surface<<<grid, block>>>(global_volume, pose,
+        predict_surface<<<grid, block>>>(tsdf_vals,tsdf_weights,
                                          vertex_map,
                                          normal_map,
                                          color_map,
                                          fX, fY, cX, cY,
-                                         cols, rows, i);
+                                         cols, rows, i,
+                                         global_volume->truncation_distance, pose.m_trajectory,
+                                         global_volume->volume_size.x);
 
         cudaThreadSynchronize();
-    //}
+    }
 }
