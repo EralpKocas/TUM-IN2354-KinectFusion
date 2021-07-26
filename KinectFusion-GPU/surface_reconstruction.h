@@ -36,7 +36,8 @@ __device__ int calculateWeightedAvgWeight(int current_weight, int new_weight);
 // TODO: truncate updated weight
 __device__ int calculateTruncatedWeight(int weighted_avg, int some_value);
 
-__device__ Vector4uc calculateWeightedColorUpdate(int current_weight, cv::cuda::PtrStep<Vector4uc> curr_color, int new_weight, Vector4uc new_color);
+__device__ Vector4uc calculateWeightedColorUpdate(int current_weight, Vector4uc curr_color,
+                                                  int new_weight, Vector4uc new_color);
 __global__ void updateSurfaceReconstructionGlobal(ImageConstants*& imageConstants,
                                                   cv::cuda::PtrStepSz<float> tsdf_values,
                                                   cv::cuda::PtrStepSz<int> tsdf_weight,
