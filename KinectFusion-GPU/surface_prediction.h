@@ -12,12 +12,14 @@ __global__ void predict_surface(cv::cuda::PtrStepSz<float> tsdf_values,
                                 cv::cuda::PtrStepSz<Vector4uc> tsdf_color,
                                 cv::cuda::PtrStep<Vector3f> vertex_map,
                                 cv::cuda::PtrStep<Vector3f> normal_map,
-//                                cv::cuda::PtrStep<Vector4uc> color_map,
+                                cv::cuda::PtrStep<Vector4uc> color_map,
                                 float fX, float fY, float cX, float cY,
                                 int width, int height, int level,
                                 float truncation_distance,Matrix4f pose_traj,
-                                Vector3f min, Vector3f max,int volume_size);
-
+                                Vector3f min, Vector3f max,int volume_size,
+                                float voxel_scale);
+__device__ Vector3f compute_normal_vector_new(Vector3f vertex, cv::cuda::PtrStepSz<float> tsdf_values, float step_size,
+                                                int volume_size);
 __global__ void helper_compute_normal_map(int width, int height);
 
 __device__ float calculate_trilinear_interpolation(cv::cuda::PtrStepSz<float> tsdf_values, int volume_size,Vector3f p);

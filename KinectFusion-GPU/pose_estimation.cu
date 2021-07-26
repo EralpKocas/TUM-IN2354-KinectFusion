@@ -154,23 +154,23 @@ void point_to_plane_new( cv::cuda::GpuMat& curr_frame_vertex,
     b.setZero();
     float* A_data = A.data();
     float* b_data = b.data();
-    std::cout << "before size" << std::endl;
+//    std::cout << "before size" << std::endl;
 
     size_t A_bytes = (width*height*6) * sizeof(float);
     size_t b_bytes = (width*height) * sizeof(float);
-    std::cout << "before malloc" << std::endl;
+//    std::cout << "before malloc" << std::endl;
     float *d_A, *d_b;
     cudaMalloc(&d_A, A_bytes);
     cudaMalloc(&d_b, b_bytes);
-    std::cout << "before memcpy" << std::endl;
+//    std::cout << "before memcpy" << std::endl;
 
     cudaMemcpy(d_A, A_data, A_bytes, cudaMemcpyHostToDevice);
     cudaMemcpy(d_b, b_data, b_bytes, cudaMemcpyHostToDevice);
-    std::cout << "before block grid" << std::endl;
+//    std::cout << "before block grid" << std::endl;
 
     dim3 block(8, 8);
     dim3 grid((width + block.x - 1) / block.x, (height + block.y - 1) / block.y);
-    std::cout << "before form linear eq" << std::endl;
+//    std::cout << "before form linear eq" << std::endl;
     form_linear_eq_new<<<grid, block>>>(width, height,
                                         curr_frame_vertex,
                                         curr_frame_normal,
@@ -182,21 +182,21 @@ void point_to_plane_new( cv::cuda::GpuMat& curr_frame_vertex,
     gpuErrchk(cudaPeekAtLastError());
     gpuErrchk(cudaDeviceSynchronize());
     //assert(cudaSuccess == cudaDeviceSynchronize());
-    std::cout << "before host copy" << std::endl;
-    std::cout << *A_data << std::endl;
-    std::cout << A.block<1, 1>(0, 0) << std::endl;
+//    std::cout << "before host copy" << std::endl;
+//    std::cout << *A_data << std::endl;
+//    std::cout << A.block<1, 1>(0, 0) << std::endl;
     cudaMemcpy(A_data, d_A, A_bytes, cudaMemcpyDeviceToHost);
     cudaMemcpy(b_data, d_b, b_bytes, cudaMemcpyDeviceToHost);
-    std::cout << "before solving" << std::endl;
-    std::cout << *A_data << std::endl;
-    std::cout << A.block<1, 1>(0, 0) << std::endl;
-    Matrix<float,6,1> x = A.ldlt().solve(b);
-    std::cout << "after solving" << std::endl;
+//    std::cout << "before solving" << std::endl;
+//    std::cout << *A_data << std::endl;
+//    std::cout << A.block<1, 1>(0, 0) << std::endl;
+//    Matrix<float,6,1> x = A.ldlt().solve(b);
+    Eigen::Matrix<float, 6, 1> x { A.fullPivLu().solve(b).cast<float>() };
+//    std::cout << "after solving" << std::endl;
     T = Isometry3f::Identity();
     T.linear() = ( AngleAxisf(x(0), Vector3f::UnitX())
                    * AngleAxisf(x(1), Vector3f::UnitY())
-                   * AngleAxisf(x(2), Vector3f::UnitZ())
-    ).toRotationMatrix();
+                   * AngleAxisf(x(2), Vector3f::UnitZ())).toRotationMatrix();
     T.translation() = x.block(3,0,3,1);
 }
 
@@ -210,14 +210,14 @@ void pose_estimate_helper_new(cv::cuda::GpuMat& curr_frame_vertex,
                               float fX, float fY){
 
     Isometry3f T;
-    int rows = curr_frame_vertex.rows;
-    int cols = curr_frame_vertex.cols;
-    std::cout << "before point to plane" << std::endl;
+//    int rows = curr_frame_vertex.rows;
+//    int cols = curr_frame_vertex.cols;
+//    std::cout << "before point to plane" << std::endl;
     point_to_plane_new(curr_frame_vertex,
                        curr_frame_normal,
                        prev_global_vertex,
                        prev_global_normal,
-                       cols, rows,
+                       curr_frame_vertex.cols, curr_frame_vertex.rows,
                        curr_rotation, curr_translation,
                        prev_rotation_inv, prev_translation,
                        fX, fY,
@@ -268,7 +268,7 @@ void pose_estimate_new(const std::vector<int>&  iterations,
             cv::cuda::GpuMat& curr_frame_normal = surf_data->normal_map[i];  // in frame coordinate system
             cv::cuda::GpuMat& prev_global_vertex = surf_data->vertex_map_predicted[i];  // in global coordinate system, from previous frame
             cv::cuda::GpuMat& prev_global_normal = surf_data->normal_map_predicted[i];  // in global coordinate system, from previous frame
-            std::cout << "before pose helper" << std::endl;
+//            std::cout << "before pose helper" << std::endl;
             pose_estimate_helper_new(curr_frame_vertex,
                                      curr_frame_normal,
                                      prev_global_vertex,
@@ -283,4 +283,5 @@ void pose_estimate_new(const std::vector<int>&  iterations,
     }
     pose_struct->m_trajectory.block<3, 3>(0, 0) = current_rotation;
     pose_struct->m_trajectory.block<3, 1>(0, 3) = current_translation;
+    pose_struct->m_trajectoryInv = pose_struct->m_trajectory.inverse();
 }

@@ -91,9 +91,10 @@ struct SurfaceLevelData
     std::vector<float> level_cY;
     std::vector<cv::cuda::GpuMat> vertex_map;
     std::vector<cv::cuda::GpuMat> normal_map;
+    cv::cuda::GpuMat color_map;
     std::vector<cv::cuda::GpuMat> vertex_map_predicted;
     std::vector<cv::cuda::GpuMat> normal_map_predicted;
-    std::vector<cv::cuda::GpuMat> color_map;
+    std::vector<cv::cuda::GpuMat> color_map_predicted;
     //TODO: change color map to multilevel here since we will write color map multileve in surface prediction
     //TODO: we don't need image constants and image data structs anymore.
 
@@ -118,6 +119,11 @@ struct SurfaceLevelData
             normal_map.push_back(cv::cuda::createContinuous(_level_img_height / scale, _level_img_width / scale, CV_32FC3));
             vertex_map_predicted.push_back(cv::cuda::createContinuous(_level_img_height / scale, _level_img_width / scale, CV_32FC3));
             normal_map_predicted.push_back(cv::cuda::createContinuous(_level_img_height / scale, _level_img_width / scale, CV_32FC3));
+            color_map_predicted.push_back(cv::cuda::createContinuous(_level_img_height / scale, _level_img_width / scale, CV_8UC4));
+            if(i==0){
+                cv::cuda::createContinuous(_level_img_height / scale, _level_img_width / scale, CV_8UC4, color_map);
+                color_map = _color_map;
+            }
         }
     }
 
@@ -138,7 +144,7 @@ struct GlobalVolume
 
     GlobalVolume(const int3 _volume_size, const float _voxel_scale, float _truncation_distance,Vector3f _min, Vector3f _max){
         cv::cuda::createContinuous(_volume_size.x * _volume_size.y, _volume_size.z, CV_32F, TSDF_values);
-        cv::cuda::createContinuous(_volume_size.x * _volume_size.y, _volume_size.z, CV_32F, TSDF_weight);
+        cv::cuda::createContinuous(_volume_size.x * _volume_size.y, _volume_size.z, CV_8UC1, TSDF_weight);
         cv::cuda::createContinuous(_volume_size.x * _volume_size.y, _volume_size.z, CV_8UC4, TSDF_color);
         TSDF_values.setTo(0);
         TSDF_weight.setTo(0);

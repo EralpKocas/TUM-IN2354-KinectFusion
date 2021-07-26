@@ -73,7 +73,7 @@ __global__ void helper_compute_normal_map(SurfaceLevelData* surf_data, cv::cuda:
                                     vertex_map.ptr(threadY)[threadX - 1].z() -
                                     vertex_map.ptr(threadY)[threadX + 1].z());
 
-        Vector3f cross_prod = neigh_1.cross(neigh_2);
+        Vector3f cross_prod = neigh_2.cross(neigh_1);
         cross_prod.normalize();
         if (cross_prod.z() > 0) cross_prod *= -1;
         normal_map.ptr(threadY)[threadX] = cross_prod;
@@ -147,4 +147,5 @@ void surface_measurement_pipeline(SurfaceLevelData* surf_data, ImageData img_dat
     init_multiscale(surf_data, img_data);
     compute_vertex_map(surf_data, img_constants);
     compute_normal_map(surf_data);
+//    surf_data->color_map[0] = img_data.m_colorMap;
 }

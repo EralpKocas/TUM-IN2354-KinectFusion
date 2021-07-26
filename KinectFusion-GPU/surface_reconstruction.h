@@ -12,18 +12,18 @@
 
 ////HELPER FUNCTIONS
 __device__ float calculateLambda(Matrix4f depth_ext,
-                                 Matrix4f m_traj,
+                                 Matrix4f m_traj_inv,
                                  Matrix3f depth_intrinsics,
                                  Matrix3f intrinsics, Vector3f p);
 //
 __device__ Vector2i perspective_projection(Matrix4f depth_ext,
-                                           Matrix4f m_traj,
+                                           Matrix4f m_traj_inv,
                                            Matrix3f depth_intrinsics, Vector3f p);
 //
 __device__ float calculateSDF_truncation(float truncation_distance, float sdf);
 //λ = ||K^-1*x||2
 __device__ float calculateCurrentTSDF(Matrix4f pose_traj, Matrix4f depth_ext,
-                                      Matrix4f m_traj, Matrix3f depth_intrinsics, float depth,
+                                      Matrix4f m_traj_inv, Matrix3f depth_intrinsics, float depth,
                                       Matrix3f intrinsics, Vector3f p, float truncation_distance);
 //
 //
@@ -39,7 +39,7 @@ __device__ int calculateTruncatedWeight(int weighted_avg, int some_value);
 __device__ Vector4uc calculateWeightedColorUpdate(int current_weight, cv::cuda::PtrStep<Vector4uc> curr_color, int new_weight, Vector4uc new_color);
 __global__ void updateSurfaceReconstructionGlobal(ImageConstants*& imageConstants,
                                                   cv::cuda::PtrStepSz<float> tsdf_values,
-                                                  cv::cuda::PtrStepSz<float> tsdf_weight,
+                                                  cv::cuda::PtrStepSz<int> tsdf_weight,
                                                   cv::cuda::PtrStepSz<Vector4uc> tsdf_color,
                                                   cv::cuda::PtrStepSz<Vector4uc> color_map,
                                                   cv::cuda::PtrStepSz<float> depth_map,
@@ -48,6 +48,7 @@ __global__ void updateSurfaceReconstructionGlobal(ImageConstants*& imageConstant
                                                   int volume_size,
                                                   Matrix4f depth_ext,
                                                   Matrix4f m_traj,
+                                                  Matrix4f m_traj_inv,
                                                   Matrix3f depth_intrinsics,
                                                   Matrix3f depth_intrinsics_inv,
                                                   Matrix4f pose_traj,
