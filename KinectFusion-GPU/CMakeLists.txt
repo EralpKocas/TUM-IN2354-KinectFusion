@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.19)
 #set(CMAKE_CUDA_COMPILER /usr/local/cuda-11.3/bin/nvcc)
+set(CMAKE_CUDA_COMPILER /usr/local/cuda-10.2/bin/nvcc)
 project(KinectFusion-GPU CUDA C CXX)
 
 set(CMAKE_CUDA_STANDARD 14)
@@ -10,7 +11,7 @@ find_package(OpenCV REQUIRED COMPONENTS core imgproc highgui cudaimgproc cudawar
 
 #message("CUDA ARCH NEyY" ${CUDA_ARCH_BIN})
 IF ((CUDA_VERSION VERSION_GREATER "10.0") OR (CUDA_VERSION VERSION_EQUAL "10.0"))
-    set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -gencode arch=compute_30,code=sm_30")
+    set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -gencode arch=compute_61,code=sm_61")
 ENDIF()
 
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -D_DEBUG")
@@ -26,15 +27,15 @@ set(HEADERS
         VirtualSensor_freiburg.h
         surface_measurement.h
         surface_reconstruction.h
-#        surface_prediction.h
+        surface_prediction.h
         pose_estimation.h)
 
 set(SOURCES
     main.cu
     FreeImageHelper.cpp
     surface_measurement.cu
-#        surface_prediction.cu
-        surface_reconstruction.cu
+    surface_prediction.cu
+    surface_reconstruction.cu
     pose_estimation.cu
         SimpleMesh.h)
 
