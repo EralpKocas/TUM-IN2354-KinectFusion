@@ -30,10 +30,10 @@ __device__ float calculate_search_length(Vector3f eye, Vector3f ray_dir) {
     return fmax(fmax(fabs(t_x), fabs(t_y)), fabs(t_z));
 }
 
-__device__ bool gridInVolume(GlobalVolume* global_volume, Vector3f curr_grid) {
-    int dx = global_volume->getDimX();
-    int dy = global_volume->getDimY();
-    int dz = global_volume->getDimZ();
+__device__ bool gridInVolume(int volume_size, Vector3f curr_grid) {
+    int dx = volume_size;
+    int dy = volume_size;
+    int dz = volume_size;
     return !(curr_grid.x() < 1 || curr_grid.x() >= dx - 1 ||
              curr_grid.y() < 1 || curr_grid.y() >= dy - 1 ||
              curr_grid.z() < 1 || curr_grid.z() >= dz - 1);
@@ -114,17 +114,58 @@ __global__ void helper_compute_normal_map(int width, int height) {
     }
 }
 */
+__device__ Vector3f compute_grid(Vector3f p, Vector3f min, Vector3f max,int volume_size)
+{
+    return Vector3f(((p[0] - min[0]) / (max[0] - min[0])) / volume_size,
+                    ((p[1] - min[1]) / (max[1] - min[1])) / volume_size,
+                    ((p[2] - min[2]) / (max[2] - min[2])) / volume_size
+    );
+}
+__device__ Vector3f compute_normal_vector(cv::cuda::PtrStep<Vector3f> vertex_map,
+                                          Vector3f curr_grid, int volume_size)
+{
 
+    int base_idxFirst = (int)(curr_grid.z()*volume_size +curr_grid.y());
+    int base_idxSecond = (int)curr_grid.x();
+
+    Vector3f curr_vertex = vertex_map.ptr(base_idxFirst)[base_idxSecond];
+
+    if (curr_vertex.z() == 0.f) {
+        return Vector3f(0.f, 0.f, 0.f);
+        //TODO: add color as 0, 0 ,0 ,0 if necessary??
+    } else {
+        Vector3f neigh_1 = Vector3f(vertex_map.ptr(base_idxFirst)[base_idxSecond].x() -
+                                    vertex_map.ptr(base_idxFirst + 1)[base_idxSecond].x(),
+                                    vertex_map.ptr(base_idxFirst - 1)[base_idxSecond].y() -
+                                    vertex_map.ptr(base_idxFirst + 1)[base_idxSecond].y(),
+                                    vertex_map.ptr(base_idxFirst - 1)[base_idxSecond].z() -
+                                    vertex_map.ptr(base_idxFirst + 1)[base_idxSecond].z());
+
+        Vector3f neigh_2 = Vector3f(vertex_map.ptr(base_idxFirst)[base_idxSecond - 1].x() -
+                                    vertex_map.ptr(base_idxFirst)[base_idxSecond + 1].x(),
+                                    vertex_map.ptr(base_idxFirst)[base_idxSecond - 1].y() -
+                                    vertex_map.ptr(base_idxFirst)[base_idxSecond + 1].y(),
+                                    vertex_map.ptr(base_idxFirst)[base_idxSecond - 1].z() -
+                                    vertex_map.ptr(base_idxFirst)[base_idxSecond + 1].z());
+
+        Vector3f cross_prod = neigh_1.cross(neigh_2);
+        cross_prod.normalize();
+        if (cross_prod.z() > 0) cross_prod *= -1;
+        return cross_prod;
+        //TODO: add color
+    }
+}
 __global__ void predict_surface(
                                 cv::cuda::PtrStepSz<float> tsdf_values,
                                 cv::cuda::PtrStepSz<float> tsdf_weights,
+                                cv::cuda::PtrStepSz<Vector4uc> tsdf_color,
                                 cv::cuda::PtrStep<Vector3f> vertex_map,
                                 cv::cuda::PtrStep<Vector3f> normal_map,
-                                cv::cuda::PtrStep<Vector4uc> color_map,
+//                                cv::cuda::PtrStep<Vector4uc> color_map,
                                 float fX, float fY, float cX, float cY,
                                 int width, int height, int level,
                                 float truncation_distance,Matrix4f pose_traj,
-                                int volume_size) {
+                                Vector3f min, Vector3f max,int volume_size) {
 
     //predicted vertex and normal maps are computed at the interpolated location in the global frame.
 
@@ -163,9 +204,9 @@ __global__ void predict_surface(
     //of scene with a fixed vol resolution
     //
     //float t = calculate_search_length(translation, pixel_ray, ray_dir);  // t
-    float max_ray_length = Vector3i(global_volume.getDimX(),
-                                    global_volume.getDimY(),
-                                    global_volume.getDimZ()).norm();
+    float max_ray_length = Vector3i(volume_size,
+                                    volume_size,
+                                    volume_size).norm();
 
     //Vector3f pixel_grid = global_volume->compute_grid(pixel_ray);
     //Vector3f ray_dir_grid = global_volume->compute_grid(ray_dir);
@@ -173,22 +214,24 @@ __global__ void predict_surface(
     Vector3f init_pos = Vector3f(0.f, 0.f, 0.f);
     for (float step = 0; step < max_ray_length; step += step_size * 0.5) {
         Vector3f curr_pos = translation + (float) step * ray_dir;
-        Vector3f curr_grid = global_volume.compute_grid(curr_pos);
+//        tsdf_values.ptr(curr_pos.z()*volume_size +curr_pos.y())[curr_pos.x()];
+        Vector3f curr_grid = compute_grid(curr_pos,min,max,volume_size);
 
-        if (!gridInVolume(global_volume, curr_grid)) continue;
+        if (!gridInVolume(volume_size, curr_grid)) continue;
         init_pos = curr_pos;
         break;
     }
 
-    if((init_pos.x()<=0 && init_pos.y()>=0 && init_pos.z()<=0)) continue;
+    if((init_pos.x()<=0 && init_pos.y()>=0 && init_pos.z()<=0)) return;
 
     //simple ray skipping (speedup):
     //near F(p)=0, the fused volume holds a good approx to true sdf from p to the nearest surf interface.
     //so using known trunc dist, march along the ray in steps size < mu while F(p) vals have +ve trunc vals
     //TODO: rewrite this with the new GlobalVolume struct
-    Vector3f eye_grid = global_volume->compute_grid(init_pos);
-    float tsdf = global_volume->
-            get((int) eye_grid.x(), (int) eye_grid.y(), (int) eye_grid.z()).tsdf_distance_value;
+    Vector3f eye_grid = compute_grid(init_pos,min,max,volume_size);
+//    float tsdf = global_volume->
+//            get((int) eye_grid.x(), (int) eye_grid.y(), (int) eye_grid.z()).tsdf_distance_value;
+    float tsdf = tsdf_values.ptr((int)(eye_grid.z()*volume_size +eye_grid.y()))[(int)eye_grid.x()];
 
     float prev_tsdf = tsdf;
     Vector3f prev_grid = eye_grid; // TODO: check this, something is seem bad!
@@ -196,12 +239,13 @@ __global__ void predict_surface(
     for (float step = 0; step < max_ray_length; step += step_size * 0.5) {
         //Vector3f curr_grid = eye_grid + (float) step * ray_dir_grid;
         Vector3f curr_pos = init_pos + (float) step * ray_dir;
-        Vector3f curr_grid = global_volume->compute_grid(curr_pos);
+        Vector3f curr_grid = compute_grid(curr_pos,min,max,volume_size);
 
-        if (!gridInVolume(image_properties, global_volume, curr_grid)) continue;
+        if (!gridInVolume( volume_size, curr_grid)) continue;
 
-        float curr_tsdf = global_volume->
-                get((int) curr_grid.x(), (int) curr_grid.y(), (int) curr_grid.z()).tsdf_distance_value;
+//        float curr_tsdf = global_volume->
+//                get((int) curr_grid.x(), (int) curr_grid.y(), (int) curr_grid.z()).tsdf_distance_value;
+        float curr_tsdf = tsdf_values.ptr((int)(curr_grid.z()*volume_size +curr_grid.y()))[(int)curr_grid.x()];
 
         if (prev_tsdf < 0.f && curr_tsdf > 0.f) break;  // zero-crossing from behind
 
@@ -212,11 +256,20 @@ __global__ void predict_surface(
                                                                                 prev_grid);
             float curr_tri_interpolated_sdf = calculate_trilinear_interpolation(tsdf_values, volume_size,
                                                                                 curr_grid);
+            // TODO :: Commented out because we are not using this anywhere
+//            Voxel before = global_volume->get(curr_grid.x(), curr_grid.y(), curr_grid.z());
 
-            Voxel before = global_volume->get(curr_grid.x(), curr_grid.y(), curr_grid.z());
-            global_volume->set(translation.x(), translation.y(), translation.z(),
-                               global_volume->set_occupied(curr_grid));
-            Voxel after = global_volume->get(curr_grid.x(), curr_grid.y(), curr_grid.z());
+//            global_volume->set(translation.x(), translation.y(), translation.z(),
+//                               global_volume->set_occupied(curr_grid));
+            float _tsdf = tsdf_values.ptr((int)(curr_grid.z()*volume_size +curr_grid.y()))[(int)curr_grid.x()];
+            float _weight = tsdf_weights.ptr((int)(curr_grid.z()*volume_size +curr_grid.y()))[(int)curr_grid.x()];
+            Vector4uc _color = tsdf_color.ptr((int)(curr_grid.z()*volume_size +curr_grid.y()))[(int)curr_grid.x()];
+
+            tsdf_values.ptr((int)(translation.z()*volume_size +translation.y()))[(int)translation.x()] = _tsdf;
+            tsdf_weights.ptr((int)(translation.z()*volume_size +translation.y()))[(int)translation.x()] = _weight;
+            tsdf_color.ptr((int)(translation.z()*volume_size +translation.y()))[(int)translation.x()] = _color;
+            // TODO:: Commented out because we are not using this anywhere
+//            Voxel after = global_volume->get(curr_grid.x(), curr_grid.y(), curr_grid.z());
 
             //float t_star = step - ((step_size * 0.5f * prev_tsdf)/ (curr_tsdf - prev_tsdf));
             // t_star = t - ((step_size * prev_tsdf) / (curr_tsdf - prev_tsdf))
@@ -227,17 +280,28 @@ __global__ void predict_surface(
 
             //no idea if the vector subtraction works like this but,
             //do the normal calculation
-            Vector3f normal = curr_tri_interpolated_sdf-prev_tri_interpolated_sdf;
-            if (normal.norm() == 0) break;
-            normal.normalize();
+//            Vector3f normal = curr_tri_interpolated_sdf-prev_tri_interpolated_sdf;
+//            if (normal.norm() == 0) break;
+            Vector3f normal = compute_normal_vector(vertex_map,curr_grid,volume_size);
+
+//            if (normal.norm() == 0) break;
+//            normal.normalize();
 
             Vector3f grid_location = translation + t_star * ray_dir;
-            if (!gridInVolume(global_volume, grid_location)) break;
+            if (!gridInVolume(volume_size, grid_location)) break;
             Vector3f vertex = translation + t_star * ray_dir;
 
-            vertex_map.ptr(threadY)[threadX] = vertex;
+            // TODO:: Check this out, threadY and threadX does not reflect that specific grid now.
+//            vertex_map.ptr(threadY)[threadX] = vertex;
+//            normal_map.ptr(threadY)[threadX] = normal;
+            vertex_map.ptr((int)(curr_grid.z()*volume_size +curr_grid.y()))[(int)curr_grid.x()] = vertex;
+            // TODO to Eralp :: We need to compute the normal here. I changed the func. on surface_measurement
+            // TODO can you check if it is correctly implemented?
+//            Vector3f normal = compute_normal_vector(vertex_map,curr_grid,volume_size);
+            normal_map.ptr((int)(curr_grid.z()*volume_size +curr_grid.y()))[(int)curr_grid.x()] = normal;
+
             normal_map.ptr(threadY)[threadX] = normal;
-            }
+        }
         prev_tsdf = curr_tsdf;
         prev_grid = curr_grid;
     }
@@ -262,7 +326,7 @@ void surface_prediction(SurfaceLevelData* surf_data, GlobalVolume* global_volume
 
         cv::cuda::GpuMat& vertex_map = surf_data->vertex_map_predicted[i];
         cv::cuda::GpuMat& normal_map = surf_data->normal_map_predicted[i];
-        cv::cuda::GpuMat& color_map = surf_data->color_map[i];
+//        cv::cuda::GpuMat& color_map = surf_data->color_map[i];
 
         float fX = surf_data->level_fX[i];
         float fY = surf_data->level_fY[i];
@@ -270,15 +334,16 @@ void surface_prediction(SurfaceLevelData* surf_data, GlobalVolume* global_volume
         float cY = surf_data->level_cY[i];
 
         dim3 grid((cols + block.x - 1) / block.x, (rows + block.y - 1) / block.y);
-        predict_surface<<<grid, block>>>(tsdf_vals,tsdf_weights,
+        predict_surface<<<grid, block>>>(tsdf_vals,tsdf_weights,tsdf_color,
                                          vertex_map,
                                          normal_map,
-                                         color_map,
+//                                         color_map,
                                          fX, fY, cX, cY,
                                          cols, rows, i,
                                          global_volume->truncation_distance, pose.m_trajectory,
-                                         global_volume->volume_size.x);
+                                         global_volume->min, global_volume->max,global_volume->volume_size.x);
 
         cudaThreadSynchronize();
+        return;
     }
 }

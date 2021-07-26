@@ -13,14 +13,15 @@
 #include "surface_measurement.h"
 #include "SimpleMesh.h"
 #include "pose_estimation.h"
-//#include "surface_prediction.h"
+#include "surface_prediction.h"
 #include "surface_reconstruction.h"
-
+#define MIN_POINT -1.5f, -1.0f, -0.1f
+#define MAX_POINT 1.5f, 1.0f, 3.5f
 
 int main() {
     //std::cout << "Hello, World!" << std::endl; std::string filenameIn = "/home/ilteber/data/rgbd_dataset_freiburg1_xyz/";
-    std::string filenameIn = "/media/eralpkocas/hdd/TUM/3D_Scanning/data/rgbd_dataset_freiburg1_xyz/";
-    //std::string filenameIn = "/home/ilteber/data/rgbd_dataset_freiburg1_xyz/";
+//    std::string filenameIn = "/media/eralpkocas/hdd/TUM/3D_Scanning/data/rgbd_dataset_freiburg1_xyz/";
+    std::string filenameIn = "/home/ilteber/data/rgbd_dataset_freiburg1_xyz/";
 // load video
     std::cout << "Initialize virtual sensor..." << std::endl;
     bool isFirstFrame = true;
@@ -36,8 +37,9 @@ int main() {
             Matrix4f::Zero(4, 4),
             Matrix4f::Zero(4, 4),
     };
+
     int3 temp_a = {64, 64, 64};
-    GlobalVolume _global_volume = {temp_a,2.f,25.f};
+    GlobalVolume _global_volume = {temp_a,2.f,25.f,Vector3f(MIN_POINT), Vector3f(MAX_POINT) };
     int i = 0;
     while (sensor.processNextFrame()) {
 
@@ -107,33 +109,33 @@ int main() {
 //        }
 
 //        GlobalVolume* global_volume = &_global_volume;
-        if(!isFirstFrame){
-            //pose_estimate(iterations, &img_constants, &img_data, &surf_data, &pose_struct);
-            pose_estimate_new(iterations, &surf_data, &pose_struct);
-            std::cout << "frame: " << i << std::endl;
-            std::cout << "rotation: " << img_constants.m_trajectory.block<3, 3>(0, 0) << std::endl;
-            std::cout << "translation: " << img_constants.m_trajectory.block<3, 1>(0, 3) << std::endl;
-            // TODO: for debugging, remove in normal functioning code
-            surf_data.vertex_map_predicted = surf_data.vertex_map;
-            surf_data.normal_map_predicted = surf_data.normal_map;
-        }else{
-            isFirstFrame = false;
-            // TODO: for debugging, remove in normal functioning code
-            surf_data.vertex_map_predicted[0] = surf_data.vertex_map[0];
-            surf_data.normal_map_predicted[0] = surf_data.normal_map[0];
-            surf_data.vertex_map_predicted[1] = surf_data.vertex_map[1];
-            surf_data.normal_map_predicted[1] = surf_data.normal_map[1];
-            surf_data.vertex_map_predicted[2] = surf_data.vertex_map[2];
-            surf_data.normal_map_predicted[2] = surf_data.normal_map[2];
-        }
+//        if(!isFirstFrame){
+//            //pose_estimate(iterations, &img_constants, &img_data, &surf_data, &pose_struct);
+//            pose_estimate_new(iterations, &surf_data, &pose_struct);
+//            std::cout << "frame: " << i << std::endl;
+//            std::cout << "rotation: " << img_constants.m_trajectory.block<3, 3>(0, 0) << std::endl;
+//            std::cout << "translation: " << img_constants.m_trajectory.block<3, 1>(0, 3) << std::endl;
+//            // TODO: for debugging, remove in normal functioning code
+//            surf_data.vertex_map_predicted = surf_data.vertex_map;
+//            surf_data.normal_map_predicted = surf_data.normal_map;
+//        }else{
+//            isFirstFrame = false;
+//            // TODO: for debugging, remove in normal functioning code
+//            surf_data.vertex_map_predicted[0] = surf_data.vertex_map[0];
+//            surf_data.normal_map_predicted[0] = surf_data.normal_map[0];
+//            surf_data.vertex_map_predicted[1] = surf_data.vertex_map[1];
+//            surf_data.normal_map_predicted[1] = surf_data.normal_map[1];
+//            surf_data.vertex_map_predicted[2] = surf_data.vertex_map[2];
+//            surf_data.normal_map_predicted[2] = surf_data.normal_map[2];
+//        }
         // step 3: Surface Reconstruction Update
-        updateSurfaceReconstruction(&pose_struct,&img_constants, &img_data,&surf_data,&_global_volume);
+//        updateSurfaceReconstruction(&pose_struct,&img_constants, &img_data,&surf_data,&_global_volume);
 //        cv::Mat result;
 //        _global_volume.TSDF_values.download(result);
 //        std::cout << result;
 //        return 1;
         // step 4: Raycast Prediction
-//        surface_prediction(&surf_data, global_volume, pose_struct);
+        surface_prediction(&surf_data, &_global_volume, pose_struct);
 //        SimpleMesh mesh;
 //        std::stringstream ss;
 //        i++;

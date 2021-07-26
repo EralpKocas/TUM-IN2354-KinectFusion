@@ -130,11 +130,13 @@ struct GlobalVolume
     cv::cuda::GpuMat TSDF_weight;
     // color stored as 4 unsigned char
     cv::cuda::GpuMat TSDF_color;
+    Vector3f min;
+    Vector3f max;
     float voxel_scale;
     int3 volume_size;
     float truncation_distance;
 
-    GlobalVolume(const int3 _volume_size, const float _voxel_scale, float _truncation_distance){
+    GlobalVolume(const int3 _volume_size, const float _voxel_scale, float _truncation_distance,Vector3f _min, Vector3f _max){
         cv::cuda::createContinuous(_volume_size.x * _volume_size.y, _volume_size.z, CV_32F, TSDF_values);
         cv::cuda::createContinuous(_volume_size.x * _volume_size.y, _volume_size.z, CV_32F, TSDF_weight);
         cv::cuda::createContinuous(_volume_size.x * _volume_size.y, _volume_size.z, CV_8UC4, TSDF_color);
@@ -145,6 +147,8 @@ struct GlobalVolume
         volume_size = _volume_size;
         voxel_scale = _voxel_scale;
         truncation_distance = _truncation_distance;
+        min = _min;
+        max = _max;
     }
 
     int getDimX(){
