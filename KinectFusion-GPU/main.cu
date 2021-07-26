@@ -67,10 +67,10 @@ int main() {
                 cv::Mat(sensor.getDepthImageHeight(), sensor.getDepthImageWidth(), CV_8UC4, sensor.getColorRGBX()),
         };
 
-//        if(i==0){
-        pose_struct.m_trajectory = img_constants.m_trajectory;
-        pose_struct.m_trajectoryInv = img_constants.m_trajectoryInv;
-//        }
+        if(i==0){
+            pose_struct.m_trajectory = img_constants.m_trajectory;
+            pose_struct.m_trajectoryInv = img_constants.m_trajectoryInv;
+        }
 
         // TODO: inverse trajectory is nan for all indices. check!
         // TODO: should we initialize color_map in each frame or should we keep it all runtime?
@@ -110,7 +110,7 @@ int main() {
 
         if(!isFirstFrame){
 //            //pose_estimate(iterations, &img_constants, &img_data, &surf_data, &pose_struct);
-//            pose_estimate_new(iterations, &surf_data, &pose_struct);
+            pose_estimate_new(iterations, &surf_data, &pose_struct);
 //            std::cout << "frame: " << i << std::endl;
 //            std::cout << "rotation: " << pose_struct.m_trajectory.block<3, 3>(0, 0) << std::endl;
 //            std::cout << "translation: " << pose_struct.m_trajectory.block<3, 1>(0, 3) << std::endl;
